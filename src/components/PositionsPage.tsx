@@ -6,7 +6,21 @@ interface Holding {
   cusip: string;
   name: string;
   shares: number;
-  value_kusd: number;
+  /** Valeur declaree, en dollars. */
+  value_usd?: number;
+  /** Ancien nom du champ, conserve pour lire les snapshots anterieurs. */
+  value_kusd?: number;
+}
+
+/** Valeur d'une position en dollars, quel que soit l'age du snapshot. */
+function holdingValue(h: Holding): number {
+  return h.value_usd ?? h.value_kusd ?? 0;
+}
+
+function formatUsd(v: number): string {
+  if (v >= 1e9) return `${(v / 1e9).toFixed(1).replace(".", ",")} Md$`;
+  if (v >= 1e6) return `${(v / 1e6).toFixed(1).replace(".", ",")} M$`;
+  return `${v.toLocaleString("fr-FR")} $`;
 }
 
 interface Snapshot {
@@ -79,7 +93,7 @@ export default function PositionsPage() {
   const latest = snapshots[0];
   const rows = latest
     ? [...latest.holdings]
-        .sort((a, b) => b.value_kusd - a.value_kusd)
+        .sort((a, b) => holdingValue(b) - holdingValue(a))
         .slice(0, 40)
     : [];
 
@@ -129,7 +143,7 @@ export default function PositionsPage() {
                   </th>
                 ))}
                 <th className="px-3 py-2 whitespace-nowrap">
-                  Valeur (k$, dernier trim.)
+                  Valeur (dernier trim.)
                 </th>
               </tr>
             </thead>
@@ -143,7 +157,7 @@ export default function PositionsPage() {
                     </td>
                   ))}
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {h.value_kusd.toLocaleString("fr-FR")}
+                    {formatUsd(holdingValue(h))}
                   </td>
                 </tr>
               ))}

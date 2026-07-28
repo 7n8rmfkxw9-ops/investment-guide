@@ -206,11 +206,22 @@ async function generateContexte(fallback: string, facts: string): Promise<string
 // ---------------------------------------------------------------------------
 // 13F
 
+/**
+ * Les 13F declarent les valeurs de position en dollars (et non en milliers
+ * comme avant l'amendement SEC de 2023). On formate en Md$/M$ car les
+ * montants bruts sont illisibles.
+ */
+function formatUsd(v: number): string {
+  if (v >= 1e9) return `${(v / 1e9).toFixed(1).replace(".", ",")} Md$`;
+  if (v >= 1e6) return `${(v / 1e6).toFixed(1).replace(".", ",")} M$`;
+  return `${v.toLocaleString("fr-FR")} $`;
+}
+
 interface Holding {
   cusip: string;
   name: string;
   shares: number;
-  value_kusd: number;
+  value_usd: number;
 }
 
 async function fetch13FHoldings(cik: string, acc: string): Promise<Holding[]> {
@@ -248,9 +259,9 @@ async function fetch13FHoldings(cik: string, acc: string): Promise<Holding[]> {
       const prev = byCusip.get(cusip);
       if (prev) {
         prev.shares += shares;
-        prev.value_kusd += value;
+        prev.value_usd += value;
       } else {
-        byCusip.set(cusip, { cusip, name, shares, value_kusd: value });
+        byCusip.set(cusip, { cusip, name, shares, value_usd: value });
       }
     }
     return [...byCusip.values()];
@@ -350,7 +361,7 @@ async function process13F(manager: {
 
     // Mouvements significatifs d'abord (par valeur de position), plafonnes
     // pour rester lisible et limiter les appels API.
-    changes.sort((a, b) => b.h.value_kusd - a.h.value_kusd);
+    changes.sort((a, b) => b.h.value_usd - a.h.value_usd);
     const top = changes.slice(0, 15);
     const issuers = await resolveIssuers(
       top.map((c) => ({ cusip: c.h.cusip, name: c.h.name })),
@@ -364,13 +375,13 @@ async function process13F(manager: {
         `${manager.name} a déclaré dans son 13F du ${filedAt} (période ${period}) ` +
         `un mouvement sur ${c.h.name} : ${deltaTxt} ` +
         `(${c.prevShares.toLocaleString("fr-FR")} → ${c.h.shares.toLocaleString("fr-FR")} titres, ` +
-        `~${c.h.value_kusd.toLocaleString("fr-FR")} k$). ` +
+        `~${formatUsd(c.h.value_usd)}). ` +
         `Donnée trimestrielle publiée avec jusqu'à 45 jours de retard.`;
       const contexte = await generateContexte(
         fallback,
         `Filing 13F-HR de ${manager.name}, déposé le ${filedAt}, période ${period}. ` +
           `Société : ${c.h.name} (CUSIP ${c.h.cusip}). Type de mouvement : ${c.signal}. ` +
-          `Titres : ${c.prevShares} → ${c.h.shares}. Valeur déclarée : ${c.h.value_kusd} milliers de dollars.`,
+          `Titres : ${c.prevShares} → ${c.h.shares}. Valeur déclarée : ${c.h.value_usd} dollars.`,
       );
       const issuer = issuers.get(c.h.cusip);
       pistes.push({
@@ -386,7 +397,7 @@ async function process13F(manager: {
           cusip: c.h.cusip,
           prev_shares: c.prevShares,
           shares: c.h.shares,
-          value_kusd: c.h.value_kusd,
+          value_usd: c.h.value_usd,
           delta_pct: c.deltaPct,
           period_of_report: period,
         },
