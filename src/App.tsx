@@ -6,8 +6,9 @@ import Dashboard from "./components/Dashboard";
 import History from "./components/History";
 import SettingsPage from "./components/SettingsPage";
 import AccountPage from "./components/AccountPage";
+import PositionsPage from "./components/PositionsPage";
 
-type Tab = "pistes" | "historique" | "configuration" | "compte";
+type Tab = "pistes" | "positions" | "historique" | "configuration" | "compte";
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -35,6 +36,7 @@ export default function App() {
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "pistes", label: "Pistes récentes" },
+    { id: "positions", label: "Positions" },
     { id: "historique", label: "Historique" },
     { id: "configuration", label: "Configuration" },
     { id: "compte", label: "Compte" },
@@ -76,6 +78,7 @@ export default function App() {
       </header>
       <main className="max-w-4xl mx-auto px-4 py-6">
         {tab === "pistes" && <Dashboard />}
+        {tab === "positions" && <PositionsPage />}
         {tab === "historique" && <History />}
         {tab === "configuration" && <SettingsPage />}
         {tab === "compte" && <AccountPage />}

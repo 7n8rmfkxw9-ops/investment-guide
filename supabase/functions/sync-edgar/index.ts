@@ -34,10 +34,49 @@ function padCik(cik: string): string {
   return cik.replace(/\D/g, "").padStart(10, "0");
 }
 
+// La SEC plafonne les acces a 10 requetes/seconde et repond 429 au-dela.
+// Tous les appels sont donc serialises avec un intervalle minimal, et les
+// reponses 429/5xx sont reessayees avec un backoff exponentiel.
+const SEC_MIN_INTERVAL_MS = 150;
+const SEC_MAX_ATTEMPTS = 4;
+let secQueue: Promise<unknown> = Promise.resolve();
+let lastSecCallAt = 0;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function secFetchOnce(url: string): Promise<Response> {
+  const wait = SEC_MIN_INTERVAL_MS - (Date.now() - lastSecCallAt);
+  if (wait > 0) await sleep(wait);
+  lastSecCallAt = Date.now();
+  return await fetch(url, {
+    headers: { "User-Agent": SEC_UA, "Accept-Encoding": "gzip, deflate" },
+  });
+}
+
 async function secFetch(url: string): Promise<Response> {
-  const res = await fetch(url, { headers: { "User-Agent": SEC_UA } });
-  if (!res.ok) throw new Error(`SEC ${res.status} sur ${url}`);
-  return res;
+  const run = async (): Promise<Response> => {
+    let lastStatus = 0;
+    for (let attempt = 0; attempt < SEC_MAX_ATTEMPTS; attempt++) {
+      const res = await secFetchOnce(url);
+      if (res.ok) return res;
+      // Liberer le corps avant de reessayer, sinon la connexion fuit.
+      await res.body?.cancel();
+      if (res.status !== 429 && res.status < 500) {
+        throw new Error(`SEC ${res.status} sur ${url}`);
+      }
+      lastStatus = res.status;
+      await sleep(1000 * 2 ** attempt);
+    }
+    throw new Error(
+      `SEC ${lastStatus} sur ${url} (abandon apres ${SEC_MAX_ATTEMPTS} tentatives)`,
+    );
+  };
+  // Chainage : chaque appel attend la fin du precedent, succes ou echec.
+  const result = secQueue.then(run, run);
+  secQueue = result.catch(() => undefined);
+  return result;
 }
 
 interface Submissions {
@@ -206,11 +245,22 @@ async function generateContexte(fallback: string, facts: string): Promise<string
 // ---------------------------------------------------------------------------
 // 13F
 
+/**
+ * Les 13F declarent les valeurs de position en dollars (et non en milliers
+ * comme avant l'amendement SEC de 2023). On formate en Md$/M$ car les
+ * montants bruts sont illisibles.
+ */
+function formatUsd(v: number): string {
+  if (v >= 1e9) return `${(v / 1e9).toFixed(1).replace(".", ",")} Md$`;
+  if (v >= 1e6) return `${(v / 1e6).toFixed(1).replace(".", ",")} M$`;
+  return `${v.toLocaleString("fr-FR")} $`;
+}
+
 interface Holding {
   cusip: string;
   name: string;
   shares: number;
-  value_kusd: number;
+  value_usd: number;
 }
 
 async function fetch13FHoldings(cik: string, acc: string): Promise<Holding[]> {
@@ -248,9 +298,9 @@ async function fetch13FHoldings(cik: string, acc: string): Promise<Holding[]> {
       const prev = byCusip.get(cusip);
       if (prev) {
         prev.shares += shares;
-        prev.value_kusd += value;
+        prev.value_usd += value;
       } else {
-        byCusip.set(cusip, { cusip, name, shares, value_kusd: value });
+        byCusip.set(cusip, { cusip, name, shares, value_usd: value });
       }
     }
     return [...byCusip.values()];
@@ -350,7 +400,7 @@ async function process13F(manager: {
 
     // Mouvements significatifs d'abord (par valeur de position), plafonnes
     // pour rester lisible et limiter les appels API.
-    changes.sort((a, b) => b.h.value_kusd - a.h.value_kusd);
+    changes.sort((a, b) => b.h.value_usd - a.h.value_usd);
     const top = changes.slice(0, 15);
     const issuers = await resolveIssuers(
       top.map((c) => ({ cusip: c.h.cusip, name: c.h.name })),
@@ -364,13 +414,13 @@ async function process13F(manager: {
         `${manager.name} a déclaré dans son 13F du ${filedAt} (période ${period}) ` +
         `un mouvement sur ${c.h.name} : ${deltaTxt} ` +
         `(${c.prevShares.toLocaleString("fr-FR")} → ${c.h.shares.toLocaleString("fr-FR")} titres, ` +
-        `~${c.h.value_kusd.toLocaleString("fr-FR")} k$). ` +
+        `~${formatUsd(c.h.value_usd)}). ` +
         `Donnée trimestrielle publiée avec jusqu'à 45 jours de retard.`;
       const contexte = await generateContexte(
         fallback,
         `Filing 13F-HR de ${manager.name}, déposé le ${filedAt}, période ${period}. ` +
           `Société : ${c.h.name} (CUSIP ${c.h.cusip}). Type de mouvement : ${c.signal}. ` +
-          `Titres : ${c.prevShares} → ${c.h.shares}. Valeur déclarée : ${c.h.value_kusd} milliers de dollars.`,
+          `Titres : ${c.prevShares} → ${c.h.shares}. Valeur déclarée : ${c.h.value_usd} dollars.`,
       );
       const issuer = issuers.get(c.h.cusip);
       pistes.push({
@@ -386,7 +436,7 @@ async function process13F(manager: {
           cusip: c.h.cusip,
           prev_shares: c.prevShares,
           shares: c.h.shares,
-          value_kusd: c.h.value_kusd,
+          value_usd: c.h.value_usd,
           delta_pct: c.deltaPct,
           period_of_report: period,
         },
@@ -461,6 +511,25 @@ async function processForm4(issuer: {
     const od = parsed.ownershipDocument as Record<string, unknown> | undefined;
     if (!od) continue;
 
+    // Le flux d'une societe contient AUSSI les Form 4 ou elle n'est que le
+    // declarant, pour des titres d'autres emetteurs (une banque declarant sa
+    // participation dans un fonds, par exemple). Ces depots ne sont pas de
+    // l'activite d'initie sur la societe suivie : on les ignore, en se fiant
+    // a l'emetteur declare dans le document lui-meme.
+    const issuerBlock = od.issuer as Record<string, unknown> | undefined;
+    const docIssuerCik = String(issuerBlock?.issuerCik ?? "").replace(/\D/g, "");
+    if (docIssuerCik && Number(docIssuerCik) !== Number(issuer.cik.replace(/\D/g, ""))) {
+      await supabase
+        .from("processed_filings")
+        .insert({ user_id: issuer.user_id, accession_no: acc, form_type: "4" });
+      continue;
+    }
+    // L'emetteur du document fait foi pour le nom et le ticker affiches.
+    const companyName = String(issuerBlock?.issuerName ?? issuer.name);
+    const ticker = String(
+      issuerBlock?.issuerTradingSymbol ?? issuer.ticker,
+    ).toUpperCase();
+
     const owner = (Array.isArray(od.reportingOwner) ? od.reportingOwner[0] : od.reportingOwner) as
       | Record<string, unknown>
       | undefined;
@@ -508,13 +577,13 @@ async function processForm4(issuer: {
     const roleTxt = roles.length ? ` (${roles.join(", ")})` : "";
     const fallback =
       `${ownerName}${roleTxt} a déclaré ${isBuy ? "l'achat" : "la vente"} de ` +
-      `${shares.toLocaleString("fr-FR")} titres ${issuer.name} (${issuer.ticker}) ` +
+      `${shares.toLocaleString("fr-FR")} titres ${companyName} (${ticker}) ` +
       `dans un Form 4 déposé le ${filedAt} (~${Math.round(totalUsd).toLocaleString("fr-FR")} $). ` +
       `Les motifs des transactions d'initiés ne sont pas déclarés et une vente ` +
       `peut refléter une simple diversification.`;
     const contexte = await generateContexte(
       fallback,
-      `Form 4 déposé le ${filedAt} pour ${issuer.name} (${issuer.ticker}). ` +
+      `Form 4 déposé le ${filedAt} pour ${companyName} (${ticker}). ` +
         `Initié : ${ownerName}${roleTxt}. Opération : ${isBuy ? "achat" : "vente"} de ` +
         `${shares} titres, montant approximatif ${Math.round(totalUsd)} $.`,
     );
@@ -522,9 +591,9 @@ async function processForm4(issuer: {
     pistes.push({
       user_id: issuer.user_id,
       signal,
-      ticker: issuer.ticker,
+      ticker,
       sector: subs.sicDescription ?? null,
-      company_name: issuer.name,
+      company_name: companyName,
       source_name: String(ownerName),
       source_url: filingHumanUrl(issuer.cik, acc),
       contexte,

@@ -48,6 +48,14 @@ export default function History() {
     );
   }
 
+  const withNote = pistes.filter((p) => p.outcome_note).length;
+  const REMINDER_DAYS = 90;
+  const now = Date.now();
+  const dueForNote = (p: Piste) =>
+    !p.outcome_note &&
+    now - +new Date(p.detected_at) > REMINDER_DAYS * 24 * 3600 * 1000;
+  const dueCount = pistes.filter(dueForNote).length;
+
   return (
     <div className="space-y-3">
       <p className="text-xs text-slate-500">
@@ -55,10 +63,29 @@ export default function History() {
         les réussites — pour garder une vision honnête de la fiabilité de l'outil
         dans le temps.
       </p>
+      <div className="bg-white border border-slate-200 rounded-lg p-3 text-sm flex flex-wrap gap-x-6 gap-y-1">
+        <span>
+          <span className="font-medium">{pistes.length}</span> piste(s) au total
+        </span>
+        <span>
+          <span className="font-medium">{withNote}</span> avec suivi noté
+        </span>
+        <span>
+          <span className="font-medium">{pistes.length - withNote}</span> sans
+          suivi
+        </span>
+        {dueCount > 0 && (
+          <span className="text-amber-700">
+            {dueCount} piste(s) de plus de {REMINDER_DAYS} jours à renseigner
+          </span>
+        )}
+      </div>
       {pistes.map((p) => (
         <div
           key={p.id}
-          className="bg-white border border-slate-200 rounded-lg p-4 text-sm space-y-2"
+          className={`bg-white border rounded-lg p-4 text-sm space-y-2 ${
+            dueForNote(p) ? "border-amber-300" : "border-slate-200"
+          }`}
         >
           <div className="flex items-center justify-between gap-3">
             <div>
