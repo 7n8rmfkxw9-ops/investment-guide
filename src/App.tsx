@@ -5,8 +5,9 @@ import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import History from "./components/History";
 import SettingsPage from "./components/SettingsPage";
+import AccountPage from "./components/AccountPage";
 
-type Tab = "pistes" | "historique" | "configuration";
+type Tab = "pistes" | "historique" | "configuration" | "compte";
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -36,6 +37,7 @@ export default function App() {
     { id: "pistes", label: "Pistes récentes" },
     { id: "historique", label: "Historique" },
     { id: "configuration", label: "Configuration" },
+    { id: "compte", label: "Compte" },
   ];
 
   return (
@@ -76,6 +78,7 @@ export default function App() {
         {tab === "pistes" && <Dashboard />}
         {tab === "historique" && <History />}
         {tab === "configuration" && <SettingsPage />}
+        {tab === "compte" && <AccountPage />}
       </main>
     </div>
   );
