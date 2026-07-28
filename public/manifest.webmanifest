@@ -1,0 +1,14 @@
+{
+  "name": "Veille investissement — SEC EDGAR",
+  "short_name": "Veille SEC",
+  "description": "Outil personnel de veille des mouvements institutionnels (13F) et d'initiés (Form 4). Informations, jamais de recommandations.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f9",
+  "theme_color": "#1e293b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
