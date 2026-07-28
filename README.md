@@ -29,6 +29,21 @@ sur de petites positions (100-200 €).
 - **IA** : API Anthropic pour rédiger le « contexte » factuel de chaque piste
   (jamais pour prédire un cours)
 
+## Hébergement du frontend sur Supabase (sans service tiers)
+
+L'application peut être servie par une Edge Function `app` — pratique pour un
+usage personnel sans hébergeur dédié :
+
+```sh
+VITE_SUPABASE_URL=... VITE_SUPABASE_ANON_KEY=... npm run build
+python3 scripts/build_app_function.py     # genere build/app-fn/index.ts
+# deployer build/app-fn/index.ts comme fonction `app` avec verify_jwt=false
+```
+
+L'application est alors accessible sur
+`https://<PROJECT_REF>.supabase.co/functions/v1/app`.
+À refaire après chaque modification du frontend.
+
 ## Mise en route
 
 ### 1. Base de données
