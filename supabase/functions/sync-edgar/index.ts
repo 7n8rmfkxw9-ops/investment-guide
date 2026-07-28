@@ -34,10 +34,49 @@ function padCik(cik: string): string {
   return cik.replace(/\D/g, "").padStart(10, "0");
 }
 
+// La SEC plafonne les acces a 10 requetes/seconde et repond 429 au-dela.
+// Tous les appels sont donc serialises avec un intervalle minimal, et les
+// reponses 429/5xx sont reessayees avec un backoff exponentiel.
+const SEC_MIN_INTERVAL_MS = 150;
+const SEC_MAX_ATTEMPTS = 4;
+let secQueue: Promise<unknown> = Promise.resolve();
+let lastSecCallAt = 0;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function secFetchOnce(url: string): Promise<Response> {
+  const wait = SEC_MIN_INTERVAL_MS - (Date.now() - lastSecCallAt);
+  if (wait > 0) await sleep(wait);
+  lastSecCallAt = Date.now();
+  return await fetch(url, {
+    headers: { "User-Agent": SEC_UA, "Accept-Encoding": "gzip, deflate" },
+  });
+}
+
 async function secFetch(url: string): Promise<Response> {
-  const res = await fetch(url, { headers: { "User-Agent": SEC_UA } });
-  if (!res.ok) throw new Error(`SEC ${res.status} sur ${url}`);
-  return res;
+  const run = async (): Promise<Response> => {
+    let lastStatus = 0;
+    for (let attempt = 0; attempt < SEC_MAX_ATTEMPTS; attempt++) {
+      const res = await secFetchOnce(url);
+      if (res.ok) return res;
+      // Liberer le corps avant de reessayer, sinon la connexion fuit.
+      await res.body?.cancel();
+      if (res.status !== 429 && res.status < 500) {
+        throw new Error(`SEC ${res.status} sur ${url}`);
+      }
+      lastStatus = res.status;
+      await sleep(1000 * 2 ** attempt);
+    }
+    throw new Error(
+      `SEC ${lastStatus} sur ${url} (abandon apres ${SEC_MAX_ATTEMPTS} tentatives)`,
+    );
+  };
+  // Chainage : chaque appel attend la fin du precedent, succes ou echec.
+  const result = secQueue.then(run, run);
+  secQueue = result.catch(() => undefined);
+  return result;
 }
 
 interface Submissions {
@@ -472,6 +511,25 @@ async function processForm4(issuer: {
     const od = parsed.ownershipDocument as Record<string, unknown> | undefined;
     if (!od) continue;
 
+    // Le flux d'une societe contient AUSSI les Form 4 ou elle n'est que le
+    // declarant, pour des titres d'autres emetteurs (une banque declarant sa
+    // participation dans un fonds, par exemple). Ces depots ne sont pas de
+    // l'activite d'initie sur la societe suivie : on les ignore, en se fiant
+    // a l'emetteur declare dans le document lui-meme.
+    const issuerBlock = od.issuer as Record<string, unknown> | undefined;
+    const docIssuerCik = String(issuerBlock?.issuerCik ?? "").replace(/\D/g, "");
+    if (docIssuerCik && Number(docIssuerCik) !== Number(issuer.cik.replace(/\D/g, ""))) {
+      await supabase
+        .from("processed_filings")
+        .insert({ user_id: issuer.user_id, accession_no: acc, form_type: "4" });
+      continue;
+    }
+    // L'emetteur du document fait foi pour le nom et le ticker affiches.
+    const companyName = String(issuerBlock?.issuerName ?? issuer.name);
+    const ticker = String(
+      issuerBlock?.issuerTradingSymbol ?? issuer.ticker,
+    ).toUpperCase();
+
     const owner = (Array.isArray(od.reportingOwner) ? od.reportingOwner[0] : od.reportingOwner) as
       | Record<string, unknown>
       | undefined;
@@ -519,13 +577,13 @@ async function processForm4(issuer: {
     const roleTxt = roles.length ? ` (${roles.join(", ")})` : "";
     const fallback =
       `${ownerName}${roleTxt} a déclaré ${isBuy ? "l'achat" : "la vente"} de ` +
-      `${shares.toLocaleString("fr-FR")} titres ${issuer.name} (${issuer.ticker}) ` +
+      `${shares.toLocaleString("fr-FR")} titres ${companyName} (${ticker}) ` +
       `dans un Form 4 déposé le ${filedAt} (~${Math.round(totalUsd).toLocaleString("fr-FR")} $). ` +
       `Les motifs des transactions d'initiés ne sont pas déclarés et une vente ` +
       `peut refléter une simple diversification.`;
     const contexte = await generateContexte(
       fallback,
-      `Form 4 déposé le ${filedAt} pour ${issuer.name} (${issuer.ticker}). ` +
+      `Form 4 déposé le ${filedAt} pour ${companyName} (${ticker}). ` +
         `Initié : ${ownerName}${roleTxt}. Opération : ${isBuy ? "achat" : "vente"} de ` +
         `${shares} titres, montant approximatif ${Math.round(totalUsd)} $.`,
     );
@@ -533,9 +591,9 @@ async function processForm4(issuer: {
     pistes.push({
       user_id: issuer.user_id,
       signal,
-      ticker: issuer.ticker,
+      ticker,
       sector: subs.sicDescription ?? null,
-      company_name: issuer.name,
+      company_name: companyName,
       source_name: String(ownerName),
       source_url: filingHumanUrl(issuer.cik, acc),
       contexte,
