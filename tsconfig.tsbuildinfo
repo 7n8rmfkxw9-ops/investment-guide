@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/DisclaimerNote.tsx","./src/components/FeeCalculator.tsx","./src/components/LeadCard.tsx","./src/lib/data.ts","./src/lib/fees.ts","./src/lib/supabase.ts","./src/lib/types.ts","./src/pages/Dashboard.tsx","./src/pages/History.tsx","./src/pages/Managers.tsx"],"version":"5.9.3"}
