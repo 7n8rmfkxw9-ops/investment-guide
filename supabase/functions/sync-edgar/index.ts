@@ -42,6 +42,7 @@ async function secFetch(url: string): Promise<Response> {
 
 interface Submissions {
   name: string;
+  sicDescription?: string;
   filings: {
     recent: {
       accessionNumber: string[];
@@ -70,6 +71,103 @@ function filingIndexUrl(cik: string, acc: string): string {
 /** URL humaine vers la page d'index du filing (utilisee comme source_url). */
 function filingHumanUrl(cik: string, acc: string): string {
   return `${filingIndexUrl(cik, acc)}/${acc}-index.htm`;
+}
+
+// ---------------------------------------------------------------------------
+// Resolution CUSIP -> ticker / secteur (referentiels publics SEC uniquement).
+// Les 13F ne fournissent que le CUSIP et le nom de l'emetteur ; on rapproche
+// ce nom du referentiel company_tickers.json (correspondance par nom
+// normalise — fiable pour les grandes capitalisations, absente sinon), puis
+// on recupere le secteur (sicDescription) du dossier SEC de l'emetteur.
+// Les resultats sont mis en cache dans la table issuer_map.
+
+function normalizeIssuerName(s: string): string {
+  return s
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]/g, " ")
+    .replace(
+      /\b(INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LTD|LIMITED|PLC|HOLDINGS|HLDGS|GROUP|GRP|THE|CL|CLASS|A|B|C|COM|NEW|DEL|SHS|ADR|ADS)\b/g,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+let nameIndex: Map<string, { ticker: string; cik: string }> | null = null;
+
+async function loadNameIndex(): Promise<Map<string, { ticker: string; cik: string }>> {
+  if (nameIndex) return nameIndex;
+  const res = await secFetch("https://www.sec.gov/files/company_tickers.json");
+  const data = (await res.json()) as Record<
+    string,
+    { cik_str: number; ticker: string; title: string }
+  >;
+  const idx = new Map<string, { ticker: string; cik: string }>();
+  for (const v of Object.values(data)) {
+    const key = normalizeIssuerName(v.title);
+    // En cas d'homonymie (classes d'actions multiples), on garde la premiere
+    // entree, qui correspond a la classe principale dans ce referentiel.
+    if (key && !idx.has(key)) {
+      idx.set(key, { ticker: v.ticker.toUpperCase(), cik: String(v.cik_str) });
+    }
+  }
+  nameIndex = idx;
+  return idx;
+}
+
+interface IssuerInfo {
+  ticker: string | null;
+  sector: string | null;
+}
+
+async function resolveIssuers(
+  items: { cusip: string; name: string }[],
+): Promise<Map<string, IssuerInfo>> {
+  const out = new Map<string, IssuerInfo>();
+  if (items.length === 0) return out;
+  const cusips = items.map((i) => i.cusip);
+  const { data: cached } = await supabase
+    .from("issuer_map")
+    .select("cusip, ticker, sector")
+    .in("cusip", cusips);
+  for (const row of cached ?? []) {
+    out.set(row.cusip, { ticker: row.ticker, sector: row.sector });
+  }
+  const missing = items.filter((i) => !out.has(i.cusip));
+  if (missing.length === 0) return out;
+
+  const idx = await loadNameIndex();
+  const rows: {
+    cusip: string;
+    ticker: string | null;
+    cik: string | null;
+    sector: string | null;
+    issuer_name: string;
+  }[] = [];
+  for (const item of missing) {
+    const match = idx.get(normalizeIssuerName(item.name));
+    let sector: string | null = null;
+    if (match) {
+      try {
+        sector = (await getSubmissions(match.cik)).sicDescription ?? null;
+      } catch (e) {
+        console.error(`Secteur introuvable pour CIK ${match.cik}:`, e);
+      }
+    }
+    const info: IssuerInfo = { ticker: match?.ticker ?? null, sector };
+    out.set(item.cusip, info);
+    rows.push({
+      cusip: item.cusip,
+      ticker: info.ticker,
+      cik: match?.cik ?? null,
+      sector,
+      issuer_name: item.name,
+    });
+  }
+  if (rows.length) {
+    await supabase.from("issuer_map").upsert(rows, { onConflict: "cusip" });
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -170,6 +268,7 @@ interface PisteInsert {
   contexte: string;
   details: Record<string, unknown>;
   filed_at: string | null;
+  sector: string | null;
 }
 
 async function process13F(manager: {
@@ -252,7 +351,11 @@ async function process13F(manager: {
     // Mouvements significatifs d'abord (par valeur de position), plafonnes
     // pour rester lisible et limiter les appels API.
     changes.sort((a, b) => b.h.value_kusd - a.h.value_kusd);
-    for (const c of changes.slice(0, 15)) {
+    const top = changes.slice(0, 15);
+    const issuers = await resolveIssuers(
+      top.map((c) => ({ cusip: c.h.cusip, name: c.h.name })),
+    );
+    for (const c of top) {
       const deltaTxt =
         c.deltaPct === null
           ? "nouvelle position"
@@ -269,10 +372,12 @@ async function process13F(manager: {
           `Société : ${c.h.name} (CUSIP ${c.h.cusip}). Type de mouvement : ${c.signal}. ` +
           `Titres : ${c.prevShares} → ${c.h.shares}. Valeur déclarée : ${c.h.value_kusd} milliers de dollars.`,
       );
+      const issuer = issuers.get(c.h.cusip);
       pistes.push({
         user_id: manager.user_id,
         signal: c.signal,
-        ticker: null,
+        ticker: issuer?.ticker ?? null,
+        sector: issuer?.sector ?? null,
         company_name: c.h.name,
         source_name: manager.name,
         source_url: sourceUrl,
@@ -418,6 +523,7 @@ async function processForm4(issuer: {
       user_id: issuer.user_id,
       signal,
       ticker: issuer.ticker,
+      sector: subs.sicDescription ?? null,
       company_name: issuer.name,
       source_name: String(ownerName),
       source_url: filingHumanUrl(issuer.cik, acc),

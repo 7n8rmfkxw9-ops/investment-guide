@@ -32,6 +32,7 @@ export default function PisteCard({ piste, brokerFixedFeeEur, positionSizeEur }:
             {new Date(piste.detected_at).toLocaleDateString("fr-FR")}
             {piste.filed_at &&
               ` — déposé à la SEC le ${new Date(piste.filed_at).toLocaleDateString("fr-FR")}`}
+            {piste.sector && ` — secteur : ${piste.sector}`}
           </p>
         </div>
         <span
