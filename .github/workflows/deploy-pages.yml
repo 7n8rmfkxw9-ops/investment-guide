@@ -1,0 +1,46 @@
+name: Deploy GitHub Pages
+
+# Publie le frontend sur GitHub Pages (necessite un depot public).
+# La cle anon Supabase est publique par conception (les donnees sont
+# protegees par l'authentification et les politiques RLS).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_BASE: /investment-guide/
+          VITE_SUPABASE_URL: https://uckzkcphatmdmtibyhyk.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVja3prY3BoYXRtZG10aWJ5aHlrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUyNjQxNzUsImV4cCI6MjEwMDg0MDE3NX0._y2TJyF8IN2LnaghnXgd9UOxGYlq7IKbIyk_z4EtS3Q
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4
