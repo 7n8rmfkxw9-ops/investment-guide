@@ -442,7 +442,15 @@ async function processForm4(issuer: {
 // ---------------------------------------------------------------------------
 // Handler
 
-Deno.serve(async (_req) => {
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: CORS_HEADERS });
+  }
   const errors: string[] = [];
   let created = 0;
 
@@ -479,6 +487,6 @@ Deno.serve(async (_req) => {
   }
 
   return new Response(JSON.stringify({ created, errors }), {
-    headers: { "Content-Type": "application/json" },
+    headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
   });
 });

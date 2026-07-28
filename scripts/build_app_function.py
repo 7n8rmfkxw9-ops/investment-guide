@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-"""Genere l'Edge Function `app` qui heberge le frontend sur Supabase.
+"""Genere une version monofichier de l'application (build/app.html).
 
-Le frontend compile (dist/) est inline en un seul fichier HTML (JS + CSS
-integres), embarque en base64 dans une Edge Function Deno qui le sert.
-Cela permet d'utiliser l'outil via une simple URL, sans hebergement tiers :
-    https://<PROJECT_REF>.supabase.co/functions/v1/app
+Le frontend compile (dist/) est inline en un seul fichier HTML autonome
+(JS + CSS integres) qui s'ouvre directement dans un navigateur (double-clic)
+et se connecte au projet Supabase. C'est le mode de distribution retenu pour
+un usage personnel : le domaine partage *.supabase.co refuse volontairement de
+servir du HTML (protection anti-hameçonnage), donc pas d'hebergement possible
+via une Edge Function sans domaine personnalise.
 
 Usage :
-    npm run build            # avec VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
+    VITE_SUPABASE_URL=... VITE_SUPABASE_ANON_KEY=... npm run build
     python3 scripts/build_app_function.py
-    # puis deployer build/app-fn/index.ts comme fonction `app`
-    # (verify_jwt desactive) via le CLI supabase ou l'API de gestion.
+    # puis ouvrir build/app.html dans un navigateur
 """
 
-import base64
 import glob
 import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
-OUT = ROOT / "build" / "app-fn"
+OUT = ROOT / "build"
 
 html = (DIST / "index.html").read_text()
 js_files = glob.glob(str(DIST / "assets" / "*.js"))
@@ -35,26 +35,6 @@ html = re.sub(r'<script type="module"[^>]*></script>', "", html)
 html = re.sub(r'<link rel="stylesheet"[^>]*>', f"<style>{css}</style>", html)
 html = html.replace("</body>", f'<script type="module">{js}</script></body>')
 
-b64 = base64.b64encode(html.encode()).decode()
-
-function_source = f'''// Edge Function `app` — sert le frontend compile, inline en un seul fichier.
-// GENERE par scripts/build_app_function.py — ne pas editer a la main.
-
-const HTML_B64 = "{b64}";
-const HTML = new TextDecoder().decode(
-  Uint8Array.from(atob(HTML_B64), (c) => c.charCodeAt(0)),
-);
-
-Deno.serve(() =>
-  new Response(HTML, {{
-    headers: {{
-      "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "no-cache",
-    }},
-  }})
-);
-'''
-
 OUT.mkdir(parents=True, exist_ok=True)
-(OUT / "index.ts").write_text(function_source)
-print(f"Genere : {OUT / 'index.ts'} ({len(function_source)} octets)")
+(OUT / "app.html").write_text(html)
+print(f"Genere : {OUT / 'app.html'} ({len(html)} octets)")

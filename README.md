@@ -29,20 +29,22 @@ sur de petites positions (100-200 €).
 - **IA** : API Anthropic pour rédiger le « contexte » factuel de chaque piste
   (jamais pour prédire un cours)
 
-## Hébergement du frontend sur Supabase (sans service tiers)
+## Distribution monofichier (usage personnel, sans hébergeur)
 
-L'application peut être servie par une Edge Function `app` — pratique pour un
-usage personnel sans hébergeur dédié :
+Le domaine partagé `*.supabase.co` refuse volontairement de servir du HTML
+(protection anti-hameçonnage : Content-Type réécrit en `text/plain` + CSP
+`sandbox`), donc pas d'hébergement du frontend via une Edge Function sans
+domaine personnalisé. Le mode de distribution retenu est un fichier HTML
+autonome à ouvrir en double-cliquant :
 
 ```sh
 VITE_SUPABASE_URL=... VITE_SUPABASE_ANON_KEY=... npm run build
-python3 scripts/build_app_function.py     # genere build/app-fn/index.ts
-# deployer build/app-fn/index.ts comme fonction `app` avec verify_jwt=false
+python3 scripts/build_app_function.py     # genere build/app.html
 ```
 
-L'application est alors accessible sur
-`https://<PROJECT_REF>.supabase.co/functions/v1/app`.
-À refaire après chaque modification du frontend.
+À refaire après chaque modification du frontend. Les API Supabase (REST,
+Auth, Functions) acceptent les requêtes de toute origine ; la fonction
+`sync-edgar` répond au preflight CORS des navigateurs.
 
 ## Mise en route
 
