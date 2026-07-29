@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { Manager } from "../lib/types";
+import { CARTE, CHAMP } from "../lib/theme";
 
 interface Holding {
   cusip: string;
@@ -104,7 +105,7 @@ export default function PositionsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-2">
+      <div className={`${CARTE} p-5 space-y-2`}>
         <h2 className="font-semibold text-slate-800">
           Le portefeuille des gérants que vous suivez
         </h2>
@@ -123,7 +124,7 @@ export default function PositionsPage() {
 
       <div className="flex flex-wrap items-center gap-2">
         <select
-          className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-slate-600"
+          className={`${CHAMP}`}
           value={selected}
           onChange={(e) => setSelected(e.target.value)}
         >
@@ -141,7 +142,7 @@ export default function PositionsPage() {
           « Actualiser » depuis l'onglet Pistes.
         </p>
       ) : (
-        <div className="bg-white border border-slate-200/80 rounded-xl overflow-x-auto">
+        <div className={`${CARTE} overflow-x-auto`}>
           <table className="text-sm w-full">
             <thead>
               <tr className="text-left text-xs uppercase tracking-wide text-slate-400 border-b">

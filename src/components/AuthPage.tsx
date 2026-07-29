@@ -60,7 +60,7 @@ export default function AuthPage() {
         <button
           type="submit"
           disabled={busy}
-          className="w-full bg-slate-800 text-white rounded py-2 text-sm disabled:opacity-50"
+          className="w-full rounded-xl py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 transition shadow-sm"
         >
           {mode === "signin" ? "Se connecter" : "Créer un compte"}
         </button>

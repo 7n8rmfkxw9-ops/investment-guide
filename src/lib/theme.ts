@@ -1,0 +1,115 @@
+/**
+ * Couleurs de l'interface.
+ *
+ * La couleur porte une information, elle ne decore pas : un achat est vert, une
+ * vente rouge, un mouvement de fonds bleu, un allegement orange. Une fois la
+ * correspondance apprise, la nature d'une piste se lit sans la lire.
+ *
+ * Les classes sont ecrites en entier et jamais assemblees a la volee : Tailwind
+ * analyse le code source de facon statique et ne generait pas les classes
+ * construites par concatenation.
+ */
+
+import type { Market, SignalType } from "./types";
+
+export interface AccentSignal {
+  /** Pastille du signal. */
+  pastille: string;
+  /** Filet colore en haut de fiche. */
+  barre: string;
+  /** Points d'accroche textuels (liens, titres de section). */
+  texte: string;
+  /** Fond doux, pour les encarts lies au signal. */
+  fond: string;
+  /** Pictogramme : lisible d'un coup d'oeil, y compris en niveaux de gris. */
+  icone: string;
+}
+
+const ACHAT: AccentSignal = {
+  pastille: "bg-emerald-100 text-emerald-800",
+  barre: "bg-emerald-500",
+  texte: "text-emerald-700",
+  fond: "bg-emerald-50/70 border-emerald-200/70",
+  icone: "▲",
+};
+
+const VENTE: AccentSignal = {
+  pastille: "bg-rose-100 text-rose-800",
+  barre: "bg-rose-500",
+  texte: "text-rose-700",
+  fond: "bg-rose-50/70 border-rose-200/70",
+  icone: "▼",
+};
+
+export const ACCENTS: Record<SignalType, AccentSignal> = {
+  "13f_new": {
+    pastille: "bg-indigo-100 text-indigo-800",
+    barre: "bg-indigo-500",
+    texte: "text-indigo-700",
+    fond: "bg-indigo-50/70 border-indigo-200/70",
+    icone: "✦",
+  },
+  "13f_increase": {
+    pastille: "bg-sky-100 text-sky-800",
+    barre: "bg-sky-500",
+    texte: "text-sky-700",
+    fond: "bg-sky-50/70 border-sky-200/70",
+    icone: "▲",
+  },
+  "13f_decrease": {
+    pastille: "bg-amber-100 text-amber-800",
+    barre: "bg-amber-500",
+    texte: "text-amber-700",
+    fond: "bg-amber-50/70 border-amber-200/70",
+    icone: "▼",
+  },
+  "13f_exit": {
+    pastille: "bg-slate-200 text-slate-700",
+    barre: "bg-slate-400",
+    texte: "text-slate-600",
+    fond: "bg-slate-50 border-slate-200",
+    icone: "✕",
+  },
+  form4_buy: ACHAT,
+  form4_sell: VENTE,
+  mar_buy: ACHAT,
+  mar_sell: VENTE,
+};
+
+/** Drapeau et libelle du marche, pour situer une societe d'un coup d'oeil. */
+export const MARCHES: Record<Market, { drapeau: string; nom: string; regulateur: string }> = {
+  US: { drapeau: "🇺🇸", nom: "États-Unis", regulateur: "SEC" },
+  BE: { drapeau: "🇧🇪", nom: "Belgique", regulateur: "FSMA" },
+  SE: { drapeau: "🇸🇪", nom: "Suède", regulateur: "Finansinspektionen" },
+};
+
+/**
+ * Couleur d'un resultat chiffre. Le zero reste neutre : afficher en vert un
+ * gain de 0,00 € donnerait une impression de reussite sans fondement.
+ */
+export function couleurResultat(v: number): string {
+  if (v > 0.005) return "text-emerald-600";
+  if (v < -0.005) return "text-rose-600";
+  return "text-slate-500";
+}
+
+/** Fond assorti, pour les encarts de resultat. */
+export function fondResultat(v: number): string {
+  if (v > 0.005) return "bg-emerald-50 border-emerald-200/70";
+  if (v < -0.005) return "bg-rose-50 border-rose-200/70";
+  return "bg-slate-50 border-slate-200/70";
+}
+
+/** Classes communes, pour que toutes les pages se ressemblent. */
+export const CARTE =
+  "bg-white rounded-2xl border border-slate-200/70 shadow-sm shadow-slate-200/40";
+export const BOUTON_PRINCIPAL =
+  "rounded-xl px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 " +
+  "active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm";
+export const BOUTON_DOUX =
+  "rounded-xl px-3.5 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 " +
+  "hover:bg-indigo-100 disabled:opacity-40 transition";
+export const CHAMP =
+  "border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white text-slate-800 " +
+  "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 " +
+  "focus:border-indigo-300 transition";

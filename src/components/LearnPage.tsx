@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LEXIQUE, EXPLICATIONS } from "../lib/glossaire";
 import { SIGNAL_LABELS } from "../lib/types";
 import type { SignalType } from "../lib/types";
+import { CARTE } from "../lib/theme";
 
 function Card({
   titre,
@@ -11,7 +12,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
+    <section className={`${CARTE} p-5 space-y-3`}>
       <h2 className="font-semibold text-slate-800">{titre}</h2>
       <div className="text-sm text-slate-600 leading-relaxed space-y-3">
         {children}
@@ -116,6 +117,49 @@ export default function LearnPage() {
         </p>
       </Card>
 
+      <Card titre="S'entraîner avant de risquer quoi que ce soit">
+        <p>
+          L'onglet <strong>S'entraîner</strong> permet d'enregistrer un achat
+          fictif : vous choisissez une société, une somme et une date, et l'outil
+          retient le vrai cours de ce jour-là. Ensuite il suit ce que votre
+          décision aurait donné. Rien n'est acheté, aucun compte n'est débité.
+        </p>
+        <p>Trois choses s'y apprennent mieux que dans n'importe quel texte.</p>
+        <ul className="space-y-2">
+          <li>
+            <strong className="text-slate-800">Les frais</strong> — vous partez
+            perdant. Sur 50 € avec 1 € de frais, il faut déjà gagner environ 4 %
+            pour revenir à zéro. La simulation le montre dès l'enregistrement,
+            avant même que le cours ait bougé.
+          </li>
+          <li>
+            <strong className="text-slate-800">Le temps</strong> — trois jours ne
+            prouvent rien. Une hausse peut n'être que du bruit. C'est en laissant
+            passer des mois qu'on distingue une intuition d'un coup de chance.
+          </li>
+          <li>
+            <strong className="text-slate-800">La comparaison</strong> — chaque
+            simulation est confrontée à la même somme placée le même jour sur un
+            ETF actions mondiales. C'est la seule question qui compte vraiment :
+            votre choix valait-il mieux que <em>ne pas choisir</em> ? Le plus
+            souvent la réponse est non, y compris pour des professionnels — et
+            c'est exactement ce que l'exercice doit vous faire constater
+            vous-même.
+          </li>
+        </ul>
+        <p>
+          Un piège à connaître : choisir une date passée en sachant déjà ce qui
+          s'est produit ne prouve rien. On trouve toujours une date où un achat
+          aurait été brillant. L'entraînement n'a de valeur que si vous décidez
+          d'abord et regardez ensuite.
+        </p>
+        <p>
+          Le champ « pourquoi ce choix » est le plus utile de tous. Relire dans
+          six mois ce que vous pensiez au moment de décider vous en apprendra
+          davantage sur vous que le résultat lui-même.
+        </p>
+      </Card>
+
       <Card titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>
@@ -160,7 +204,7 @@ export default function LearnPage() {
               onClick={() => setSignal(s)}
               className={`text-xs px-2.5 py-1.5 rounded-full border transition ${
                 signal === s
-                  ? "bg-slate-800 text-white border-slate-800"
+                  ? "bg-indigo-600 text-white border-indigo-600"
                   : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
               }`}
             >
