@@ -6,6 +6,17 @@ import PisteCard from "./PisteCard";
 
 type SortKey = "date" | "signal";
 
+/**
+ * Un regulateur par fonction : les registres sont trop differents pour un
+ * traitement commun, et les appeler separement evite qu'une source en panne
+ * bloque les autres.
+ */
+const SOURCES = [
+  { fn: "sync-edgar", nom: "SEC" },
+  { fn: "sync-fsma", nom: "FSMA" },
+  { fn: "sync-fi", nom: "Finansinspektionen" },
+];
+
 export default function Dashboard() {
   const [pistes, setPistes] = useState<Piste[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,22 +55,27 @@ export default function Dashboard() {
   async function runSync() {
     setSyncing(true);
     setSyncMsg(null);
-    const { data, error } = await supabase.functions.invoke("sync-edgar", {
-      body: {},
-    });
-    if (error) {
-      setSyncMsg(`La synchronisation a échoué : ${error.message}`);
-    } else {
-      const d = data as { created?: number } | null;
-      setSyncMsg(
-        d && typeof d.created === "number"
-          ? d.created === 0
-            ? "Synchronisation terminée : rien de nouveau déclaré à la SEC."
-            : `Synchronisation terminée : ${d.created} nouvelle(s) piste(s).`
-          : "Synchronisation terminée.",
-      );
-      await load();
+    let total = 0;
+    const echecs: string[] = [];
+    for (const src of SOURCES) {
+      const { data, error } = await supabase.functions.invoke(src.fn, { body: {} });
+      if (error) {
+        echecs.push(src.nom);
+      } else {
+        const d = data as { created?: number } | null;
+        if (d && typeof d.created === "number") total += d.created;
+      }
     }
+    const base =
+      total === 0
+        ? "Synchronisation terminée : rien de nouveau déclaré."
+        : `Synchronisation terminée : ${total} nouvelle(s) piste(s).`;
+    setSyncMsg(
+      echecs.length > 0
+        ? `${base} Source(s) indisponible(s) : ${echecs.join(", ")}.`
+        : base,
+    );
+    await load();
     setSyncing(false);
   }
 

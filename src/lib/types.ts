@@ -16,12 +16,22 @@ export interface Manager {
   created_at: string;
 }
 
-export type Market = "US" | "BE";
+export type Market = "US" | "BE" | "SE";
+
+/** Libelle du regulateur qui publie les declarations, par marche. */
+export const MARKET_LABELS: Record<Market, string> = {
+  US: "États-Unis · SEC",
+  BE: "Belgique · FSMA",
+  SE: "Suède · Finansinspektionen",
+};
 
 export interface WatchedIssuer {
   id: string;
   user_id: string;
-  /** Marche de rattachement : SEC pour les US, FSMA pour la Belgique. */
+  /**
+   * Marche de rattachement : SEC pour les US, FSMA pour la Belgique,
+   * Finansinspektionen pour la Suede.
+   */
   market: Market;
   /** Present uniquement pour les societes americaines. */
   cik: string | null;

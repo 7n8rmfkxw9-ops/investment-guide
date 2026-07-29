@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { Manager, Market, WatchedIssuer } from "../lib/types";
+import { MARKET_LABELS } from "../lib/types";
 import { DEFAULT_TOB_PCT } from "../lib/fees";
 
 export default function SettingsPage() {
@@ -58,8 +59,8 @@ export default function SettingsPage() {
   async function addIssuer(e: React.FormEvent) {
     e.preventDefault();
     const cik = iCik.replace(/\D/g, "");
-    // Une societe belge est identifiee par son nom exact au registre FSMA ;
-    // une societe americaine par son CIK.
+    // Une societe europeenne est identifiee par son nom exact au registre du
+    // regulateur national ; une societe americaine par son CIK.
     if (!iName.trim()) return;
     if (iMarket === "US" && !cik) return;
     const { error } = await supabase.from("watched_issuers").insert({
@@ -168,8 +169,18 @@ export default function SettingsPage() {
           >
             registre de la FSMA
           </a>{" "}
-          (ex. AB INBEV, UCB, SOLVAY) — sans CIK. Pour les{" "}
-          <strong>États-Unis</strong>, il faut le CIK issu d'EDGAR.
+          (ex. AB INBEV, UCB, SOLVAY) — sans CIK. Pour la{" "}
+          <strong>Suède</strong>, le nom exact du registre{" "}
+          <a
+            className="text-sky-700 underline"
+            href="https://marknadssok.fi.se/publiceringsklient"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Finansinspektionen
+          </a>{" "}
+          (ex. AB Volvo, Investor AB, Sandvik Aktiebolag) — sans CIK non plus.
+          Pour les <strong>États-Unis</strong>, il faut le CIK issu d'EDGAR.
         </p>
         <ul className="text-sm divide-y">
           {issuers.map((i) => (
@@ -178,7 +189,9 @@ export default function SettingsPage() {
                 {i.name}
                 {i.ticker && ` (${i.ticker})`}{" "}
                 <span className="text-slate-400">
-                  {i.market === "BE" ? "Belgique · FSMA" : `US · CIK ${i.cik}`}
+                  {i.market === "US"
+                    ? `${MARKET_LABELS.US} · CIK ${i.cik}`
+                    : MARKET_LABELS[i.market]}
                 </span>
               </span>
               <button
@@ -200,11 +213,18 @@ export default function SettingsPage() {
             onChange={(e) => setIMarket(e.target.value as Market)}
           >
             <option value="BE">Belgique</option>
+            <option value="SE">Suède</option>
             <option value="US">États-Unis</option>
           </select>
           <input
             className="border rounded px-2 py-1 text-sm flex-1 min-w-40"
-            placeholder={iMarket === "BE" ? "Nom FSMA (ex. UCB)" : "Nom (ex. Apple Inc.)"}
+            placeholder={
+              iMarket === "BE"
+                ? "Nom FSMA (ex. UCB)"
+                : iMarket === "SE"
+                  ? "Nom FI (ex. AB Volvo)"
+                  : "Nom (ex. Apple Inc.)"
+            }
             value={iName}
             onChange={(e) => setIName(e.target.value)}
           />
