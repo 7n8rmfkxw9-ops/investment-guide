@@ -646,7 +646,9 @@ Deno.serve(async (req) => {
   }
 
   const { data: issuers } = await supabase.from("watched_issuers").select("*");
-  for (const iss of issuers ?? []) {
+  const usIssuers = (issuers ?? []).filter((i) => (i.market ?? "US") === "US");
+
+  for (const iss of usIssuers) {
     try {
       const pistes = await processForm4(iss);
       if (pistes.length) {

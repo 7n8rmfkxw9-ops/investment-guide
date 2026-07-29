@@ -42,6 +42,39 @@ export default function LearnPage() {
         </p>
       </Card>
 
+      <Card titre="États-Unis et Europe : deux règles différentes">
+        <p>
+          Vous verrez deux origines de pistes, et il est important de ne pas les
+          confondre.
+        </p>
+        <ul className="space-y-2">
+          <li>
+            <strong className="text-slate-800">États-Unis</strong> — les
+            dirigeants déclarent leurs opérations (Form 4), et en plus les gros
+            gestionnaires publient chaque trimestre l'intégralité de leur
+            portefeuille (13F). C'est une transparence exceptionnelle : elle
+            n'existe nulle part ailleurs.
+          </li>
+          <li>
+            <strong className="text-slate-800">Europe et Belgique</strong> — les
+            dirigeants déclarent également leurs opérations, au titre du
+            règlement européen sur les abus de marché, et la FSMA les publie
+            pour les sociétés belges cotées. En revanche,{" "}
+            <strong>l'équivalent du 13F n'existe pas</strong> : aucun fonds
+            européen n'est tenu de publier tout son portefeuille chaque
+            trimestre. Vous ne verrez donc pas de piste « nouvelle position d'un
+            grand fonds » sur une société belge — non par oubli de l'outil, mais
+            parce que l'information n'est pas publique.
+          </li>
+        </ul>
+        <p>
+          Deuxième différence : en Europe, l'obligation de déclarer ne démarre
+          qu'au-delà de 20 000 € cumulés sur l'année pour un même dirigeant. Les
+          petites opérations passent donc sous le radar, alors qu'aux États-Unis
+          tout achat ou vente est déclaré.
+        </p>
+      </Card>
+
       <Card titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>

@@ -42,8 +42,9 @@ export const LEXIQUE: Terme[] = [
       "La Securities and Exchange Commission est l'autorité qui surveille les " +
       "marchés financiers aux États-Unis. Elle oblige les grands investisseurs et " +
       "les dirigeants d'entreprise à déclarer publiquement certaines opérations. " +
-      "Ces déclarations sont gratuites et accessibles à tous : c'est la seule " +
-      "source de cet outil.",
+      "Ces déclarations sont gratuites et accessibles à tous. C'est la source " +
+      "des pistes américaines de cet outil ; pour la Belgique, l'équivalent " +
+      "est la FSMA.",
   },
   {
     mot: "EDGAR",
@@ -150,6 +151,56 @@ export const LEXIQUE: Terme[] = [
     court: "L'ampleur des variations de prix. Forte volatilité = fortes secousses.",
   },
   {
+    mot: "FSMA",
+    court: "Le gendarme de la bourse belge, équivalent de la SEC américaine.",
+    long:
+      "La Financial Services and Markets Authority surveille les marchés " +
+      "financiers en Belgique. Comme la SEC aux États-Unis, elle publie " +
+      "gratuitement les opérations déclarées par les dirigeants des sociétés " +
+      "belges cotées. C'est la source des pistes belges de cet outil.",
+  },
+  {
+    mot: "MAR",
+    court:
+      "Le règlement européen qui oblige les dirigeants à déclarer leurs opérations.",
+    long:
+      "Le règlement sur les abus de marché (Market Abuse Regulation) est la " +
+      "règle européenne équivalente au Form 4 américain. Son article 19 impose " +
+      "aux dirigeants et à leurs proches de déclarer leurs achats et ventes " +
+      "d'actions de leur propre société, dès que le total dépasse 20 000 € sur " +
+      "l'année. Chaque régulateur national les publie — la FSMA pour la Belgique.",
+  },
+  {
+    mot: "ISIN",
+    court:
+      "Le numéro d'identification international d'un titre (BE0974362940 pour Barco).",
+    long:
+      "Là où les Américains utilisent un ticker court, l'Europe identifie " +
+      "chaque titre par un code ISIN de 12 caractères commençant par le pays " +
+      "d'émission : BE pour la Belgique, FR pour la France. C'est ce code que " +
+      "vous saisirez chez votre courtier pour être sûr d'acheter le bon titre.",
+  },
+  {
+    mot: "TOB",
+    court:
+      "La taxe belge sur les opérations de bourse, prélevée à chaque achat ET à chaque vente.",
+    long:
+      "En Belgique, chaque transaction boursière est taxée, à l'achat comme à " +
+      "la vente. Le taux dépend du produit (souvent 0,12 % pour un ETF, " +
+      "davantage pour d'autres). Elle s'ajoute aux frais de votre courtier, ce " +
+      "qui compte beaucoup sur de petits montants. Les taux évoluent : " +
+      "vérifiez auprès d'une source officielle.",
+  },
+  {
+    mot: "Précompte mobilier",
+    court: "L'impôt belge de 30 % prélevé sur les dividendes que vous recevez.",
+    long:
+      "Il est retenu à la source et vous libère de toute déclaration " +
+      "ultérieure. Une première tranche de dividendes d'actions est exonérée " +
+      "chaque année, récupérable via votre déclaration fiscale. Les montants " +
+      "évoluent : vérifiez auprès d'une source officielle.",
+  },
+  {
     mot: "PEA",
     court:
       "Enveloppe française avantageuse fiscalement, mais réservée aux entreprises européennes.",
@@ -234,6 +285,34 @@ export const EXPLICATIONS: Record<SignalType, ExplicationSignal> = {
       "Le montant compte : quelques milliers d'euros pour un dirigeant très bien " +
       "payé peut être un geste symbolique. Un achat ne garantit évidemment rien — " +
       "les dirigeants se trompent aussi sur leur propre entreprise.",
+  },
+  mar_buy: {
+    titre:
+      "Un dirigeant européen a acheté des actions de sa propre entreprise",
+    cequecest:
+      "Une personne de l'intérieur — dirigeant, administrateur, ou un de ses " +
+      "proches — a acheté des actions de sa société, et l'a déclaré à son " +
+      "régulateur national comme l'exige le règlement européen sur les abus de " +
+      "marché. Comme pour les États-Unis, l'achat est le signal considéré " +
+      "comme le plus informatif : il engage l'argent personnel du dirigeant.",
+    cequecelanedit:
+      "L'obligation de déclarer ne commence qu'au-delà de 20 000 € cumulés sur " +
+      "l'année : les petites opérations n'apparaissent pas, et un premier achat " +
+      "de l'année peut être déclaré avec du retard. Les motifs ne sont jamais " +
+      "déclarés, et un dirigeant peut se tromper sur sa propre entreprise.",
+  },
+  mar_sell: {
+    titre: "Un dirigeant européen a vendu des actions de sa propre entreprise",
+    cequecest:
+      "Une personne de l'intérieur a vendu des actions de sa société et l'a " +
+      "déclaré à son régulateur national au titre du règlement européen sur les " +
+      "abus de marché.",
+    cequecelanedit:
+      "C'est le signal le moins informatif, pour les mêmes raisons qu'aux " +
+      "États-Unis : les dirigeants vendent régulièrement pour des raisons " +
+      "personnelles — payer leurs impôts, acheter un logement, ou ne pas " +
+      "concentrer toute leur fortune sur une seule société. Ne concluez pas " +
+      "qu'un dirigeant qui vend anticipe une baisse.",
   },
   form4_sell: {
     titre: "Un dirigeant a vendu des actions de sa propre entreprise",

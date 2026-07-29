@@ -4,7 +4,9 @@ export type SignalType =
   | "13f_decrease"
   | "13f_exit"
   | "form4_buy"
-  | "form4_sell";
+  | "form4_sell"
+  | "mar_buy"
+  | "mar_sell";
 
 export interface Manager {
   id: string;
@@ -14,10 +16,15 @@ export interface Manager {
   created_at: string;
 }
 
+export type Market = "US" | "BE";
+
 export interface WatchedIssuer {
   id: string;
   user_id: string;
-  cik: string;
+  /** Marche de rattachement : SEC pour les US, FSMA pour la Belgique. */
+  market: Market;
+  /** Present uniquement pour les societes americaines. */
+  cik: string | null;
   ticker: string;
   name: string;
   created_at: string;
@@ -44,6 +51,8 @@ export interface Settings {
   user_id: string;
   broker_fixed_fee_eur: number;
   position_size_eur: number;
+  /** Taxe proportionnelle par transaction (TOB en Belgique), en %. */
+  tob_pct: number;
   updated_at: string;
 }
 
@@ -52,8 +61,10 @@ export const SIGNAL_LABELS: Record<SignalType, string> = {
   "13f_increase": "13F — renforcement",
   "13f_decrease": "13F — allègement",
   "13f_exit": "13F — sortie de position",
-  form4_buy: "Form 4 — achat d'initié",
-  form4_sell: "Form 4 — vente d'initié",
+  form4_buy: "Form 4 — achat d'initié (US)",
+  form4_sell: "Form 4 — vente d'initié (US)",
+  mar_buy: "MAR — achat d'initié (Europe)",
+  mar_sell: "MAR — vente d'initié (Europe)",
 };
 
 /** Version courte, pour les étiquettes sur mobile (la couleur distingue 13F et Form 4). */
@@ -64,13 +75,40 @@ export const SIGNAL_LABELS_COURTS: Record<SignalType, string> = {
   "13f_exit": "Sortie",
   form4_buy: "Achat d'initié",
   form4_sell: "Vente d'initié",
+  mar_buy: "Achat d'initié",
+  mar_sell: "Vente d'initié",
 };
+
+const LIMITE_13F =
+  "Les données 13F ont jusqu'à 45 jours de retard et ne montrent que les " +
+  "positions longues sur des actions américaines.";
+
+const LIMITE_INITIE =
+  "Cette déclaration est publiée sous 2 jours ouvrés, mais les motifs d'une " +
+  "opération ne sont jamais déclarés.";
+
+const LIMITE_MAR =
+  "Déclaration publiée par le régulateur au titre du règlement européen sur " +
+  "les abus de marché. L'obligation ne s'applique qu'au-delà de 20 000 € " +
+  "cumulés sur l'année, et les motifs d'une opération ne sont jamais déclarés.";
 
 /**
  * Note obligatoire, affichée sur chaque fiche, non masquable.
+ * Le premier volet est invariable ; le second precise la limite propre a la
+ * source, car un depot 13F et une declaration MAR n'ont pas les memes.
  */
 export const DISCLAIMER =
-  "Ceci n'est pas un conseil d'investissement. Les données 13F ont jusqu'à " +
-  "45 jours de retard et ne montrent que les positions longues. Aucune étude " +
-  "ne démontre de façon consensuelle qu'imiter les grands fonds génère un " +
+  "Ceci n'est pas un conseil d'investissement. Aucune étude ne démontre de " +
+  "façon consensuelle qu'imiter les grands fonds ou les dirigeants génère un " +
   "avantage après frais.";
+
+export const LIMITES_DONNEE: Record<SignalType, string> = {
+  "13f_new": LIMITE_13F,
+  "13f_increase": LIMITE_13F,
+  "13f_decrease": LIMITE_13F,
+  "13f_exit": LIMITE_13F,
+  form4_buy: LIMITE_INITIE,
+  form4_sell: LIMITE_INITIE,
+  mar_buy: LIMITE_MAR,
+  mar_sell: LIMITE_MAR,
+};

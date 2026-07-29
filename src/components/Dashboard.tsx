@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [fee, setFee] = useState(1);
   const [size, setSize] = useState(150);
+  const [tob, setTob] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [filtresOuverts, setFiltresOuverts] = useState(false);
@@ -31,6 +32,7 @@ export default function Dashboard() {
     if (settings) {
       setFee(Number(settings.broker_fixed_fee_eur));
       setSize(Number(settings.position_size_eur));
+      setTob(Number(settings.tob_pct ?? 0));
     }
     setLoading(false);
   }, []);
@@ -186,6 +188,7 @@ export default function Dashboard() {
           piste={p}
           brokerFixedFeeEur={fee}
           positionSizeEur={size}
+          transactionTaxPct={tob}
         />
       ))}
     </div>
