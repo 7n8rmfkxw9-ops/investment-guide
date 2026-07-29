@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import type { Manager, WatchedIssuer } from "../lib/types";
+import type { Manager, Market, WatchedIssuer } from "../lib/types";
+import { DEFAULT_TOB_PCT } from "../lib/fees";
 
 export default function SettingsPage() {
   const [managers, setManagers] = useState<Manager[]>([]);
   const [issuers, setIssuers] = useState<WatchedIssuer[]>([]);
   const [fee, setFee] = useState("1.00");
   const [size, setSize] = useState("150");
+  const [tob, setTob] = useState(String(DEFAULT_TOB_PCT));
   const [msg, setMsg] = useState<string | null>(null);
 
   const [mName, setMName] = useState("");
@@ -14,6 +16,7 @@ export default function SettingsPage() {
   const [iName, setIName] = useState("");
   const [iTicker, setITicker] = useState("");
   const [iCik, setICik] = useState("");
+  const [iMarket, setIMarket] = useState<Market>("BE");
 
   async function load() {
     const [{ data: m }, { data: i }, { data: s }] = await Promise.all([
@@ -26,6 +29,7 @@ export default function SettingsPage() {
     if (s) {
       setFee(String(s.broker_fixed_fee_eur));
       setSize(String(s.position_size_eur));
+      if (s.tob_pct != null) setTob(String(s.tob_pct));
     }
   }
 
@@ -54,12 +58,16 @@ export default function SettingsPage() {
   async function addIssuer(e: React.FormEvent) {
     e.preventDefault();
     const cik = iCik.replace(/\D/g, "");
-    if (!cik || !iName.trim() || !iTicker.trim()) return;
+    // Une societe belge est identifiee par son nom exact au registre FSMA ;
+    // une societe americaine par son CIK.
+    if (!iName.trim()) return;
+    if (iMarket === "US" && !cik) return;
     const { error } = await supabase.from("watched_issuers").insert({
       user_id: await userId(),
+      market: iMarket,
       name: iName.trim(),
       ticker: iTicker.trim().toUpperCase(),
-      cik,
+      cik: iMarket === "US" ? cik : null,
     });
     setMsg(error ? error.message : null);
     setIName("");
@@ -84,6 +92,7 @@ export default function SettingsPage() {
       user_id: await userId(),
       broker_fixed_fee_eur: Number(fee.replace(",", ".")),
       position_size_eur: Number(size.replace(",", ".")),
+      tob_pct: Number(tob.replace(",", ".")),
       updated_at: new Date().toISOString(),
     });
     setMsg(error ? error.message : "Paramètres enregistrés.");
@@ -146,17 +155,31 @@ export default function SettingsPage() {
       </section>
 
       <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
-        <h2 className="font-semibold">Sociétés suivies (Form 4 — initiés)</h2>
+        <h2 className="font-semibold">Sociétés suivies (opérations de dirigeants)</h2>
         <p className="text-xs text-slate-500">
-          Les achats/ventes de dirigeants et administrateurs de ces sociétés seront
-          détectés (publiés sous 2 jours ouvrables — donnée plus fraîche que le 13F).
+          Les achats et ventes déclarés par les dirigeants de ces sociétés seront
+          détectés. Pour la <strong>Belgique</strong>, saisissez le nom exact tel
+          qu'il figure au{" "}
+          <a
+            className="text-sky-700 underline"
+            href="https://www.fsma.be/fr/transaction-search"
+            target="_blank"
+            rel="noreferrer"
+          >
+            registre de la FSMA
+          </a>{" "}
+          (ex. AB INBEV, UCB, SOLVAY) — sans CIK. Pour les{" "}
+          <strong>États-Unis</strong>, il faut le CIK issu d'EDGAR.
         </p>
         <ul className="text-sm divide-y">
           {issuers.map((i) => (
             <li key={i.id} className="py-2 flex justify-between items-center">
               <span>
-                {i.name} ({i.ticker}){" "}
-                <span className="text-slate-400">CIK {i.cik}</span>
+                {i.name}
+                {i.ticker && ` (${i.ticker})`}{" "}
+                <span className="text-slate-400">
+                  {i.market === "BE" ? "Belgique · FSMA" : `US · CIK ${i.cik}`}
+                </span>
               </span>
               <button
                 className="text-xs text-red-600 hover:underline"
@@ -171,9 +194,17 @@ export default function SettingsPage() {
           )}
         </ul>
         <form onSubmit={addIssuer} className="flex flex-wrap gap-2">
+          <select
+            className="border rounded px-2 py-1 text-sm bg-white"
+            value={iMarket}
+            onChange={(e) => setIMarket(e.target.value as Market)}
+          >
+            <option value="BE">Belgique</option>
+            <option value="US">États-Unis</option>
+          </select>
           <input
             className="border rounded px-2 py-1 text-sm flex-1 min-w-40"
-            placeholder="Nom (ex. Apple Inc.)"
+            placeholder={iMarket === "BE" ? "Nom FSMA (ex. UCB)" : "Nom (ex. Apple Inc.)"}
             value={iName}
             onChange={(e) => setIName(e.target.value)}
           />
@@ -183,12 +214,14 @@ export default function SettingsPage() {
             value={iTicker}
             onChange={(e) => setITicker(e.target.value)}
           />
-          <input
-            className="border rounded px-2 py-1 text-sm w-36"
-            placeholder="CIK"
-            value={iCik}
-            onChange={(e) => setICik(e.target.value)}
-          />
+          {iMarket === "US" && (
+            <input
+              className="border rounded px-2 py-1 text-sm w-36"
+              placeholder="CIK"
+              value={iCik}
+              onChange={(e) => setICik(e.target.value)}
+            />
+          )}
           <button className="text-sm border rounded px-3 py-1 bg-slate-800 text-white">
             Ajouter
           </button>
@@ -198,8 +231,10 @@ export default function SettingsPage() {
       <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
         <h2 className="font-semibold">Frais et taille de position</h2>
         <p className="text-xs text-slate-500">
-          Utilisés pour le calcul affiché sur chaque fiche : (frais fixes / montant
-          investi) × 100. Au-delà de 3 %, un avertissement est affiché.
+          Utilisés pour le calcul affiché sur chaque fiche. En Belgique, la taxe
+          sur les opérations de bourse (TOB) s'applique à l'achat comme à la
+          vente : elle est donc comptée deux fois dans le gain minimum. Au-delà
+          de 3 % de coût à l'achat, un avertissement est affiché.
         </p>
         <form onSubmit={saveSettings} className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
@@ -208,6 +243,16 @@ export default function SettingsPage() {
               className="border rounded px-2 py-1 text-sm w-32"
               value={fee}
               onChange={(e) => setFee(e.target.value)}
+            />
+          </label>
+          <label className="text-sm">
+            <span className="block text-xs text-slate-500">
+              Taxe de bourse par transaction (%)
+            </span>
+            <input
+              className="border rounded px-2 py-1 text-sm w-32"
+              value={tob}
+              onChange={(e) => setTob(e.target.value)}
             />
           </label>
           <label className="text-sm">

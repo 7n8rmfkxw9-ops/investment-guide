@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { computeFeeImpact, FEE_WARNING_THRESHOLD_PCT } from "../lib/fees";
+import {
+  computeFeeImpact,
+  DEFAULT_TOB_PCT,
+  FEE_WARNING_THRESHOLD_PCT,
+} from "../lib/fees";
 
 /**
  * Page "Investir" : information pedagogique pour passer a l'acte par soi-meme.
@@ -29,6 +33,7 @@ function Section({
 export default function InvestPage() {
   const [montant, setMontant] = useState("50");
   const [frais, setFrais] = useState("1");
+  const [tob, setTob] = useState(String(DEFAULT_TOB_PCT));
 
   useEffect(() => {
     supabase
@@ -39,13 +44,15 @@ export default function InvestPage() {
         if (data) {
           setFrais(String(data.broker_fixed_fee_eur));
           setMontant(String(data.position_size_eur));
+          if (data.tob_pct != null) setTob(String(data.tob_pct));
         }
       });
   }, []);
 
   const m = Number(montant.replace(",", ".")) || 0;
   const f = Number(frais.replace(",", ".")) || 0;
-  const impact = computeFeeImpact(f, m);
+  const t = Number(tob.replace(",", ".")) || 0;
+  const impact = computeFeeImpact(f, m, t);
   const pct = (v: number) =>
     isFinite(v) ? `${v.toFixed(2).replace(".", ",")} %` : "—";
 
@@ -79,8 +86,8 @@ export default function InvestPage() {
           acheter d'un coup un panier de centaines d'entreprises. Une faillite
           isolée devient indolore. C'est la façon la plus courante de commencer
           avec de petites sommes régulières, et c'est ce que recommandent la
-          plupart des sources d'éducation financière publiques — y compris
-          l'Autorité des marchés financiers.
+          plupart des sources publiques d'éducation financière — dont Wikifin, le
+          site de la FSMA, l'autorité belge des marchés financiers.
         </p>
         <p className="bg-sky-50/70 border border-sky-100 rounded-lg p-3 text-slate-700">
           Une façon saine d'utiliser cet outil : garder l'essentiel de votre
@@ -118,6 +125,17 @@ export default function InvestPage() {
               onChange={(e) => setFrais(e.target.value)}
             />
           </label>
+          <label className="text-sm">
+            <span className="block text-xs text-slate-500 mb-1">
+              Taxe de bourse (%)
+            </span>
+            <input
+              className="border rounded-lg px-3 py-2 text-sm w-32"
+              inputMode="decimal"
+              value={tob}
+              onChange={(e) => setTob(e.target.value)}
+            />
+          </label>
         </div>
         <div
           className={`rounded-lg p-3 border ${
@@ -144,30 +162,90 @@ export default function InvestPage() {
         </div>
       </Section>
 
-      <Section titre="Où passer l'ordre : quel type de compte">
+      <Section titre="Ce que le fisc belge prélève, et quand">
         <p>
-          <strong className="text-slate-800">Le PEA</strong> est une enveloppe
-          française fiscalement avantageuse après 5 ans, mais elle{" "}
-          <strong>n'accepte pas les actions américaines</strong> — donc aucune
-          des entreprises suivies ici. Certains ETF spécialement conçus peuvent
-          y être logés tout en suivant des indices américains.
+          La Belgique n'a pas d'équivalent du PEA français : il n'existe pas
+          d'enveloppe fiscale privilégiée pour les actions. Quatre prélèvements
+          peuvent vous concerner, et deux comptent vraiment pour de petits
+          montants :
         </p>
-        <p>
-          <strong className="text-slate-800">Le compte-titres (CTO)</strong>{" "}
-          accepte tous les titres mondiaux, dont les actions américaines de cet
-          outil. En contrepartie, les gains sont imposés dès le premier euro.
-        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className="text-slate-800">
+              La taxe sur les opérations de bourse (TOB)
+            </strong>{" "}
+            est prélevée <strong>à chaque achat et à chaque vente</strong>. Son
+            taux dépend du produit — souvent 0,12 % pour un ETF, davantage pour
+            d'autres. Elle s'ajoute aux frais de votre courtier : c'est pour
+            cela que le calcul ci-dessus permet de la saisir.
+          </li>
+          <li>
+            <strong className="text-slate-800">Le précompte mobilier</strong> de
+            30 % est retenu sur les dividendes que vous recevez. Une première
+            tranche de dividendes d'actions est exonérée chaque année, mais
+            elle se récupère via votre déclaration fiscale — beaucoup de gens
+            l'oublient.
+          </li>
+          <li>
+            <strong className="text-slate-800">
+              L'impôt sur les plus-values
+            </strong>{" "}
+            existe en Belgique depuis 2026 : les gains réalisés à la revente
+            d'actifs financiers sont taxés à 10 %, au-delà d'une exonération
+            annuelle de l'ordre de 10 000 €. Avec des tickets de 50 à 100 €,
+            vous en serez très probablement loin.
+          </li>
+          <li>
+            <strong className="text-slate-800">
+              La taxe annuelle sur les comptes-titres
+            </strong>{" "}
+            ne vise que les portefeuilles de plus d'un million d'euros : elle ne
+            vous concerne pas au départ.
+          </li>
+        </ul>
         <p className="text-xs text-slate-500">
-          Les règles fiscales changent régulièrement. Vérifiez sur{" "}
+          Ces règles ont changé récemment et les montants sont indexés. Vérifiez
+          sur{" "}
           <a
             className="text-sky-700 underline"
-            href="https://www.impots.gouv.fr"
+            href="https://www.wikifin.be"
             target="_blank"
             rel="noreferrer"
           >
-            impots.gouv.fr
+            Wikifin
           </a>{" "}
-          ou auprès d'un professionnel avant de vous décider.
+          — le site d'éducation financière de la FSMA, l'autorité belge — ou
+          auprès d'un professionnel avant de vous décider.
+        </p>
+      </Section>
+
+      <Section titre="Acheter belge ou acheter américain ?">
+        <p>
+          Une action américaine n'est ni meilleure ni pire qu'une action belge.
+          Deux différences pratiques méritent d'être connues quand on part de
+          Belgique :
+        </p>
+        <ul className="list-disc pl-5 space-y-2">
+          <li>
+            <strong className="text-slate-800">La devise.</strong> Acheter une
+            action américaine implique de convertir des euros en dollars. Votre
+            courtier prélève souvent une commission de change, parfois discrète
+            dans sa grille tarifaire, et la valeur de votre placement bougera
+            aussi avec le taux de change — dans les deux sens.
+          </li>
+          <li>
+            <strong className="text-slate-800">
+              La retenue à la source sur les dividendes.
+            </strong>{" "}
+            Les dividendes américains subissent une retenue aux États-Unis avant
+            même le précompte belge. Une convention entre les deux pays permet
+            d'en réduire une partie, mais la démarche existe.
+          </li>
+        </ul>
+        <p>
+          Les sociétés belges suivies dans cet outil se négocient en euros sur
+          Euronext Bruxelles : ni change, ni retenue étrangère. C'est plus
+          simple pour commencer.
         </p>
       </Section>
 
@@ -176,23 +254,23 @@ export default function InvestPage() {
           <li>
             <strong className="text-slate-800">Qu'il soit bien agréé.</strong>{" "}
             C'est le point vital, celui qui vous protège des arnaques. Vérifiez
-            son nom dans le registre officiel{" "}
+            son nom dans les registres officiels de la{" "}
             <a
               className="text-sky-700 underline"
-              href="https://www.regafi.fr"
+              href="https://www.fsma.be/fr/data-portal"
               target="_blank"
               rel="noreferrer"
             >
-              REGAFI
+              FSMA
             </a>{" "}
-            et consultez la{" "}
+            et consultez ses{" "}
             <a
               className="text-sky-700 underline"
-              href="https://www.amf-france.org/fr/espace-epargnants/proteger-son-epargne/listes-noires"
+              href="https://www.fsma.be/fr/warnings"
               target="_blank"
               rel="noreferrer"
             >
-              liste noire de l'AMF
+              mises en garde
             </a>
             . Si un site vous promet des gains rapides ou vous appelle pour vous
             convaincre, fuyez.
@@ -210,15 +288,15 @@ export default function InvestPage() {
           </li>
           <li>
             <strong className="text-slate-800">
-              L'accès à la bourse américaine
-            </strong>{" "}
-            et les éventuels frais de change euro/dollar, souvent oubliés.
+              L'accès à Euronext Bruxelles et à la bourse américaine
+            </strong>
+            , ainsi que les frais de change euro/dollar, souvent oubliés.
           </li>
         </ol>
         <p className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-          Des courtiers agréés et accessibles depuis la France existent en
-          nombre : établissements bancaires français, courtiers en ligne
-          spécialisés, courtiers européens. Je ne vous en recommande aucun —
+          Des courtiers agréés et accessibles depuis la Belgique existent en
+          nombre : banques belges, courtiers en ligne spécialisés, courtiers
+          européens opérant sous passeport. Je ne vous en recommande aucun —
           ce choix vous appartient, et les tarifs changent trop souvent pour
           qu'une liste reste fiable. Comparez sur les 4 critères ci-dessus, en
           commençant toujours par la vérification de l'agrément.

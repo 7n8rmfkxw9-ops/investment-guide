@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { DISCLAIMER, SIGNAL_LABELS, SIGNAL_LABELS_COURTS } from "../lib/types";
+import {
+  DISCLAIMER,
+  LIMITES_DONNEE,
+  SIGNAL_LABELS,
+  SIGNAL_LABELS_COURTS,
+} from "../lib/types";
 import type { Piste } from "../lib/types";
 import { EXPLICATIONS } from "../lib/glossaire";
 import { computeFeeImpact, FEE_WARNING_THRESHOLD_PCT } from "../lib/fees";
@@ -8,6 +13,7 @@ interface Props {
   piste: Piste;
   brokerFixedFeeEur: number;
   positionSizeEur: number;
+  transactionTaxPct?: number;
 }
 
 function formatPct(v: number): string {
@@ -19,10 +25,17 @@ export default function PisteCard({
   piste,
   brokerFixedFeeEur,
   positionSizeEur,
+  transactionTaxPct = 0,
 }: Props) {
   const [explique, setExplique] = useState(false);
-  const fees = computeFeeImpact(brokerFixedFeeEur, positionSizeEur);
-  const isForm4 = piste.signal.startsWith("form4");
+  const fees = computeFeeImpact(
+    brokerFixedFeeEur,
+    positionSizeEur,
+    transactionTaxPct,
+  );
+  const estInitie =
+    piste.signal.startsWith("form4") || piste.signal.startsWith("mar");
+  const estEurope = piste.signal.startsWith("mar");
   const exp = EXPLICATIONS[piste.signal];
 
   return (
@@ -41,7 +54,7 @@ export default function PisteCard({
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
           <span
             className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-              isForm4 ? "bg-amber-50 text-amber-700" : "bg-sky-50 text-sky-700"
+              estInitie ? "bg-amber-50 text-amber-700" : "bg-sky-50 text-sky-700"
             }`}
             title={SIGNAL_LABELS[piste.signal]}
           >
@@ -95,7 +108,10 @@ export default function PisteCard({
       >
         <p className="text-slate-600">
           Sur {positionSizeEur.toFixed(0)} €, vos frais de{" "}
-          {brokerFixedFeeEur.toFixed(2).replace(".", ",")} € représentent{" "}
+          {brokerFixedFeeEur.toFixed(2).replace(".", ",")} €
+          {transactionTaxPct > 0 &&
+            ` plus la taxe de ${transactionTaxPct.toString().replace(".", ",")} %`}{" "}
+          représentent{" "}
           <strong className="text-slate-800">{formatPct(fees.feePct)}</strong>.
           Gain minimum pour les couvrir (achat + revente) :{" "}
           <strong className="text-slate-800">
@@ -118,12 +134,13 @@ export default function PisteCard({
         rel="noreferrer"
         className="block text-sm text-sky-700 hover:text-sky-900"
       >
-        {piste.source_name} · voir le document officiel SEC →
+        {piste.source_name} · voir la déclaration officielle{" "}
+        {estEurope ? "FSMA" : "SEC"} →
       </a>
 
       {/* Rappel obligatoire, non masquable */}
       <p className="text-xs text-slate-400 leading-relaxed border-t border-slate-100 pt-3">
-        {DISCLAIMER}
+        {LIMITES_DONNEE[piste.signal]} {DISCLAIMER}
       </p>
 
       <p className="text-xs text-slate-400">
