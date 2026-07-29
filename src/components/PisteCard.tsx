@@ -35,7 +35,13 @@ export default function PisteCard({
   );
   const estInitie =
     piste.signal.startsWith("form4") || piste.signal.startsWith("mar");
-  const estEurope = piste.signal.startsWith("mar");
+  // Le regulateur qui a publie la declaration : il change selon le pays, et la
+  // fiche doit dire lequel plutot qu'un vague « Europe ».
+  const regulateur = piste.source_url.includes("fi.se")
+    ? "Finansinspektionen"
+    : piste.signal.startsWith("mar")
+      ? "FSMA"
+      : "SEC";
   const exp = EXPLICATIONS[piste.signal];
 
   return (
@@ -134,8 +140,7 @@ export default function PisteCard({
         rel="noreferrer"
         className="block text-sm text-sky-700 hover:text-sky-900"
       >
-        {piste.source_name} · voir la déclaration officielle{" "}
-        {estEurope ? "FSMA" : "SEC"} →
+        {piste.source_name} · voir la déclaration officielle {regulateur} →
       </a>
 
       {/* Rappel obligatoire, non masquable */}

@@ -56,15 +56,16 @@ export default function LearnPage() {
             n'existe nulle part ailleurs.
           </li>
           <li>
-            <strong className="text-slate-800">Europe et Belgique</strong> — les
-            dirigeants déclarent également leurs opérations, au titre du
-            règlement européen sur les abus de marché, et la FSMA les publie
-            pour les sociétés belges cotées. En revanche,{" "}
+            <strong className="text-slate-800">Europe</strong> — les dirigeants
+            déclarent également leurs opérations, au titre du règlement européen
+            sur les abus de marché, mais{" "}
+            <strong>il n'existe pas de registre européen unique</strong> :
+            chaque pays publie les siennes de son côté. En revanche,{" "}
             <strong>l'équivalent du 13F n'existe pas</strong> : aucun fonds
             européen n'est tenu de publier tout son portefeuille chaque
             trimestre. Vous ne verrez donc pas de piste « nouvelle position d'un
-            grand fonds » sur une société belge — non par oubli de l'outil, mais
-            parce que l'information n'est pas publique.
+            grand fonds » sur une société européenne — non par oubli de l'outil,
+            mais parce que l'information n'est pas publique.
           </li>
         </ul>
         <p>
@@ -72,6 +73,46 @@ export default function LearnPage() {
           qu'au-delà de 20 000 € cumulés sur l'année pour un même dirigeant. Les
           petites opérations passent donc sous le radar, alors qu'aux États-Unis
           tout achat ou vente est déclaré.
+        </p>
+      </Card>
+
+      <Card titre="Quels pays européens sont couverts, et pourquoi pas tous">
+        <p>
+          Le règlement est européen, mais sa publication ne l'est pas : il n'y a
+          pas de base de données commune. Chaque régulateur national publie ses
+          déclarations dans son propre format, et tous ne sont pas exploitables
+          automatiquement.
+        </p>
+        <ul className="space-y-2">
+          <li>
+            <strong className="text-slate-800">Belgique — couverte.</strong> La
+            FSMA publie un registre consultable, opération par opération, avec
+            le nom du dirigeant, la quantité, le prix et le montant.
+          </li>
+          <li>
+            <strong className="text-slate-800">Suède — couverte.</strong>{" "}
+            Finansinspektionen publie l'un des meilleurs registres d'Europe : un
+            fichier complet, téléchargeable, qui indique en plus si l'opération
+            relève d'un programme de stock-options.
+          </li>
+          <li>
+            <strong className="text-slate-800">
+              Pays-Bas, France, Allemagne — pas encore.
+            </strong>{" "}
+            Leurs registres existent et sont publics, mais soit ils ne
+            publient pas le sens de l'opération, la quantité et le prix dans un
+            format lisible par un programme, soit la consultation passe par un
+            site qui ne fonctionne qu'avec un navigateur. Reprendre ces données
+            demanderait de copier des pages de sites tiers, ce que cet outil
+            s'interdit : il ne lit que des sources officielles mises à
+            disposition pour cela.
+          </li>
+        </ul>
+        <p>
+          Autrement dit, l'absence d'une société française ou allemande ne
+          signifie pas qu'il ne s'y passe rien : cela signifie que la donnée
+          n'est pas disponible proprement. C'est une limite de l'outil, et il
+          vaut mieux que vous la connaissiez.
         </p>
       </Card>
 

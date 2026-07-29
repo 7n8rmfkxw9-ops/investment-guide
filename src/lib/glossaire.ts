@@ -160,6 +160,17 @@ export const LEXIQUE: Terme[] = [
       "belges cotées. C'est la source des pistes belges de cet outil.",
   },
   {
+    mot: "Finansinspektionen",
+    court: "Le gendarme de la bourse suédoise, équivalent de la FSMA belge.",
+    long:
+      "L'autorité de surveillance financière suédoise publie, dans un registre " +
+      "public et gratuit, toutes les opérations déclarées par les dirigeants " +
+      "des sociétés cotées en Suède. C'est la source des pistes suédoises de " +
+      "cet outil. Ce registre a une particularité utile : il indique souvent " +
+      "si l'opération est liée à un programme de stock-options — ce qui permet " +
+      "d'écarter les levées d'options, qui ne sont pas des achats de conviction.",
+  },
+  {
     mot: "MAR",
     court:
       "Le règlement européen qui oblige les dirigeants à déclarer leurs opérations.",
@@ -168,7 +179,8 @@ export const LEXIQUE: Terme[] = [
       "règle européenne équivalente au Form 4 américain. Son article 19 impose " +
       "aux dirigeants et à leurs proches de déclarer leurs achats et ventes " +
       "d'actions de leur propre société, dès que le total dépasse 20 000 € sur " +
-      "l'année. Chaque régulateur national les publie — la FSMA pour la Belgique.",
+      "l'année. Chaque régulateur national les publie — la FSMA pour la " +
+      "Belgique, Finansinspektionen pour la Suède.",
   },
   {
     mot: "ISIN",
@@ -179,6 +191,19 @@ export const LEXIQUE: Terme[] = [
       "chaque titre par un code ISIN de 12 caractères commençant par le pays " +
       "d'émission : BE pour la Belgique, FR pour la France. C'est ce code que " +
       "vous saisirez chez votre courtier pour être sûr d'acheter le bon titre.",
+  },
+  {
+    mot: "Stock-options",
+    court:
+      "Le droit d'acheter des actions de son entreprise à un prix fixé d'avance. Une levée n'est pas un achat de conviction.",
+    long:
+      "Beaucoup de dirigeants sont rémunérés en partie avec des options : le " +
+      "droit d'acheter des actions de leur société à un prix décidé des années " +
+      "plus tôt. Quand ils exercent ce droit, cela apparaît dans les registres " +
+      "comme une acquisition — mais ils n'ont pas choisi d'investir au cours du " +
+      "jour, ils encaissent une rémunération, et revendent souvent aussitôt. " +
+      "C'est pourquoi cet outil écarte ces opérations quand le registre les " +
+      "signale, et vous invite à comparer le prix déclaré au cours réel.",
   },
   {
     mot: "TOB",
@@ -299,7 +324,13 @@ export const EXPLICATIONS: Record<SignalType, ExplicationSignal> = {
       "L'obligation de déclarer ne commence qu'au-delà de 20 000 € cumulés sur " +
       "l'année : les petites opérations n'apparaissent pas, et un premier achat " +
       "de l'année peut être déclaré avec du retard. Les motifs ne sont jamais " +
-      "déclarés, et un dirigeant peut se tromper sur sa propre entreprise.",
+      "déclarés, et un dirigeant peut se tromper sur sa propre entreprise. " +
+      "Attention surtout aux levées de stock-options : le dirigeant acquiert " +
+      "alors à un prix fixé d'avance, souvent bien inférieur au cours, et " +
+      "revend fréquemment dans la foulée. Ce n'est pas un achat de conviction. " +
+      "L'outil écarte celles que les registres signalent comme telles, mais ce " +
+      "signalement est inégal : un prix nettement sous le cours du jour doit " +
+      "vous alerter.",
   },
   mar_sell: {
     titre: "Un dirigeant européen a vendu des actions de sa propre entreprise",
