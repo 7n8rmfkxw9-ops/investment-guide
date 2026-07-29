@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [size, setSize] = useState(150);
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const [filtresOuverts, setFiltresOuverts] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -45,12 +46,14 @@ export default function Dashboard() {
       body: {},
     });
     if (error) {
-      setSyncMsg(`Erreur de synchronisation : ${error.message}`);
+      setSyncMsg(`La synchronisation a échoué : ${error.message}`);
     } else {
       const d = data as { created?: number } | null;
       setSyncMsg(
         d && typeof d.created === "number"
-          ? `Synchronisation terminée : ${d.created} nouvelle(s) piste(s).`
+          ? d.created === 0
+            ? "Synchronisation terminée : rien de nouveau déclaré à la SEC."
+            : `Synchronisation terminée : ${d.created} nouvelle(s) piste(s).`
           : "Synchronisation terminée.",
       );
       await load();
@@ -62,6 +65,10 @@ export default function Dashboard() {
   const sectors = Array.from(
     new Set(pistes.map((p) => p.sector).filter((s): s is string => !!s)),
   ).sort();
+  const filtresActifs =
+    (signalFilter !== "all" ? 1 : 0) +
+    (sourceFilter !== "all" ? 1 : 0) +
+    (sectorFilter !== "all" ? 1 : 0);
 
   const shown = pistes
     .filter((p) => signalFilter === "all" || p.signal === signalFilter)
@@ -69,7 +76,6 @@ export default function Dashboard() {
     .filter((p) => sectorFilter === "all" || p.sector === sectorFilter)
     .sort((a, b) => {
       if (sortKey === "signal") {
-        // Form 4 (donnee plus fraiche) en premier, puis par date
         const aF = a.signal.startsWith("form4") ? 0 : 1;
         const bF = b.signal.startsWith("form4") ? 0 : 1;
         if (aF !== bF) return aF - bF;
@@ -77,78 +83,110 @@ export default function Dashboard() {
       return +new Date(b.detected_at) - +new Date(a.detected_at);
     });
 
+  const selectCls =
+    "border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-slate-600";
+
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <select
-          className="border rounded px-2 py-1 text-sm bg-white"
-          value={signalFilter}
-          onChange={(e) => setSignalFilter(e.target.value as SignalType | "all")}
+      {/* Barre d'actions, volontairement discrete */}
+      <div className="flex items-center gap-3 text-sm">
+        <button
+          onClick={() => setFiltresOuverts(!filtresOuverts)}
+          className="text-slate-500 hover:text-slate-800"
         >
-          <option value="all">Tous les signaux</option>
-          {(Object.keys(SIGNAL_LABELS) as SignalType[]).map((s) => (
-            <option key={s} value={s}>
-              {SIGNAL_LABELS[s]}
-            </option>
-          ))}
-        </select>
-        <select
-          className="border rounded px-2 py-1 text-sm bg-white"
-          value={sourceFilter}
-          onChange={(e) => setSourceFilter(e.target.value)}
+          Filtres{filtresActifs > 0 ? ` (${filtresActifs})` : ""}
+        </button>
+        <button
+          onClick={runSync}
+          disabled={syncing}
+          className="ml-auto text-slate-500 hover:text-slate-800 disabled:opacity-40"
         >
-          <option value="all">Toutes les sources</option>
-          {sources.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-        {sectors.length > 0 && (
+          {syncing ? "Synchronisation…" : "Actualiser"}
+        </button>
+      </div>
+
+      {filtresOuverts && (
+        <div className="flex flex-wrap gap-2">
           <select
-            className="border rounded px-2 py-1 text-sm bg-white"
-            value={sectorFilter}
-            onChange={(e) => setSectorFilter(e.target.value)}
+            className={selectCls}
+            value={signalFilter}
+            onChange={(e) => setSignalFilter(e.target.value as SignalType | "all")}
           >
-            <option value="all">Tous les secteurs</option>
-            {sectors.map((s) => (
+            <option value="all">Tous les signaux</option>
+            {(Object.keys(SIGNAL_LABELS) as SignalType[]).map((s) => (
+              <option key={s} value={s}>
+                {SIGNAL_LABELS[s]}
+              </option>
+            ))}
+          </select>
+          <select
+            className={selectCls}
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+          >
+            <option value="all">Toutes les sources</option>
+            {sources.map((s) => (
               <option key={s} value={s}>
                 {s}
               </option>
             ))}
           </select>
-        )}
-        <select
-          className="border rounded px-2 py-1 text-sm bg-white"
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as SortKey)}
-        >
-          <option value="date">Tri : plus récentes d'abord</option>
-          <option value="signal">Tri : Form 4 d'abord (plus frais)</option>
-        </select>
-        <button
-          onClick={runSync}
-          disabled={syncing}
-          className="ml-auto text-sm border rounded px-3 py-1 bg-white hover:bg-slate-50 disabled:opacity-50"
-        >
-          {syncing ? "Synchronisation…" : "Synchroniser maintenant"}
-        </button>
-      </div>
+          {sectors.length > 0 && (
+            <select
+              className={selectCls}
+              value={sectorFilter}
+              onChange={(e) => setSectorFilter(e.target.value)}
+            >
+              <option value="all">Tous les secteurs</option>
+              {sectors.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          )}
+          <select
+            className={selectCls}
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value as SortKey)}
+          >
+            <option value="date">Plus récentes d'abord</option>
+            <option value="signal">Données les plus fraîches d'abord</option>
+          </select>
+        </div>
+      )}
 
-      {syncMsg && <p className="text-sm text-slate-600">{syncMsg}</p>}
+      {syncMsg && <p className="text-sm text-slate-500">{syncMsg}</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {loading && <p className="text-sm text-slate-500">Chargement…</p>}
+      {loading && <p className="text-sm text-slate-400">Chargement…</p>}
 
       {!loading && shown.length === 0 && (
-        <div className="bg-white border border-slate-200 rounded-lg p-6 text-sm text-slate-500">
-          Aucune piste pour le moment. Configurez des gestionnaires à suivre dans
-          l'onglet Configuration, puis lancez une synchronisation. Le cron
-          hebdomadaire s'en chargera ensuite automatiquement.
+        <div className="bg-white border border-slate-200/80 rounded-xl p-6 text-sm text-slate-500 leading-relaxed">
+          {pistes.length === 0 ? (
+            <>
+              <p className="text-slate-700 font-medium mb-1.5">
+                Aucune piste pour le moment — c'est normal.
+              </p>
+              <p>
+                Les déclarations de fonds ne paraissent qu'une fois par
+                trimestre, et les opérations de dirigeants sont rares. L'outil
+                vérifie automatiquement chaque lundi. En attendant, l'onglet
+                Comprendre vous explique ce que vous verrez apparaître ici.
+              </p>
+            </>
+          ) : (
+            <p>Aucune piste ne correspond à ces filtres.</p>
+          )}
         </div>
       )}
 
       {shown.map((p) => (
-        <PisteCard key={p.id} piste={p} brokerFixedFeeEur={fee} positionSizeEur={size} />
+        <PisteCard
+          key={p.id}
+          piste={p}
+          brokerFixedFeeEur={fee}
+          positionSizeEur={size}
+        />
       ))}
     </div>
   );

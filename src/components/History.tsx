@@ -58,12 +58,18 @@ export default function History() {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-slate-500">
-        Notez ce qui s'est réellement passé après chaque piste — les échecs comme
-        les réussites — pour garder une vision honnête de la fiabilité de l'outil
-        dans le temps.
-      </p>
-      <div className="bg-white border border-slate-200 rounded-lg p-3 text-sm flex flex-wrap gap-x-6 gap-y-1">
+      <div className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-2">
+        <h2 className="font-semibold text-slate-800">
+          Votre carnet de bord
+        </h2>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Notez ce qui s'est réellement passé après chaque piste — les échecs
+          comme les réussites. C'est le seul moyen de savoir, dans six mois ou un
+          an, si ces signaux vous ont réellement apporté quelque chose. Un outil
+          qui ne montrerait que ses réussites vous tromperait.
+        </p>
+      </div>
+      <div className="bg-white border border-slate-200/80 rounded-xl p-3 text-sm flex flex-wrap gap-x-6 gap-y-1">
         <span>
           <span className="font-medium">{pistes.length}</span> piste(s) au total
         </span>
@@ -83,8 +89,8 @@ export default function History() {
       {pistes.map((p) => (
         <div
           key={p.id}
-          className={`bg-white border rounded-lg p-4 text-sm space-y-2 ${
-            dueForNote(p) ? "border-amber-300" : "border-slate-200"
+          className={`bg-white border rounded-xl p-4 text-sm space-y-2 ${
+            dueForNote(p) ? "border-amber-200" : "border-slate-200/80"
           }`}
         >
           <div className="flex items-center justify-between gap-3">

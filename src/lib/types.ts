@@ -56,6 +56,16 @@ export const SIGNAL_LABELS: Record<SignalType, string> = {
   form4_sell: "Form 4 — vente d'initié",
 };
 
+/** Version courte, pour les étiquettes sur mobile (la couleur distingue 13F et Form 4). */
+export const SIGNAL_LABELS_COURTS: Record<SignalType, string> = {
+  "13f_new": "Nouvelle position",
+  "13f_increase": "Renforcement",
+  "13f_decrease": "Allègement",
+  "13f_exit": "Sortie",
+  form4_buy: "Achat d'initié",
+  form4_sell: "Vente d'initié",
+};
+
 /**
  * Note obligatoire, affichée sur chaque fiche, non masquable.
  */
