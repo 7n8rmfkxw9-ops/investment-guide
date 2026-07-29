@@ -93,7 +93,7 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {msg && <p className="text-sm text-slate-600">{msg}</p>}
 
-      <section className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
+      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
         <h2 className="font-semibold">Gestionnaires suivis (13F)</h2>
         <p className="text-xs text-slate-500">
           Déposants institutionnels dont les 13F trimestriels seront analysés. Le CIK se
@@ -145,7 +145,7 @@ export default function SettingsPage() {
         </form>
       </section>
 
-      <section className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
+      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
         <h2 className="font-semibold">Sociétés suivies (Form 4 — initiés)</h2>
         <p className="text-xs text-slate-500">
           Les achats/ventes de dirigeants et administrateurs de ces sociétés seront
@@ -195,7 +195,7 @@ export default function SettingsPage() {
         </form>
       </section>
 
-      <section className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
+      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
         <h2 className="font-semibold">Frais et taille de position</h2>
         <p className="text-xs text-slate-500">
           Utilisés pour le calcul affiché sur chaque fiche : (frais fixes / montant

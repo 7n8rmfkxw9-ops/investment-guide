@@ -3,5 +3,24 @@
 @tailwind utilities;
 
 body {
-  @apply bg-slate-100 text-slate-900 antialiased;
+  @apply bg-slate-50 text-slate-800 antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Barre d'onglets defilante sans ascenseur visible (iPhone) */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Safari iOS zoome automatiquement sur un champ dont la police fait moins de
+   16 px. Le !important est necessaire pour passer devant les classes Tailwind
+   de taille appliquees sur ces champs. */
+input,
+select,
+textarea {
+  font-size: 16px !important;
 }

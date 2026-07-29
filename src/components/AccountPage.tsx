@@ -39,14 +39,14 @@ export default function AccountPage() {
 
   return (
     <div className="space-y-6 max-w-md">
-      <section className="bg-white border border-slate-200 rounded-lg p-5 space-y-2">
+      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-2">
         <h2 className="font-semibold">Compte</h2>
         <p className="text-sm text-slate-600">
           Connecté en tant que <span className="font-medium">{email}</span>
         </p>
       </section>
 
-      <section className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
+      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
         <h2 className="font-semibold">Changer le mot de passe</h2>
         <form onSubmit={changePassword} className="space-y-3">
           <input
