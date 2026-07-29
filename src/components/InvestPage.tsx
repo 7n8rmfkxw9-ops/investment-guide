@@ -5,6 +5,7 @@ import {
   DEFAULT_TOB_PCT,
   FEE_WARNING_THRESHOLD_PCT,
 } from "../lib/fees";
+import { CARTE } from "../lib/theme";
 
 /**
  * Page "Investir" : information pedagogique pour passer a l'acte par soi-meme.
@@ -21,7 +22,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
+    <section className={`${CARTE} p-5 space-y-3`}>
       <h2 className="font-semibold text-slate-800">{titre}</h2>
       <div className="text-sm text-slate-600 leading-relaxed space-y-3">
         {children}
@@ -89,7 +90,7 @@ export default function InvestPage() {
           plupart des sources publiques d'éducation financière — dont Wikifin, le
           site de la FSMA, l'autorité belge des marchés financiers.
         </p>
-        <p className="bg-sky-50/70 border border-sky-100 rounded-lg p-3 text-slate-700">
+        <p className="bg-indigo-50 border border-indigo-200/70 rounded-xl p-4 text-slate-700">
           Une façon saine d'utiliser cet outil : garder l'essentiel de votre
           épargne sur un placement diversifié et n'utiliser qu'une petite part,
           que vous acceptez de perdre entièrement, pour les pistes qui vous
@@ -207,7 +208,7 @@ export default function InvestPage() {
           Ces règles ont changé récemment et les montants sont indexés. Vérifiez
           sur{" "}
           <a
-            className="text-sky-700 underline"
+            className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
             href="https://www.wikifin.be"
             target="_blank"
             rel="noreferrer"
@@ -256,7 +257,7 @@ export default function InvestPage() {
             C'est le point vital, celui qui vous protège des arnaques. Vérifiez
             son nom dans les registres officiels de la{" "}
             <a
-              className="text-sky-700 underline"
+              className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
               href="https://www.fsma.be/fr/data-portal"
               target="_blank"
               rel="noreferrer"
@@ -265,7 +266,7 @@ export default function InvestPage() {
             </a>{" "}
             et consultez ses{" "}
             <a
-              className="text-sky-700 underline"
+              className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
               href="https://www.fsma.be/fr/warnings"
               target="_blank"
               rel="noreferrer"

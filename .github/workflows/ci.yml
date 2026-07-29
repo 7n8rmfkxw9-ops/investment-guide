@@ -16,3 +16,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Les calculs de frais et de change decident de ce que l'utilisateur
+      # croit avoir gagne : ils ne partent pas sans verification.
+      - run: npm test

@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import type { Manager, Market, WatchedIssuer } from "../lib/types";
 import { MARKET_LABELS } from "../lib/types";
 import { DEFAULT_TOB_PCT } from "../lib/fees";
+import { BOUTON_PRINCIPAL, CARTE, CHAMP } from "../lib/theme";
 
 export default function SettingsPage() {
   const [managers, setManagers] = useState<Manager[]>([]);
@@ -103,13 +104,13 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {msg && <p className="text-sm text-slate-600">{msg}</p>}
 
-      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
+      <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Gestionnaires suivis (13F)</h2>
         <p className="text-xs text-slate-500">
           Déposants institutionnels dont les 13F trimestriels seront analysés. Le CIK se
           trouve sur{" "}
           <a
-            className="text-sky-700 underline"
+            className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
             href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany"
             target="_blank"
             rel="noreferrer"
@@ -138,31 +139,31 @@ export default function SettingsPage() {
         </ul>
         <form onSubmit={addManager} className="flex flex-wrap gap-2">
           <input
-            className="border rounded px-2 py-1 text-sm flex-1 min-w-40"
+            className={`${CHAMP} flex-1 min-w-40`}
             placeholder="Nom (ex. Berkshire Hathaway)"
             value={mName}
             onChange={(e) => setMName(e.target.value)}
           />
           <input
-            className="border rounded px-2 py-1 text-sm w-36"
+            className={`${CHAMP} w-36`}
             placeholder="CIK"
             value={mCik}
             onChange={(e) => setMCik(e.target.value)}
           />
-          <button className="text-sm border rounded px-3 py-1 bg-slate-800 text-white">
+          <button className={`${BOUTON_PRINCIPAL}`}>
             Ajouter
           </button>
         </form>
       </section>
 
-      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
+      <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Sociétés suivies (opérations de dirigeants)</h2>
         <p className="text-xs text-slate-500">
           Les achats et ventes déclarés par les dirigeants de ces sociétés seront
           détectés. Pour la <strong>Belgique</strong>, saisissez le nom exact tel
           qu'il figure au{" "}
           <a
-            className="text-sky-700 underline"
+            className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
             href="https://www.fsma.be/fr/transaction-search"
             target="_blank"
             rel="noreferrer"
@@ -172,7 +173,7 @@ export default function SettingsPage() {
           (ex. AB INBEV, UCB, SOLVAY) — sans CIK. Pour la{" "}
           <strong>Suède</strong>, le nom exact du registre{" "}
           <a
-            className="text-sky-700 underline"
+            className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
             href="https://marknadssok.fi.se/publiceringsklient"
             target="_blank"
             rel="noreferrer"
@@ -208,7 +209,7 @@ export default function SettingsPage() {
         </ul>
         <form onSubmit={addIssuer} className="flex flex-wrap gap-2">
           <select
-            className="border rounded px-2 py-1 text-sm bg-white"
+            className={`${CHAMP} bg-white`}
             value={iMarket}
             onChange={(e) => setIMarket(e.target.value as Market)}
           >
@@ -217,7 +218,7 @@ export default function SettingsPage() {
             <option value="US">États-Unis</option>
           </select>
           <input
-            className="border rounded px-2 py-1 text-sm flex-1 min-w-40"
+            className={`${CHAMP} flex-1 min-w-40`}
             placeholder={
               iMarket === "BE"
                 ? "Nom FSMA (ex. UCB)"
@@ -229,26 +230,26 @@ export default function SettingsPage() {
             onChange={(e) => setIName(e.target.value)}
           />
           <input
-            className="border rounded px-2 py-1 text-sm w-24"
+            className={`${CHAMP} w-24`}
             placeholder="Ticker"
             value={iTicker}
             onChange={(e) => setITicker(e.target.value)}
           />
           {iMarket === "US" && (
             <input
-              className="border rounded px-2 py-1 text-sm w-36"
+              className={`${CHAMP} w-36`}
               placeholder="CIK"
               value={iCik}
               onChange={(e) => setICik(e.target.value)}
             />
           )}
-          <button className="text-sm border rounded px-3 py-1 bg-slate-800 text-white">
+          <button className={`${BOUTON_PRINCIPAL}`}>
             Ajouter
           </button>
         </form>
       </section>
 
-      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
+      <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Frais et taille de position</h2>
         <p className="text-xs text-slate-500">
           Utilisés pour le calcul affiché sur chaque fiche. En Belgique, la taxe
@@ -260,7 +261,7 @@ export default function SettingsPage() {
           <label className="text-sm">
             <span className="block text-xs text-slate-500">Frais fixes courtier (€)</span>
             <input
-              className="border rounded px-2 py-1 text-sm w-32"
+              className={`${CHAMP} w-32`}
               value={fee}
               onChange={(e) => setFee(e.target.value)}
             />
@@ -270,7 +271,7 @@ export default function SettingsPage() {
               Taxe de bourse par transaction (%)
             </span>
             <input
-              className="border rounded px-2 py-1 text-sm w-32"
+              className={`${CHAMP} w-32`}
               value={tob}
               onChange={(e) => setTob(e.target.value)}
             />
@@ -280,12 +281,12 @@ export default function SettingsPage() {
               Montant envisagé par position (€)
             </span>
             <input
-              className="border rounded px-2 py-1 text-sm w-32"
+              className={`${CHAMP} w-32`}
               value={size}
               onChange={(e) => setSize(e.target.value)}
             />
           </label>
-          <button className="text-sm border rounded px-3 py-1 bg-slate-800 text-white">
+          <button className={`${BOUTON_PRINCIPAL}`}>
             Enregistrer
           </button>
         </form>

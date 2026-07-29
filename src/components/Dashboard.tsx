@@ -3,6 +3,12 @@ import { supabase } from "../lib/supabase";
 import type { Piste, SignalType } from "../lib/types";
 import { SIGNAL_LABELS } from "../lib/types";
 import PisteCard from "./PisteCard";
+import type { AmorceSimulation } from "./SimulatorPage";
+import { BOUTON_DOUX, CARTE, CHAMP } from "../lib/theme";
+
+interface Props {
+  onSimuler?: (a: AmorceSimulation) => void;
+}
 
 type SortKey = "date" | "signal";
 
@@ -17,7 +23,7 @@ const SOURCES = [
   { fn: "sync-fi", nom: "Finansinspektionen" },
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ onSimuler }: Props) {
   const [pistes, setPistes] = useState<Piste[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,25 +107,28 @@ export default function Dashboard() {
       return +new Date(b.detected_at) - +new Date(a.detected_at);
     });
 
-  const selectCls =
-    "border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm bg-white text-slate-600";
+  const selectCls = `${CHAMP} py-1.5`;
 
   return (
     <div className="space-y-4">
       {/* Barre d'actions, volontairement discrete */}
-      <div className="flex items-center gap-3 text-sm">
+      <div className="flex items-center gap-2 text-sm">
         <button
           onClick={() => setFiltresOuverts(!filtresOuverts)}
-          className="text-slate-500 hover:text-slate-800"
+          className={
+            filtresActifs > 0
+              ? BOUTON_DOUX
+              : "rounded-xl px-3.5 py-2 text-sm text-slate-500 hover:bg-slate-100 transition"
+          }
         >
           Filtres{filtresActifs > 0 ? ` (${filtresActifs})` : ""}
         </button>
         <button
           onClick={runSync}
           disabled={syncing}
-          className="ml-auto text-slate-500 hover:text-slate-800 disabled:opacity-40"
+          className="ml-auto rounded-xl px-3.5 py-2 text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-40 transition"
         >
-          {syncing ? "Synchronisation…" : "Actualiser"}
+          {syncing ? "Synchronisation…" : "↻ Actualiser"}
         </button>
       </div>
 
@@ -174,12 +183,20 @@ export default function Dashboard() {
         </div>
       )}
 
-      {syncMsg && <p className="text-sm text-slate-500">{syncMsg}</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {syncMsg && (
+        <p className="text-sm text-indigo-800 bg-indigo-50 border border-indigo-200/70 rounded-xl px-4 py-3">
+          {syncMsg}
+        </p>
+      )}
+      {error && (
+        <p className="text-sm text-rose-700 bg-rose-50 border border-rose-200/70 rounded-xl px-4 py-3">
+          {error}
+        </p>
+      )}
       {loading && <p className="text-sm text-slate-400">Chargement…</p>}
 
       {!loading && shown.length === 0 && (
-        <div className="bg-white border border-slate-200/80 rounded-xl p-6 text-sm text-slate-500 leading-relaxed">
+        <div className={`${CARTE} p-6 text-sm text-slate-500 leading-relaxed`}>
           {pistes.length === 0 ? (
             <>
               <p className="text-slate-700 font-medium mb-1.5">
@@ -205,6 +222,16 @@ export default function Dashboard() {
           brokerFixedFeeEur={fee}
           positionSizeEur={size}
           transactionTaxPct={tob}
+          onSimuler={
+            onSimuler
+              ? () =>
+                  onSimuler({
+                    nom: p.company_name,
+                    ticker: p.ticker,
+                    pisteId: p.id,
+                  })
+              : undefined
+          }
         />
       ))}
     </div>

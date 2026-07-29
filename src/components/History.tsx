@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { Piste } from "../lib/types";
 import { SIGNAL_LABELS } from "../lib/types";
+import { CARTE } from "../lib/theme";
 
 /**
  * Historique honnete : toutes les pistes passees, avec la possibilite de noter
@@ -58,7 +59,7 @@ export default function History() {
 
   return (
     <div className="space-y-3">
-      <div className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-2">
+      <div className={`${CARTE} p-5 space-y-2`}>
         <h2 className="font-semibold text-slate-800">
           Votre carnet de bord
         </h2>
@@ -69,7 +70,7 @@ export default function History() {
           qui ne montrerait que ses réussites vous tromperait.
         </p>
       </div>
-      <div className="bg-white border border-slate-200/80 rounded-xl p-3 text-sm flex flex-wrap gap-x-6 gap-y-1">
+      <div className={`${CARTE} p-3 text-sm flex flex-wrap gap-x-6 gap-y-1`}>
         <span>
           <span className="font-medium">{pistes.length}</span> piste(s) au total
         </span>
@@ -113,7 +114,7 @@ export default function History() {
           ) : (
             <div className="flex gap-2">
               <input
-                className="flex-1 border rounded px-2 py-1 text-sm"
+                className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
                 placeholder="Ce qui s'est passé ensuite (hausse, baisse, rien…)"
                 value={drafts[p.id] ?? ""}
                 onChange={(e) => setDrafts((d) => ({ ...d, [p.id]: e.target.value }))}

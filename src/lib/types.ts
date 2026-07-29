@@ -57,6 +57,41 @@ export interface Piste {
   outcome_recorded_at: string | null;
 }
 
+/**
+ * Un achat fictif, enregistre pour etre confronte ensuite aux cours reels.
+ * Aucun ordre n'est passe et aucun courtier n'est connecte : c'est un
+ * exercice, pas un portefeuille.
+ */
+export interface Simulation {
+  id: string;
+  user_id: string;
+  piste_id: string | null;
+  symbole: string;
+  company_name: string;
+  devise: string;
+  montant_eur: number;
+  frais_entree_eur: number;
+  prix_entree: number;
+  /** 1 EUR = taux_entree unites de la devise du titre, au jour de l'achat. */
+  taux_entree: number;
+  quantite: number;
+  date_entree: string;
+  note: string | null;
+  prix_actuel: number | null;
+  taux_actuel: number | null;
+  prix_maj_at: string | null;
+  /** Placement de reference : meme somme, meme jour, sur un ETF mondial. */
+  ref_symbole: string | null;
+  ref_prix_entree: number | null;
+  ref_prix_actuel: number | null;
+  closed_at: string | null;
+  prix_sortie: number | null;
+  taux_sortie: number | null;
+  frais_sortie_eur: number | null;
+  note_sortie: string | null;
+  created_at: string;
+}
+
 export interface Settings {
   user_id: string;
   broker_fixed_fee_eur: number;

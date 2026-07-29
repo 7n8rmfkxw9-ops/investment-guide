@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { BOUTON_PRINCIPAL, CARTE } from "../lib/theme";
 
 export default function AccountPage() {
   const [email, setEmail] = useState<string>("");
@@ -39,14 +40,14 @@ export default function AccountPage() {
 
   return (
     <div className="space-y-6 max-w-md">
-      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-2">
+      <section className={`${CARTE} p-5 space-y-2`}>
         <h2 className="font-semibold">Compte</h2>
         <p className="text-sm text-slate-600">
           Connecté en tant que <span className="font-medium">{email}</span>
         </p>
       </section>
 
-      <section className="bg-white border border-slate-200/80 rounded-xl p-5 space-y-3">
+      <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Changer le mot de passe</h2>
         <form onSubmit={changePassword} className="space-y-3">
           <input
@@ -73,7 +74,7 @@ export default function AccountPage() {
           <button
             type="submit"
             disabled={busy}
-            className="bg-slate-800 text-white rounded px-4 py-2 text-sm disabled:opacity-50"
+            className={`${BOUTON_PRINCIPAL}`}
           >
             {busy ? "Modification…" : "Modifier le mot de passe"}
           </button>
