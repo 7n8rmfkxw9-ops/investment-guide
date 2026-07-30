@@ -98,6 +98,8 @@ export interface Settings {
   position_size_eur: number;
   /** Taxe proportionnelle par transaction (TOB en Belgique), en %. */
   tob_pct: number;
+  /** Nom du courtier dont le tarif a servi a preremplir broker_fixed_fee_eur. */
+  broker_name: string | null;
   updated_at: string;
 }
 

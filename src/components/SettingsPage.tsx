@@ -4,6 +4,7 @@ import type { Manager, Market, WatchedIssuer } from "../lib/types";
 import { MARKET_LABELS } from "../lib/types";
 import { DEFAULT_TOB_PCT } from "../lib/fees";
 import { BOUTON_PRINCIPAL, CARTE, CHAMP } from "../lib/theme";
+import { COURTIERS } from "../lib/courtiers";
 
 export default function SettingsPage() {
   const [managers, setManagers] = useState<Manager[]>([]);
@@ -11,6 +12,8 @@ export default function SettingsPage() {
   const [fee, setFee] = useState("1.00");
   const [size, setSize] = useState("150");
   const [tob, setTob] = useState(String(DEFAULT_TOB_PCT));
+  const [brokerName, setBrokerName] = useState<string | null>(null);
+  const [courtierChoisi, setCourtierChoisi] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
 
   const [mName, setMName] = useState("");
@@ -32,7 +35,18 @@ export default function SettingsPage() {
       setFee(String(s.broker_fixed_fee_eur));
       setSize(String(s.position_size_eur));
       if (s.tob_pct != null) setTob(String(s.tob_pct));
+      setBrokerName(s.broker_name ?? null);
     }
+  }
+
+  /** Preremplit le frais fixe avec le tarif du courtier choisi, sans l'enregistrer
+   * encore : l'utilisateur garde la main via le bouton « Enregistrer » plus bas. */
+  function appliquerTarifCourtier(nom: string) {
+    setCourtierChoisi(nom);
+    const c = COURTIERS.find((x) => x.nom === nom);
+    if (!c) return;
+    setFee(String(c.fraisPetitOrdreEur));
+    setBrokerName(c.nom);
   }
 
   useEffect(() => {
@@ -95,6 +109,7 @@ export default function SettingsPage() {
       broker_fixed_fee_eur: Number(fee.replace(",", ".")),
       position_size_eur: Number(size.replace(",", ".")),
       tob_pct: Number(tob.replace(",", ".")),
+      broker_name: brokerName,
       updated_at: new Date().toISOString(),
     });
     setMsg(error ? error.message : "Paramètres enregistrés.");
@@ -257,13 +272,74 @@ export default function SettingsPage() {
           vente : elle est donc comptée deux fois dans le gain minimum. Au-delà
           de 3 % de coût à l'achat, un avertissement est affiché.
         </p>
+
+        <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-4 space-y-2.5">
+          <label className="text-sm block">
+            <span className="block text-xs text-slate-500 mb-1">
+              Préremplir avec le tarif d'un courtier
+            </span>
+            <select
+              className={`${CHAMP} bg-white w-full sm:w-72`}
+              value={courtierChoisi}
+              onChange={(e) => appliquerTarifCourtier(e.target.value)}
+            >
+              <option value="">— choisir un courtier —</option>
+              {COURTIERS.map((c) => (
+                <option key={c.nom} value={c.nom}>
+                  {c.nom} — {c.fraisPetitOrdreEur.toFixed(2).replace(".", ",")} €
+                </option>
+              ))}
+            </select>
+          </label>
+          {courtierChoisi &&
+            (() => {
+              const c = COURTIERS.find((x) => x.nom === courtierChoisi);
+              if (!c) return null;
+              return (
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {c.fraisNote}{" "}
+                  {c.fraisSource === "estimation" ? (
+                    <>
+                      Chiffre <strong>non confirmé sur une source officielle</strong>{" "}
+                      accessible au moment de l'écrire — vérifiez-le vous-même.
+                    </>
+                  ) : (
+                    <>Tarif lu sur la grille officielle du courtier.</>
+                  )}{" "}
+                  Constaté en {c.fraisConstateLe}, les tarifs changent : reconfirmez
+                  sur{" "}
+                  <a
+                    href={c.fraisLien}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
+                  >
+                    leur page de tarifs
+                  </a>
+                  .
+                </p>
+              );
+            })()}
+          {!courtierChoisi && brokerName && (
+            <p className="text-xs text-slate-500">
+              Tarif actuellement basé sur <strong>{brokerName}</strong>.
+            </p>
+          )}
+        </div>
+
         <form onSubmit={saveSettings} className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
             <span className="block text-xs text-slate-500">Frais fixes courtier (€)</span>
             <input
               className={`${CHAMP} w-32`}
               value={fee}
-              onChange={(e) => setFee(e.target.value)}
+              onChange={(e) => {
+                setFee(e.target.value);
+                // Une saisie manuelle rompt le lien avec le courtier choisi :
+                // le badge "tarif basé sur X" mentirait sinon.
+                setBrokerName(null);
+                setCourtierChoisi("");
+              }}
             />
           </label>
           <label className="text-sm">
