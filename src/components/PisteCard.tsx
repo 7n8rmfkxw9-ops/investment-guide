@@ -9,6 +9,7 @@ import type { Piste } from "../lib/types";
 import { EXPLICATIONS } from "../lib/glossaire";
 import { computeFeeImpact, FEE_WARNING_THRESHOLD_PCT } from "../lib/fees";
 import { ACCENTS, CARTE } from "../lib/theme";
+import AchatCourtierButton from "./AchatCourtierButton";
 
 interface Props {
   piste: Piste;
@@ -144,7 +145,8 @@ export default function PisteCard({
           )}
         </div>
 
-        {/* Entrainement : la seule action proposee par une fiche est fictive. */}
+        {/* Entrainement fictif d'abord, achat reel ensuite : l'ordre des deux
+            boutons rappelle lequel engage vraiment de l'argent. */}
         {onSimuler && (
           <button
             onClick={onSimuler}
@@ -153,6 +155,7 @@ export default function PisteCard({
             🎓 S'entraîner sur cette société — achat fictif, sans argent réel
           </button>
         )}
+        <AchatCourtierButton nom={piste.company_name} ticker={piste.ticker} />
 
         {/* Source */}
         <a
@@ -170,7 +173,8 @@ export default function PisteCard({
         </p>
 
         <p className="text-xs text-slate-400">
-          Pour investir, ouvre ton application de courtage habituelle.
+          Pour investir, utilise le bouton ci-dessus ou ton application de
+          courtage habituelle.
         </p>
       </div>
     </article>

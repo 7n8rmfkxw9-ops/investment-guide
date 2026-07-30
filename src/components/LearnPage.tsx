@@ -259,9 +259,17 @@ export default function LearnPage() {
         </p>
         <p>
           Cet outil a été conçu pour faire l'inverse. Pas de score, pas de
-          notification pressante, pas de bouton d'achat. Chaque fiche affiche au
-          contraire son degré d'incertitude. L'objectif est que vous décidiez
-          lentement, en comprenant, et jamais sous le coup de l'urgence.
+          notification pressante. Chaque fiche affiche au contraire son degré
+          d'incertitude. L'objectif est que vous décidiez lentement, en
+          comprenant, et jamais sous le coup de l'urgence.
+        </p>
+        <p>
+          Un bouton « Acheter chez un courtier » existe bien, sur demande
+          explicite : il ouvre le site d'un courtier de votre choix dans un
+          nouvel onglet. C'est la seule chose qu'il fait. Il ne transmet aucun
+          ordre, ne se connecte à aucun compte, et l'outil ne saura jamais si
+          vous avez acheté quoi que ce soit. La décision, l'ordre et l'argent
+          restent entièrement entre vous et votre courtier.
         </p>
       </Card>
 

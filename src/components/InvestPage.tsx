@@ -6,48 +6,13 @@ import {
   FEE_WARNING_THRESHOLD_PCT,
 } from "../lib/fees";
 import { CARTE } from "../lib/theme";
+import { COURTIERS } from "../lib/courtiers";
 
 /**
- * Page "Investir" : information pedagogique pour passer a l'acte par soi-meme.
- * Conformement au principe de l'outil, aucune integration courtier, aucun
- * bouton d'achat, aucun lien profond vers un tunnel de commande — uniquement
- * de quoi comprendre et choisir seul.
+ * Page "Investir" : information pedagogique pour passer a l'acte par soi-meme,
+ * et des liens vers les plateformes elles-memes (voir `AchatCourtierButton`
+ * pour le bouton d'achat propose sur une piste ou un titre precis).
  */
-
-/**
- * Liens directs vers l'accueil public de plateformes reellement agreees et
- * accessibles depuis la Belgique. Ordre alphabetique : ce n'est pas un
- * classement, et aucune de ces entrees n'est une recommandation. Les notes
- * restent qualitatives et sans chiffre de frais, qui changent trop souvent
- * pour rester exacts ici.
- */
-const PLATEFORMES: { nom: string; lien: string; note: string }[] = [
-  {
-    nom: "Bolero (KBC)",
-    lien: "https://www.bolero.be/",
-    note: "Courtier en ligne belge, agréé FSMA, adossé à KBC.",
-  },
-  {
-    nom: "DEGIRO",
-    lien: "https://www.degiro.be/",
-    note: "Courtier en ligne néerlandais, opérant en Belgique sous passeport européen.",
-  },
-  {
-    nom: "Keytrade Bank",
-    lien: "https://www.keytradebank.be/",
-    note: "Banque en ligne belge, agréée FSMA, avec courtage intégré.",
-  },
-  {
-    nom: "Saxo Bank",
-    lien: "https://www.home.saxo/fr-be",
-    note: "Courtier danois, opérant en Belgique sous passeport européen.",
-  },
-  {
-    nom: "Trade Republic",
-    lien: "https://www.traderepublic.com/fr-be",
-    note: "Courtier allemand, propose des fractions d'actions et d'ETF.",
-  },
-];
 
 function Section({
   titre,
@@ -346,7 +311,7 @@ export default function InvestPage() {
           ces liens.
         </p>
         <div className="grid sm:grid-cols-2 gap-3">
-          {PLATEFORMES.map((p) => (
+          {COURTIERS.map((p) => (
             <a
               key={p.nom}
               href={p.lien}
