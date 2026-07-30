@@ -14,6 +14,41 @@ import { CARTE } from "../lib/theme";
  * de quoi comprendre et choisir seul.
  */
 
+/**
+ * Liens directs vers l'accueil public de plateformes reellement agreees et
+ * accessibles depuis la Belgique. Ordre alphabetique : ce n'est pas un
+ * classement, et aucune de ces entrees n'est une recommandation. Les notes
+ * restent qualitatives et sans chiffre de frais, qui changent trop souvent
+ * pour rester exacts ici.
+ */
+const PLATEFORMES: { nom: string; lien: string; note: string }[] = [
+  {
+    nom: "Bolero (KBC)",
+    lien: "https://www.bolero.be/",
+    note: "Courtier en ligne belge, agréé FSMA, adossé à KBC.",
+  },
+  {
+    nom: "DEGIRO",
+    lien: "https://www.degiro.be/",
+    note: "Courtier en ligne néerlandais, opérant en Belgique sous passeport européen.",
+  },
+  {
+    nom: "Keytrade Bank",
+    lien: "https://www.keytradebank.be/",
+    note: "Banque en ligne belge, agréée FSMA, avec courtage intégré.",
+  },
+  {
+    nom: "Saxo Bank",
+    lien: "https://www.home.saxo/fr-be",
+    note: "Courtier danois, opérant en Belgique sous passeport européen.",
+  },
+  {
+    nom: "Trade Republic",
+    lien: "https://www.traderepublic.com/fr-be",
+    note: "Courtier allemand, propose des fractions d'actions et d'ETF.",
+  },
+];
+
 function Section({
   titre,
   children,
@@ -294,13 +329,48 @@ export default function InvestPage() {
             , ainsi que les frais de change euro/dollar, souvent oubliés.
           </li>
         </ol>
-        <p className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-          Des courtiers agréés et accessibles depuis la Belgique existent en
-          nombre : banques belges, courtiers en ligne spécialisés, courtiers
-          européens opérant sous passeport. Je ne vous en recommande aucun —
-          ce choix vous appartient, et les tarifs changent trop souvent pour
-          qu'une liste reste fiable. Comparez sur les 4 critères ci-dessus, en
-          commençant toujours par la vérification de l'agrément.
+        <p className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          Les tarifs changent trop souvent pour qu'une comparaison chiffrée reste
+          fiable ici : vérifiez-les toujours sur le site du courtier au moment de
+          choisir. La liste ci-dessous n'est ni exhaustive ni un classement — ce
+          sont des accès directs à des sites de plateformes réellement agréées
+          et accessibles depuis la Belgique, pour vous éviter de chercher seul.
+        </p>
+      </Section>
+
+      <Section titre="Des plateformes vers lesquelles aller vérifier">
+        <p>
+          Ces liens mènent vers l'accueil public de chaque site — jamais vers un
+          tunnel d'ouverture de compte ni un ordre préparé à votre place. Cet
+          outil ne touche à aucun de ces comptes et ne reçoit rien en retour de
+          ces liens.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          {PLATEFORMES.map((p) => (
+            <a
+              key={p.nom}
+              href={p.lien}
+              target="_blank"
+              rel="noreferrer"
+              className="block rounded-xl border border-slate-200/70 bg-white p-4 hover:border-indigo-300 transition"
+            >
+              <p className="font-medium text-slate-800">{p.nom} ↗</p>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">{p.note}</p>
+            </a>
+          ))}
+        </div>
+        <p className="text-xs text-slate-500">
+          Avant tout dépôt, vérifiez le nom exact de l'entité dans le{" "}
+          <a
+            className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
+            href="https://www.fsma.be/fr/data-portal"
+            target="_blank"
+            rel="noreferrer"
+          >
+            registre de la FSMA
+          </a>{" "}
+          — un nom commercial peut différer de l'entité juridique réellement
+          agréée.
         </p>
       </Section>
 

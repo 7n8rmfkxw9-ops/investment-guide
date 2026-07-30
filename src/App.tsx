@@ -11,11 +11,15 @@ import LearnPage from "./components/LearnPage";
 import InvestPage from "./components/InvestPage";
 import SimulatorPage from "./components/SimulatorPage";
 import type { AmorceSimulation } from "./components/SimulatorPage";
+import MarketPage from "./components/MarketPage";
+import JournalPage from "./components/JournalPage";
 
 type Tab =
   | "pistes"
+  | "marche"
   | "simuler"
   | "comprendre"
+  | "journal"
   | "investir"
   | "positions"
   | "historique"
@@ -28,7 +32,9 @@ type Tab =
  */
 const TABS: { id: Tab; label: string; icone: string }[] = [
   { id: "pistes", label: "Pistes", icone: "📡" },
+  { id: "marche", label: "Marché", icone: "📈" },
   { id: "simuler", label: "S'entraîner", icone: "🎓" },
+  { id: "journal", label: "Journal", icone: "📰" },
   { id: "comprendre", label: "Comprendre", icone: "📖" },
   { id: "investir", label: "Investir", icone: "🏦" },
   { id: "positions", label: "Positions", icone: "📋" },
@@ -110,9 +116,11 @@ export default function App() {
 
       <main className="max-w-3xl mx-auto px-4 py-5 pb-16">
         {tab === "pistes" && <Dashboard onSimuler={simulerDepuisPiste} />}
+        {tab === "marche" && <MarketPage />}
         {tab === "simuler" && (
           <SimulatorPage amorce={amorce} onAmorceConsommee={() => setAmorce(null)} />
         )}
+        {tab === "journal" && <JournalPage />}
         {tab === "comprendre" && <LearnPage />}
         {tab === "investir" && <InvestPage />}
         {tab === "positions" && <PositionsPage />}
