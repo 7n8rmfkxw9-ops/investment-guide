@@ -160,6 +160,27 @@ export default function LearnPage() {
         </p>
       </Card>
 
+      <Card titre="Marché et Journal : lire des faits, jamais des prédictions">
+        <p>
+          L'onglet <strong>Marché</strong> affiche le cours d'une société, sa
+          fourchette sur un an et l'ampleur de ses secousses passées — des faits,
+          jamais une prévision. Un comparateur y montre ce qu'auraient donné,
+          sur des cours <em>déjà connus</em>, des achats mensuels réguliers face
+          à deux bornes théoriques impossibles à connaître à l'avance : le
+          meilleur et le pire moment. Personne ne peut deviner ces bornes avant
+          coup ; l'exercice sert seulement à comprendre pourquoi étaler ses
+          achats évite d'avoir à deviner.
+        </p>
+        <p>
+          L'onglet <strong>Journal</strong> relaie les actualités et les mises en
+          garde publiées par la FSMA, ainsi qu'une sélection de ses fiches
+          d'éducation financière (Wikifin). Rien n'y est résumé ou réécrit :
+          vous lisez le régulateur lui-même, y compris ses avertissements contre
+          des acteurs non agréés — la lecture la plus utile pour se protéger
+          d'une arnaque.
+        </p>
+      </Card>
+
       <Card titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>

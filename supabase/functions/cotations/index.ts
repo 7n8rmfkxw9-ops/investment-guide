@@ -134,6 +134,66 @@ async function historique(symbole: string, date: string): Promise<Cours & { date
   };
 }
 
+/**
+ * Serie de cours pour tracer une courbe, avec les reperes factuels du titre.
+ * Aucune projection : uniquement ce qui s'est deja produit.
+ */
+async function graphique(symbole: string, periode: string) {
+  const periodes: Record<string, string> = {
+    "1m": "range=1mo&interval=1d",
+    "6m": "range=6mo&interval=1d",
+    "1a": "range=1y&interval=1d",
+    "5a": "range=5y&interval=1wk",
+  };
+  const params = periodes[periode] ?? periodes["1a"];
+  const { meta, dates, cloture } = await serie(symbole, params);
+  const devise = String(meta.currency ?? "EUR").toUpperCase();
+  return {
+    symbole: String(meta.symbol ?? symbole).toUpperCase(),
+    nom: (meta.longName ?? meta.shortName ?? null) as string | null,
+    devise,
+    prix: Number(meta.regularMarketPrice ?? cloture[cloture.length - 1]),
+    tauxEur: await tauxEur(devise),
+    // Bornes sur 52 semaines publiees par la place : plus fiables que le
+    // min/max de la fenetre affichee, qui depend de la periode choisie.
+    haut52: meta.fiftyTwoWeekHigh ?? null,
+    bas52: meta.fiftyTwoWeekLow ?? null,
+    serie: dates.map((d, i) => ({ date: d, prix: cloture[i] })),
+  };
+}
+
+/** Grands indices de reference, pour situer l'ambiance generale des marches. */
+const INDICES: { symbole: string; nom: string; pays: string }[] = [
+  { symbole: "^BFX", nom: "BEL 20", pays: "🇧🇪" },
+  { symbole: "^STOXX50E", nom: "Euro Stoxx 50", pays: "🇪🇺" },
+  { symbole: "^OMX", nom: "OMX Stockholm 30", pays: "🇸🇪" },
+  { symbole: "^GSPC", nom: "S&P 500", pays: "🇺🇸" },
+  { symbole: "IWDA.AS", nom: "ETF actions mondiales", pays: "🌍" },
+];
+
+async function marche() {
+  const resultats = await Promise.all(
+    INDICES.map(async (idx) => {
+      try {
+        const { meta, dates, cloture } = await serie(idx.symbole, "range=1y&interval=1d");
+        const dernier = Number(meta.regularMarketPrice ?? cloture[cloture.length - 1]);
+        const veille = cloture[cloture.length - 2] ?? dernier;
+        return {
+          ...idx,
+          devise: String(meta.currency ?? "").toUpperCase(),
+          prix: dernier,
+          varJourPct: veille ? (dernier / veille - 1) * 100 : 0,
+          serie: dates.map((d, i) => ({ date: d, prix: cloture[i] })),
+        };
+      } catch {
+        // Un indice indisponible ne doit pas vider toute la page.
+        return { ...idx, devise: "", prix: null, varJourPct: null, serie: [] };
+      }
+    }),
+  );
+  return { indices: resultats, mesureA: new Date().toISOString() };
+}
+
 /** Symboles candidats pour un nom d'entreprise. */
 async function recherche(q: string): Promise<Record<string, unknown>[]> {
   const j = await yahoo(
@@ -262,6 +322,14 @@ Deno.serve(async (req) => {
         if (!uid) return json({ erreur: "authentification requise" }, 401);
         return json(await rafraichir(uid));
       }
+      case "graphique": {
+        const s = String(corps.symbole ?? "").trim();
+        const p = String(corps.periode ?? "1a").trim();
+        if (!s) return json({ erreur: "symbole manquant" }, 400);
+        return json(await graphique(s, p));
+      }
+      case "marche":
+        return json(await marche());
       default:
         return json({ erreur: `action inconnue : ${action || "(vide)"}` }, 400);
     }
