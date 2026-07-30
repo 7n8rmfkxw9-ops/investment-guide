@@ -9,6 +9,7 @@ import {
 import type { PointSerie } from "../lib/marche";
 import { formatEur, formatPct } from "../lib/simulation";
 import { BOUTON_DOUX, CARTE, CHAMP, couleurResultat } from "../lib/theme";
+import AchatCourtierButton from "./AchatCourtierButton";
 
 interface Candidat {
   symbole: string;
@@ -302,6 +303,8 @@ export default function MarketPage() {
                 <span className="text-sm font-normal text-slate-400">{graph.devise}</span>
               </p>
             </div>
+
+            <AchatCourtierButton nom={graph.nom ?? graph.symbole} ticker={graph.symbole} />
 
             <svg viewBox="0 0 400 120" className="w-full h-28" preserveAspectRatio="none">
               <path
