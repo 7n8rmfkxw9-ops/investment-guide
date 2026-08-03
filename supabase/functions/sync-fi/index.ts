@@ -14,6 +14,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk";
+import { programmerNotification } from "../_shared/push.ts";
 
 const SEC_UA = Deno.env.get("SEC_USER_AGENT") ?? "investment-guide contact@example.com";
 const supabase = createClient(
@@ -346,17 +347,29 @@ Deno.serve(async (req) => {
     .select("*")
     .eq("market", "SE");
 
+  const parUtilisateur = new Map<string, number>();
   try {
     const pistes = await processFi(issuers ?? []);
     if (pistes.length) {
       const { error } = await supabase.from("pistes").insert(pistes);
       if (error) throw error;
       created += pistes.length;
+      for (const p of pistes) {
+        parUtilisateur.set(p.user_id, (parUtilisateur.get(p.user_id) ?? 0) + 1);
+      }
     }
   } catch (e) {
     const msg = `FI: ${e instanceof Error ? e.message : String(e)}`;
     console.error(msg);
     errors.push(msg);
+  }
+
+  for (const [userId, n] of parUtilisateur) {
+    programmerNotification(supabase, userId, {
+      titre: "Veille investissement",
+      corps: `${n} nouvelle${n > 1 ? "s" : ""} piste${n > 1 ? "s" : ""} détectée${n > 1 ? "s" : ""} (Finansinspektionen).`,
+      url: "./",
+    });
   }
 
   return new Response(JSON.stringify({ created, errors }), {

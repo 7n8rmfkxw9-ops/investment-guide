@@ -181,6 +181,22 @@ export default function LearnPage() {
         </p>
       </Card>
 
+      <Card titre="Notifications : un décompte, jamais une incitation">
+        <p>
+          Dans l'onglet Compte, vous pouvez activer des notifications après
+          avoir ajouté cette page à l'écran d'accueil de votre iPhone ou iPad.
+          Le message envoyé après chaque synchronisation hebdomadaire reste
+          volontairement neutre — un simple décompte (« 3 nouvelles pistes
+          détectées ») — jamais une formulation qui pousse à agir dans
+          l'urgence. C'est le même principe que sur chaque fiche : cet outil
+          informe, il ne relance pas.
+        </p>
+        <p>
+          Le réglage est propre à chaque appareil : l'activer sur votre iPhone
+          ne l'active pas automatiquement sur votre iPad, et inversement.
+        </p>
+      </Card>
+
       <Card titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>

@@ -92,6 +92,15 @@ export interface Simulation {
   created_at: string;
 }
 
+/** Raccourci personnel vers une application bancaire ou d'investissement. */
+export interface AppLink {
+  id: string;
+  user_id: string;
+  label: string;
+  url: string;
+  created_at: string;
+}
+
 export interface Settings {
   user_id: string;
   broker_fixed_fee_eur: number;

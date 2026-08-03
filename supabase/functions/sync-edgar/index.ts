@@ -16,6 +16,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { XMLParser } from "npm:fast-xml-parser@4";
 import Anthropic from "npm:@anthropic-ai/sdk";
+import { programmerNotification } from "../_shared/push.ts";
 
 const SEC_UA = Deno.env.get("SEC_USER_AGENT") ?? "investment-guide contact@example.com";
 const supabase = createClient(
@@ -628,6 +629,10 @@ Deno.serve(async (req) => {
   }
   const errors: string[] = [];
   let created = 0;
+  // Compte par utilisateur, pour une notification qui dit exactement combien
+  // de nouvelles pistes LUI concernent — pas un total global qui melangerait
+  // plusieurs comptes si l'outil etait partage.
+  const parUtilisateur = new Map<string, number>();
 
   const { data: managers } = await supabase.from("managers").select("*");
   for (const m of managers ?? []) {
@@ -637,6 +642,7 @@ Deno.serve(async (req) => {
         const { error } = await supabase.from("pistes").insert(pistes);
         if (error) throw error;
         created += pistes.length;
+        parUtilisateur.set(m.user_id, (parUtilisateur.get(m.user_id) ?? 0) + pistes.length);
       }
     } catch (e) {
       const msg = `13F ${m.name}: ${e instanceof Error ? e.message : String(e)}`;
@@ -655,12 +661,21 @@ Deno.serve(async (req) => {
         const { error } = await supabase.from("pistes").insert(pistes);
         if (error) throw error;
         created += pistes.length;
+        parUtilisateur.set(iss.user_id, (parUtilisateur.get(iss.user_id) ?? 0) + pistes.length);
       }
     } catch (e) {
       const msg = `Form4 ${iss.name}: ${e instanceof Error ? e.message : String(e)}`;
       console.error(msg);
       errors.push(msg);
     }
+  }
+
+  for (const [userId, n] of parUtilisateur) {
+    programmerNotification(supabase, userId, {
+      titre: "Veille investissement",
+      corps: `${n} nouvelle${n > 1 ? "s" : ""} piste${n > 1 ? "s" : ""} détectée${n > 1 ? "s" : ""} (SEC).`,
+      url: "./",
+    });
   }
 
   return new Response(JSON.stringify({ created, errors }), {
