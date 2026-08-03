@@ -234,6 +234,7 @@ export default function Dashboard({ onSimuler }: Props) {
                     nom: p.company_name,
                     ticker: p.ticker,
                     pisteId: p.id,
+                    secteur: p.sector,
                   })
               : undefined
           }

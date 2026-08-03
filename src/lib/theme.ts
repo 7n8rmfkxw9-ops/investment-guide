@@ -74,6 +74,23 @@ export const ACCENTS: Record<SignalType, AccentSignal> = {
   form4_sell: VENTE,
   mar_buy: ACHAT,
   mar_sell: VENTE,
+  // Les prises de participation ne sont ni des achats ni des ventes au sens
+  // des autres signaux : un violet distinct evite de les confondre avec une
+  // operation d'initie, et separe l'actif (13D) du passif (13G).
+  sc13d_new: {
+    pastille: "bg-violet-100 text-violet-800",
+    barre: "bg-violet-500",
+    texte: "text-violet-700",
+    fond: "bg-violet-50/70 border-violet-200/70",
+    icone: "◆",
+  },
+  sc13g_new: {
+    pastille: "bg-slate-200 text-slate-700",
+    barre: "bg-slate-400",
+    texte: "text-slate-600",
+    fond: "bg-slate-50 border-slate-200",
+    icone: "◇",
+  },
 };
 
 /** Drapeau et libelle du marche, pour situer une societe d'un coup d'oeil. */

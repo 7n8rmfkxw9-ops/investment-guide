@@ -11,10 +11,12 @@ import {
   accessionNoDash,
   champ,
   classifierMouvement13F,
+  classifierSchedule13,
   classifierNatureFsma,
   decoderCsv,
   estAutreEmetteur,
   evaluerLigneFi,
+  extraireCibleSchedule13,
   extraireLigneFsma,
   filingHumanUrl,
   filingIndexUrl,
@@ -116,6 +118,80 @@ describe("classifierMouvement13F", () => {
   it("ne signale rien pile aux seuils de 10 %", () => {
     expect(classifierMouvement13F(1000, 1100)).toBeNull();
     expect(classifierMouvement13F(1000, 900)).toBeNull();
+  });
+});
+
+describe("extraireCibleSchedule13", () => {
+  // En-tete reel d'un depot SC 13D de Pershing Square (aout 2024), raccourci.
+  const ENTETE = `
+<SEC-HEADER>
+ACCESSION NUMBER: 0000930413-24-002266
+CONFORMED SUBMISSION TYPE: SC 13D
+GROUP MEMBERS: WILLIAM A. ACKMAN
+SUBJECT COMPANY:
+  COMPANY DATA:
+    COMPANY CONFORMED NAME: Seaport Entertainment Group Inc.
+    CENTRAL INDEX KEY: 0002009684
+    STANDARD INDUSTRIAL CLASSIFICATION: SERVICES-MISCELLANEOUS AMUSEMENT &amp; RECREATION [7990]
+    STATE OF INCORPORATION: DE
+FILED BY:
+  COMPANY DATA:
+    COMPANY CONFORMED NAME: Pershing Square Capital Management, L.P.
+    CENTRAL INDEX KEY: 0001336528
+`;
+
+  it("lit la societe visee, son CIK et son secteur", () => {
+    const c = extraireCibleSchedule13(ENTETE)!;
+    expect(c.nom).toBe("Seaport Entertainment Group Inc.");
+    expect(c.cik).toBe("2009684");
+    expect(c.secteur).toBe("SERVICES-MISCELLANEOUS AMUSEMENT & RECREATION");
+  });
+
+  it("ne confond jamais la societe visee avec le declarant", () => {
+    // Le bloc FILED BY vient apres et contient les memes intitules : lire le
+    // mauvais bloc attribuerait la participation a Pershing Square lui-meme.
+    const c = extraireCibleSchedule13(ENTETE)!;
+    expect(c.nom).not.toContain("Pershing");
+    expect(c.cik).not.toBe("1336528");
+  });
+
+  it("retire le code numerique du libelle de secteur", () => {
+    expect(extraireCibleSchedule13(ENTETE)!.secteur).not.toMatch(/\[|\]/);
+  });
+
+  it("tolere un en-tete sans secteur", () => {
+    const c = extraireCibleSchedule13(`
+SUBJECT COMPANY:
+  COMPANY CONFORMED NAME: Acme Corp
+  CENTRAL INDEX KEY: 0000123456
+`)!;
+    expect(c.nom).toBe("Acme Corp");
+    expect(c.secteur).toBeNull();
+  });
+
+  it("renvoie null si l'en-tete n'a pas de societe visee", () => {
+    expect(extraireCibleSchedule13("FILED BY: COMPANY CONFORMED NAME: X")).toBeNull();
+    expect(extraireCibleSchedule13("")).toBeNull();
+  });
+});
+
+describe("classifierSchedule13", () => {
+  it("distingue la prise de participation active de la detention passive", () => {
+    expect(classifierSchedule13("SC 13D")).toBe("13d");
+    expect(classifierSchedule13("SC 13G")).toBe("13g");
+    expect(classifierSchedule13("SCHEDULE 13D")).toBe("13d");
+  });
+
+  it("ecarte les amendements, qui ne sont pas de nouvelles prises de position", () => {
+    expect(classifierSchedule13("SC 13D/A")).toBeNull();
+    expect(classifierSchedule13("SC 13G/A")).toBeNull();
+    expect(classifierSchedule13("SCHEDULE 13D/A")).toBeNull();
+  });
+
+  it("ignore les autres formulaires", () => {
+    expect(classifierSchedule13("13F-HR")).toBeNull();
+    expect(classifierSchedule13("4")).toBeNull();
+    expect(classifierSchedule13("8-K")).toBeNull();
   });
 });
 

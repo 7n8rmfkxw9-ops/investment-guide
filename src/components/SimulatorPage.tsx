@@ -8,6 +8,7 @@ import {
   formatPct,
   prepareEntree,
 } from "../lib/simulation";
+import ExpositionPanel from "./ExpositionPanel";
 import {
   BOUTON_DOUX,
   BOUTON_PRINCIPAL,
@@ -40,6 +41,8 @@ export interface AmorceSimulation {
   nom: string;
   ticker: string | null;
   pisteId: string;
+  /** Secteur de la piste, repris tel quel pour la vue d'exposition. */
+  secteur: string | null;
 }
 
 interface Props {
@@ -61,6 +64,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
   const [sims, setSims] = useState<Simulation[]>([]);
   const [fee, setFee] = useState(1);
   const [tob, setTob] = useState(0);
+  const [fxSpread, setFxSpread] = useState(0);
   const [taille, setTaille] = useState(150);
   const [chargement, setChargement] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -77,7 +81,11 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
   const [montant, setMontant] = useState("100");
   const [date, setDate] = useState(AUJOURDHUI());
   const [note, setNote] = useState("");
+  const [regleSortie, setRegleSortie] = useState("");
   const [pisteId, setPisteId] = useState<string | null>(null);
+  // Secteur repris de la piste d'origine : les cotations publiques ne
+  // l'exposent pas librement, donc une saisie manuelle reste sans secteur.
+  const [secteurHerite, setSecteurHerite] = useState<string | null>(null);
   const [enregistre, setEnregistre] = useState(false);
 
   const charge = useCallback(async () => {
@@ -94,6 +102,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
     if (reglages) {
       setFee(Number(reglages.broker_fixed_fee_eur));
       setTob(Number(reglages.tob_pct ?? 0));
+      setFxSpread(Number(reglages.fx_spread_pct ?? 0));
       setTaille(Number(reglages.position_size_eur));
       setMontant(String(reglages.position_size_eur));
     }
@@ -110,6 +119,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
     if (!amorce) return;
     setOuvert(true);
     setPisteId(amorce.pisteId);
+    setSecteurHerite(amorce.secteur ?? null);
     setRequete(amorce.nom);
     setChoisi(null);
     setCoursTrouve(null);
@@ -166,8 +176,16 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
     if (!coursTrouve) return null;
     const m = Number(montant.replace(",", "."));
     if (!isFinite(m) || m <= 0) return null;
-    return prepareEntree(m, coursTrouve.prix, coursTrouve.tauxEur, fee, tob);
-  }, [coursTrouve, montant, fee, tob]);
+    return prepareEntree(
+      m,
+      coursTrouve.prix,
+      coursTrouve.tauxEur,
+      fee,
+      tob,
+      fxSpread,
+      coursTrouve.devise,
+    );
+  }, [coursTrouve, montant, fee, tob, fxSpread]);
 
   async function enregistrer(e: React.FormEvent) {
     e.preventDefault();
@@ -188,6 +206,8 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
       quantite: apercu.quantite,
       date_entree: coursTrouve.dateReelle ?? date,
       note: note.trim() || null,
+      regle_sortie: regleSortie.trim() || null,
+      secteur: secteurHerite,
       ref_symbole: coursTrouve.reference?.symbole ?? null,
       ref_prix_entree: coursTrouve.reference?.prix ?? null,
     });
@@ -209,7 +229,9 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
     setChoisi(null);
     setCoursTrouve(null);
     setNote("");
+    setRegleSortie("");
     setPisteId(null);
+    setSecteurHerite(null);
     setDate(AUJOURDHUI());
     setMontant(String(taille));
   }
@@ -230,7 +252,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
   }
 
   async function cloturer(sim: Simulation) {
-    const res = calculeSimulation(sim, fee, tob);
+    const res = calculeSimulation(sim, fee, tob, fxSpread);
     if (res.enAttente) {
       setErreur("Actualisez les cours avant de clôturer : la valeur du jour manque.");
       return;
@@ -261,7 +283,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
 
   // Bilan d'ensemble : c'est le chiffre qui compte, pas la meilleure ligne.
   const bilan = useMemo(() => {
-    const calc = sims.map((s) => calculeSimulation(s, fee, tob));
+    const calc = sims.map((s) => calculeSimulation(s, fee, tob, fxSpread));
     const exploitables = calc.filter((c) => !c.enAttente);
     const engage = exploitables.reduce((a, c) => a + c.engageEur, 0);
     const gain = exploitables.reduce((a, c) => a + c.gainEur, 0);
@@ -279,7 +301,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
           : null,
       fraisTotal: exploitables.reduce((a, c) => a + c.fraisEntreeEur + c.fraisSortieEur, 0),
     };
-  }, [sims, fee, tob]);
+  }, [sims, fee, tob, fxSpread]);
 
   return (
     <div className="space-y-5">
@@ -320,6 +342,9 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
           {erreur}
         </p>
       )}
+
+      {/* Exposition agregee : ce qu'aucune fiche isolee ne peut montrer. */}
+      <ExpositionPanel sims={sims} />
 
       {/* Bilan */}
       {bilan.nombre > 0 && (
@@ -487,6 +512,23 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
             />
           </label>
 
+          <label className="block text-sm">
+            <span className="block text-xs text-slate-500 mb-1">
+              À quelle condition vendriez-vous ?
+            </span>
+            <textarea
+              className={`${CHAMP} w-full h-20 resize-none`}
+              placeholder="Ex. je revends si ça perd 20 %, ou dans 6 mois quoi qu'il arrive."
+              value={regleSortie}
+              onChange={(e) => setRegleSortie(e.target.value)}
+            />
+            <span className="block text-xs text-slate-500 mt-1 leading-relaxed">
+              Écrire la sortie <strong>avant</strong> l'entrée est ce qui
+              distingue une décision d'une réaction. Une fois le cours en
+              baisse, tout le monde trouve de bonnes raisons d'attendre encore.
+            </span>
+          </label>
+
           {coursTrouve && apercu && (
             <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-4 space-y-2 text-sm">
               <p className="text-slate-700">
@@ -582,6 +624,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               sim={s}
               fee={fee}
               tob={tob}
+              fxSpread={fxSpread}
               onCloturer={() => cloturer(s)}
               onSupprimer={() => supprimer(s.id)}
             />
@@ -600,6 +643,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               sim={s}
               fee={fee}
               tob={tob}
+              fxSpread={fxSpread}
               onSupprimer={() => supprimer(s.id)}
             />
           ))}
@@ -636,17 +680,19 @@ function CarteSimulation({
   sim,
   fee,
   tob,
+  fxSpread,
   onCloturer,
   onSupprimer,
 }: {
   sim: Simulation;
   fee: number;
   tob: number;
+  fxSpread: number;
   onCloturer?: () => void;
   onSupprimer: () => void;
 }) {
   const [detail, setDetail] = useState(false);
-  const r = calculeSimulation(sim, fee, tob);
+  const r = calculeSimulation(sim, fee, tob, fxSpread);
   const cloturee = sim.closed_at != null;
 
   return (
@@ -699,6 +745,15 @@ function CarteSimulation({
           <p className="text-sm text-slate-600 italic leading-relaxed border-l-2 border-slate-200 pl-3">
             « {sim.note} »
           </p>
+        )}
+
+        {sim.regle_sortie && (
+          <div className="text-sm border-l-2 border-amber-300 pl-3">
+            <p className="text-xs uppercase tracking-wide text-amber-700">
+              Votre règle de sortie
+            </p>
+            <p className="text-slate-600 leading-relaxed">« {sim.regle_sortie} »</p>
+          </div>
         )}
 
         {!r.enAttente && (

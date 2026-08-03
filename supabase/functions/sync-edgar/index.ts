@@ -20,7 +20,9 @@ import { programmerNotification } from "../_shared/push.ts";
 import { verifierAppelant } from "../_shared/auth.ts";
 import {
   classifierMouvement13F,
+  classifierSchedule13,
   estAutreEmetteur,
+  extraireCibleSchedule13,
   filingHumanUrl,
   filingIndexUrl,
   formatUsd,
@@ -425,6 +427,130 @@ async function process13F(manager: {
 }
 
 // ---------------------------------------------------------------------------
+// Schedule 13D / 13G — prises de participation
+//
+// La donnee la plus fraiche que la SEC produise sur les grands
+// investisseurs : publiee sous 10 jours, contre 45 pour un 13F. Le 13D
+// signale en plus une intention d'influencer la societe (siege au conseil,
+// changement de strategie), la ou le 13G est une detention passive.
+//
+// Le document lui-meme est du HTML libre, impossible a analyser de facon
+// fiable ; l'en-tete SGML du depot, lui, est structure. On y lit la societe
+// visee et son secteur, et on s'arrete la : le pourcentage detenu n'existe
+// que dans le corps HTML, et mieux vaut ne rien afficher qu'un chiffre faux
+// sur une participation.
+
+const SC13_MAX_PAR_GESTIONNAIRE = 6;
+const SC13_FENETRE_JOURS = 45;
+
+async function processSchedule13(manager: {
+  id: string;
+  user_id: string;
+  cik: string;
+  name: string;
+}): Promise<PisteInsert[]> {
+  const subs = await getSubmissions(manager.cik);
+  const r = subs.filings.recent;
+  const limite = new Date();
+  limite.setDate(limite.getDate() - SC13_FENETRE_JOURS);
+
+  const pistes: PisteInsert[] = [];
+  let traites = 0;
+
+  for (let i = 0; i < r.form.length && traites < SC13_MAX_PAR_GESTIONNAIRE; i++) {
+    const genre = classifierSchedule13(r.form[i]);
+    if (!genre) continue;
+    if (new Date(r.filingDate[i]) < limite) break;
+
+    const acc = r.accessionNumber[i];
+    const { data: deja } = await supabase
+      .from("processed_filings")
+      .select("id")
+      .eq("user_id", manager.user_id)
+      .eq("accession_no", acc)
+      .maybeSingle();
+    if (deja) continue;
+    traites++;
+
+    // Fichier d'en-tete dedie : quelques kilo-octets, la ou le depot complet
+    // en fait plus de cent. La SEC ignore les requetes partielles (Range),
+    // donc c'est le seul moyen de ne pas telecharger tout le document.
+    const enteteUrl = `${filingIndexUrl(manager.cik, acc)}/${acc}-index-headers.html`;
+    let cible: ReturnType<typeof extraireCibleSchedule13> = null;
+    try {
+      cible = extraireCibleSchedule13(await (await secFetch(enteteUrl)).text());
+    } catch (e) {
+      console.error(`En-tete 13D/G illisible ${acc}:`, e);
+    }
+    if (!cible) {
+      // Marquer comme traite : sans societe visee, il n'y a rien a afficher,
+      // et reessayer chaque semaine ne changerait rien.
+      await supabase
+        .from("processed_filings")
+        .insert({ user_id: manager.user_id, accession_no: acc, form_type: r.form[i] });
+      continue;
+    }
+
+    // Le referentiel public SEC donne le ticker a partir du nom de la societe.
+    let ticker: string | null = null;
+    try {
+      ticker = (await loadNameIndex()).get(normalizeIssuerName(cible.nom))?.ticker ?? null;
+    } catch (e) {
+      console.error("Referentiel tickers indisponible:", e);
+    }
+
+    const filedAt = r.filingDate[i];
+    const actif = genre === "13d";
+    const fallback = actif
+      ? `${manager.name} a déclaré à la SEC une participation dans ${cible.nom} ` +
+        `dans un formulaire 13D déposé le ${filedAt}. Le 13D signale que ` +
+        `l'investisseur n'exclut pas de peser sur la société (conseil, ` +
+        `stratégie, cession). Le pourcentage détenu figure dans le document ` +
+        `officiel, non repris ici. Une prise de participation n'annonce ni ` +
+        `hausse ni baisse du cours.`
+      : `${manager.name} a déclaré à la SEC une participation dans ${cible.nom} ` +
+        `dans un formulaire 13G déposé le ${filedAt}. Le 13G correspond à une ` +
+        `détention passive, sans intention déclarée d'influencer la société — ` +
+        `souvent une simple exposition indicielle. Le pourcentage détenu ` +
+        `figure dans le document officiel, non repris ici.`;
+
+    const contexte = await generateContexte(
+      fallback,
+      `Formulaire ${r.form[i]} déposé le ${filedAt} par ${manager.name} ` +
+        `au sujet de ${cible.nom} (CIK ${cible.cik}` +
+        `${cible.secteur ? `, secteur ${cible.secteur}` : ""}). ` +
+        `${actif ? "Le 13D indique une intention possible d'influencer la société." : "Le 13G est une détention passive."} ` +
+        `Publié sous 10 jours, contre 45 pour un 13F. Le pourcentage détenu ` +
+        `n'est pas extrait : ne pas l'inventer.`,
+    );
+
+    pistes.push({
+      user_id: manager.user_id,
+      signal: actif ? "sc13d_new" : "sc13g_new",
+      ticker,
+      sector: cible.secteur,
+      company_name: cible.nom,
+      source_name: manager.name,
+      source_url: filingHumanUrl(manager.cik, acc),
+      contexte,
+      details: {
+        formulaire: r.form[i],
+        cible_cik: cible.cik,
+        declarant: manager.name,
+        passif: !actif,
+      },
+      filed_at: filedAt,
+    });
+    await supabase.from("processed_filings").insert({
+      user_id: manager.user_id,
+      accession_no: acc,
+      form_type: r.form[i],
+    });
+  }
+  return pistes;
+}
+
+// ---------------------------------------------------------------------------
 // Form 4
 
 async function processForm4(issuer: {
@@ -614,6 +740,21 @@ Deno.serve(async (req) => {
       }
     } catch (e) {
       const msg = `13F ${m.name}: ${e instanceof Error ? e.message : String(e)}`;
+      console.error(msg);
+      errors.push(msg);
+    }
+    // Prises de participation du meme gestionnaire, dans un try distinct :
+    // un 13F illisible ne doit pas faire perdre les 13D/13G, et inversement.
+    try {
+      const pistes = await processSchedule13(m);
+      if (pistes.length) {
+        const { error } = await supabase.from("pistes").insert(pistes);
+        if (error) throw error;
+        created += pistes.length;
+        parUtilisateur.set(m.user_id, (parUtilisateur.get(m.user_id) ?? 0) + pistes.length);
+      }
+    } catch (e) {
+      const msg = `13D/G ${m.name}: ${e instanceof Error ? e.message : String(e)}`;
       console.error(msg);
       errors.push(msg);
     }
