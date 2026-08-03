@@ -15,6 +15,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk";
 import { programmerNotification } from "../_shared/push.ts";
+import { verifierAppelant } from "../_shared/auth.ts";
 import {
   decoderCsv,
   evaluerLigneFi,
@@ -275,6 +276,16 @@ const CORS_HEADERS = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
+  }
+  // N'accepte que le cron hebdomadaire (cle de role service) ou un
+  // utilisateur reellement connecte a l'application — jamais la seule cle
+  // anonyme, qui est publique par construction (embarquee cote client).
+  const verif = await verifierAppelant(req, supabase);
+  if (!verif.ok) {
+    return new Response(JSON.stringify({ erreur: verif.message }), {
+      status: 401,
+      headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
+    });
   }
   const debut = new Date().toISOString();
   const errors: string[] = [];
