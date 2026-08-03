@@ -345,6 +345,38 @@ export const EXPLICATIONS: Record<SignalType, ExplicationSignal> = {
       "concentrer toute leur fortune sur une seule société. Ne concluez pas " +
       "qu'un dirigeant qui vend anticipe une baisse.",
   },
+  sc13d_new: {
+    titre: "Un grand investisseur a pris une participation, et n'exclut pas de peser sur l'entreprise",
+    cequecest:
+      "Au-delà de 5 % du capital d'une société américaine, un investisseur " +
+      "doit se déclarer à la SEC. Le formulaire 13D est la version « active » " +
+      "de cette déclaration : il indique que l'investisseur se réserve la " +
+      "possibilité d'influencer l'entreprise — demander un siège au conseil, " +
+      "réclamer un changement de stratégie, pousser à une cession. C'est la " +
+      "donnée la plus fraîche que la SEC produise sur les grands " +
+      "investisseurs : publiée sous 10 jours, contre 45 pour un 13F.",
+    cequecelanedit:
+      "Ni le pourcentage détenu — il figure dans le document officiel, en " +
+      "texte libre, et cet outil préfère ne rien afficher plutôt qu'un " +
+      "chiffre mal extrait — ni ce que l'investisseur obtiendra. Beaucoup de " +
+      "campagnes d'actionnaires échouent, et celles qui réussissent prennent " +
+      "des années. Une prise de participation n'annonce ni hausse ni baisse " +
+      "du cours : le marché a déjà lu la déclaration en même temps que vous.",
+  },
+  sc13g_new: {
+    titre: "Un grand investisseur détient plus de 5 %, sans intention déclarée d'agir",
+    cequecest:
+      "Même seuil de déclaration que le 13D, mais la version « passive » : " +
+      "l'investisseur déclare ne pas chercher à influencer la société. " +
+      "C'est très souvent le fait de gérants indiciels, qui détiennent une " +
+      "part de presque toutes les grandes entreprises simplement parce " +
+      "qu'elles figurent dans un indice.",
+    cequecelanedit:
+      "C'est le moins informatif de tous les signaux de cet outil. Un 13G " +
+      "traduit le plus souvent une mécanique de gestion passive, pas une " +
+      "opinion sur l'entreprise. Il est affiché pour que vous puissiez le " +
+      "distinguer d'un 13D — pas parce qu'il vous dit quelque chose.",
+  },
   form4_sell: {
     titre: "Un dirigeant a vendu des actions de sa propre entreprise",
     cequecest:

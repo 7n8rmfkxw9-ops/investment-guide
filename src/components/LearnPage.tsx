@@ -197,6 +197,66 @@ export default function LearnPage() {
         </p>
       </Card>
 
+      <Card titre="Trois choses qu'un professionnel regarderait, et que l'outil montre maintenant">
+        <p>
+          <strong className="text-slate-800">Votre exposition.</strong> Cinq
+          positions dont quatre sur les mêmes marchés ne sont pas cinq paris :
+          c'est un seul pari répété quatre fois. Aucune fiche prise
+          isolément ne peut le montrer, d'où le récapitulatif en haut de
+          l'onglet S'entraîner — par place de cotation, par devise et par
+          secteur. Il décrit ce que vous avez engagé ; il ne dit jamais qu'une
+          répartition serait meilleure qu'une autre.
+        </p>
+        <p>
+          <strong className="text-slate-800">Votre règle de sortie.</strong>{" "}
+          Écrire à quelle condition vous vendriez, <em>avant</em> d'acheter,
+          est ce qui distingue une décision d'une réaction. Une fois le cours
+          en baisse, tout le monde trouve de bonnes raisons d'attendre encore.
+          Le champ est là au moment de l'achat fictif, et votre réponse
+          réapparaît sur la fiche ensuite.
+        </p>
+        <p>
+          <strong className="text-slate-800">La commission de change.</strong>{" "}
+          Sur un titre coté hors zone euro, votre courtier prélève une
+          commission à chaque conversion — à l'aller comme au retour. Elle est
+          souvent noyée dans la grille tarifaire plutôt qu'affichée comme une
+          ligne de frais. Elle est désormais comptée dans tous les calculs,
+          et jamais appliquée à un titre coté en euros, qui ne subit aucune
+          conversion.
+        </p>
+      </Card>
+
+      <Card titre="13D et 13G : quand un gros investisseur dépasse 5 %">
+        <p>
+          Au-delà de 5 % du capital d'une société américaine, un investisseur
+          doit se déclarer à la SEC — sous <strong>10 jours</strong>, contre 45
+          pour un 13F. C'est la donnée la plus fraîche que la SEC produise sur
+          les grands investisseurs, et la seule différence entre les deux
+          formulaires est décisive :
+        </p>
+        <ul className="space-y-2">
+          <li>
+            <strong className="text-slate-800">13D</strong> — l'investisseur se
+            réserve la possibilité de <em>peser</em> sur l'entreprise : siège
+            au conseil, changement de stratégie, cession d'activité.
+          </li>
+          <li>
+            <strong className="text-slate-800">13G</strong> — détention{" "}
+            <em>passive</em>, sans intention déclarée d'agir. C'est le plus
+            souvent une mécanique de gestion indicielle, pas une opinion sur
+            l'entreprise. Le signal le moins informatif de l'outil ; il est
+            affiché pour que vous puissiez le distinguer d'un 13D.
+          </li>
+        </ul>
+        <p>
+          Ce que l'outil <strong>n'affiche pas</strong> : le pourcentage
+          détenu. Il ne figure que dans le corps du document officiel, rédigé
+          en texte libre — l'extraire automatiquement serait peu fiable, et un
+          chiffre faux sur une participation vaut moins que pas de chiffre du
+          tout. Le lien vers la déclaration officielle est sur chaque fiche.
+        </p>
+      </Card>
+
       <Card titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>

@@ -53,6 +53,8 @@ export function calculeSimulation(
   sim: Simulation,
   brokerFixedFeeEur: number,
   transactionTaxPct: number,
+  /** Commission de change ; sans effet sur un titre deja cote en euros. */
+  fxSpreadPct = 0,
 ): ResultatSimulation {
   const cloturee = sim.closed_at != null;
   const prix = cloturee ? sim.prix_sortie : sim.prix_actuel;
@@ -91,10 +93,14 @@ export function calculeSimulation(
 
   // Frais de sortie : les memes regles qu'a l'achat, appliquees a la valeur du
   // jour. C'est une estimation, mais l'ignorer serait plus faux que l'estimer.
+  // La commission de change se paie une seconde fois a la revente, pour
+  // reconvertir en euros — c'est precisement ce qui la rend couteuse.
+  const fxSortiePct = sim.devise === "EUR" ? 0 : fxSpreadPct;
   const fraisSortieEur =
     cloturee && sim.frais_sortie_eur != null
       ? Number(sim.frais_sortie_eur)
-      : brokerFixedFeeEur + (valeurEur * transactionTaxPct) / 100;
+      : brokerFixedFeeEur +
+        (valeurEur * (transactionTaxPct + fxSortiePct)) / 100;
 
   const netEur = valeurEur - fraisSortieEur;
   const gainEur = netEur - engageEur;
@@ -117,6 +123,10 @@ export function calculeSimulation(
   if (sim.ref_prix_entree != null && sim.ref_prix_actuel != null) {
     const partsRef = (engageEur - fraisEntreeEur) / Number(sim.ref_prix_entree);
     const valeurRef = partsRef * Number(sim.ref_prix_actuel);
+    // Pas de commission de change ici, et c'est voulu : l'ETF de reference
+    // est cote en euros a Amsterdam. Lui en appliquer une le desavantagerait
+    // artificiellement face a un titre etranger, ce qui fausserait la seule
+    // comparaison qui compte.
     const fraisSortieRef =
       brokerFixedFeeEur + (valeurRef * transactionTaxPct) / 100;
     referenceGainEur = valeurRef - fraisSortieRef - engageEur;
@@ -150,17 +160,29 @@ export function prepareEntree(
   tauxEur: number,
   brokerFixedFeeEur: number,
   transactionTaxPct: number,
+  /** Commission de change du courtier ; sans effet sur un titre en euros. */
+  fxSpreadPct = 0,
+  devise = "EUR",
 ) {
-  // La taxe porte sur le montant reellement investi, pas sur la somme totale :
-  // on resout net * (1 + taxe) = montant - frais fixes.
+  // La taxe et la commission de change portent sur le montant reellement
+  // investi, pas sur la somme totale : on resout
+  // net * (1 + taxe + change) = montant - frais fixes.
+  const fxPct = devise === "EUR" ? 0 : fxSpreadPct;
   const apresFraisFixes = Math.max(0, montantEur - brokerFixedFeeEur);
-  const investiEur = apresFraisFixes / (1 + transactionTaxPct / 100);
-  const taxeEur = apresFraisFixes - investiEur;
-  const fraisEntreeEur = brokerFixedFeeEur + taxeEur;
+  const investiEur = apresFraisFixes / (1 + (transactionTaxPct + fxPct) / 100);
+  const taxeEur = (investiEur * transactionTaxPct) / 100;
+  const changeEur = (investiEur * fxPct) / 100;
+  const fraisEntreeEur = brokerFixedFeeEur + taxeEur + changeEur;
   const prixEur = enEuros(prixUnitaire, tauxEur);
   const quantite = prixEur > 0 ? investiEur / prixEur : 0;
-  const impact = computeFeeImpact(brokerFixedFeeEur, montantEur, transactionTaxPct);
-  return { investiEur, fraisEntreeEur, taxeEur, quantite, prixEur, impact };
+  const impact = computeFeeImpact(
+    brokerFixedFeeEur,
+    montantEur,
+    transactionTaxPct,
+    fxSpreadPct,
+    devise,
+  );
+  return { investiEur, fraisEntreeEur, taxeEur, changeEur, quantite, prixEur, impact };
 }
 
 export function formatEur(v: number, signe = false): string {

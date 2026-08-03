@@ -22,6 +22,8 @@ const BASE: Simulation = {
   quantite: 9.9,
   date_entree: "2026-01-01",
   note: null,
+  regle_sortie: null,
+  secteur: null,
   prix_actuel: null,
   taux_actuel: null,
   prix_maj_at: null,
@@ -59,6 +61,27 @@ describe("prepareEntree", () => {
     const r = prepareEntree(0.5, 10, 1, 1, 0);
     expect(r.investiEur).toBe(0);
     expect(r.quantite).toBe(0);
+  });
+
+  it("preleve la commission de change sur un titre en devise etrangere", () => {
+    const r = prepareEntree(100, 10, 1, 1, 0.12, 0.25, "USD");
+    expect(r.changeEur).toBeGreaterThan(0);
+    // Le total reste conserve : rien ne disparait en route.
+    expect(r.investiEur + r.fraisEntreeEur).toBeCloseTo(100, 6);
+  });
+
+  it("n'applique aucune commission de change a un titre cote en euros", () => {
+    const r = prepareEntree(100, 10, 1, 1, 0.12, 0.25, "EUR");
+    expect(r.changeEur).toBe(0);
+    expect(r.investiEur + r.fraisEntreeEur).toBeCloseTo(100, 6);
+  });
+
+  it("achete moins de titres en devise qu'en euros, a mise egale", () => {
+    // La conversion coute : c'est exactement ce que l'ancienne version
+    // rendait invisible.
+    const enDevise = prepareEntree(100, 10, 1, 1, 0.12, 0.25, "USD");
+    const enEuro = prepareEntree(100, 10, 1, 1, 0.12, 0.25, "EUR");
+    expect(enDevise.quantite).toBeLessThan(enEuro.quantite);
   });
 });
 
@@ -156,6 +179,23 @@ describe("calculeSimulation", () => {
     // La reference supporte les memes frais que le titre : sinon la
     // comparaison serait truquee en sa faveur.
     expect(r.gainEur).toBeLessThan(r.referenceGainEur!);
+  });
+
+  it("fait payer la commission de change une seconde fois a la revente", () => {
+    const base = { ...BASE, devise: "USD", prix_actuel: 10, taux_actuel: 1 };
+    const sans = calculeSimulation(base, 1, 0, 0);
+    const avec = calculeSimulation(base, 1, 0, 0.25);
+    // La reconversion en euros se paie : les frais de sortie augmentent.
+    expect(avec.fraisSortieEur).toBeGreaterThan(sans.fraisSortieEur);
+    expect(avec.gainEur).toBeLessThan(sans.gainEur);
+  });
+
+  it("n'ajoute aucune commission de change a la sortie d'un titre en euros", () => {
+    const base = { ...BASE, devise: "EUR", prix_actuel: 10, taux_actuel: 1 };
+    expect(calculeSimulation(base, 1, 0, 0.25).fraisSortieEur).toBeCloseTo(
+      calculeSimulation(base, 1, 0, 0).fraisSortieEur,
+      6,
+    );
   });
 
   it("compte les jours ecoules depuis l'achat fictif", () => {

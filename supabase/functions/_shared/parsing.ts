@@ -100,6 +100,67 @@ export function classifierMouvement13F(
   return null;
 }
 
+/**
+ * Societe visee par un depot 13D/13G, lue dans l'en-tete SGML du depot.
+ *
+ * Le 13D/13G est depose par l'investisseur *au sujet d'une autre societe* :
+ * contrairement au 13F et au Form 4, le document lui-meme est du HTML libre,
+ * impossible a analyser de facon fiable. L'en-tete SGML, lui, est structure
+ * et stable — c'est donc la seule source retenue. On y prend le nom, le CIK
+ * et le secteur de la societe visee ; on ne tente PAS d'extraire le
+ * pourcentage detenu, qui n'existe que dans le corps HTML : mieux vaut ne
+ * rien afficher qu'un chiffre faux sur une participation.
+ */
+export interface CibleSchedule13 {
+  nom: string;
+  cik: string;
+  secteur: string | null;
+}
+
+export function extraireCibleSchedule13(entete: string): CibleSchedule13 | null {
+  // L'en-tete contient plusieurs blocs (SUBJECT COMPANY, FILED BY) : ne lire
+  // que ce qui suit SUBJECT COMPANY, sinon on identifierait le declarant
+  // lui-meme comme la societe visee.
+  const texte = entete.replace(/<[^>]+>/g, "\n");
+  const debut = texte.search(/SUBJECT COMPANY:/i);
+  if (debut < 0) return null;
+  const bloc = texte.slice(debut, debut + 1200);
+
+  const nom = bloc.match(/COMPANY CONFORMED NAME:\s*(.+)/i)?.[1]?.trim();
+  const cik = bloc.match(/CENTRAL INDEX KEY:\s*(\d+)/i)?.[1]?.trim();
+  if (!nom || !cik) return null;
+
+  const sicBrut = bloc.match(/STANDARD INDUSTRIAL CLASSIFICATION:\s*(.+)/i)?.[1]?.trim();
+  const secteur = sicBrut
+    // Retirer le code numerique entre crochets : "SERVICES [7990]" -> "SERVICES"
+    ? sicBrut.replace(/\s*\[\d+\]\s*$/, "").replace(/&amp;/g, "&").trim() || null
+    : null;
+
+  return { nom, cik: String(Number(cik)), secteur };
+}
+
+/**
+ * Distingue une prise de participation active d'une detention passive.
+ *
+ * 13D : l'investisseur declare vouloir peser sur la societe (siege au
+ *       conseil, changement de strategie, cession…).
+ * 13G : detention passive, sans intention d'influencer.
+ *
+ * La difference est le coeur du signal : confondre les deux reviendrait a
+ * presenter un placement indiciel comme une offensive d'actionnaire.
+ * Les amendements (« /A ») sont ecartes : ils modifient une declaration
+ * existante, souvent pour un ajustement mineur, et generaient du bruit.
+ */
+export function classifierSchedule13(
+  formulaire: string,
+): "13d" | "13g" | null {
+  const f = formulaire.toUpperCase().trim();
+  if (/\/A$/.test(f)) return null;
+  if (/^(SC|SCHEDULE)\s*13D$/.test(f)) return "13d";
+  if (/^(SC|SCHEDULE)\s*13G$/.test(f)) return "13g";
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // FSMA (Belgique)
 

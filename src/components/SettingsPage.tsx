@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { Manager, Market, WatchedIssuer } from "../lib/types";
 import { MARKET_LABELS } from "../lib/types";
-import { DEFAULT_TOB_PCT } from "../lib/fees";
+import { DEFAULT_FX_SPREAD_PCT, DEFAULT_TOB_PCT } from "../lib/fees";
 import { BOUTON_PRINCIPAL, CARTE, CHAMP } from "../lib/theme";
 import { COURTIERS } from "../lib/courtiers";
 
@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [fee, setFee] = useState("1.00");
   const [size, setSize] = useState("150");
   const [tob, setTob] = useState(String(DEFAULT_TOB_PCT));
+  const [fxSpread, setFxSpread] = useState(String(DEFAULT_FX_SPREAD_PCT));
   const [brokerName, setBrokerName] = useState<string | null>(null);
   const [courtierChoisi, setCourtierChoisi] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -35,6 +36,7 @@ export default function SettingsPage() {
       setFee(String(s.broker_fixed_fee_eur));
       setSize(String(s.position_size_eur));
       if (s.tob_pct != null) setTob(String(s.tob_pct));
+      if (s.fx_spread_pct != null) setFxSpread(String(s.fx_spread_pct));
       setBrokerName(s.broker_name ?? null);
     }
   }
@@ -109,6 +111,7 @@ export default function SettingsPage() {
       broker_fixed_fee_eur: Number(fee.replace(",", ".")),
       position_size_eur: Number(size.replace(",", ".")),
       tob_pct: Number(tob.replace(",", ".")),
+      fx_spread_pct: Number(fxSpread.replace(",", ".")),
       broker_name: brokerName,
       updated_at: new Date().toISOString(),
     });
@@ -270,7 +273,11 @@ export default function SettingsPage() {
           Utilisés pour le calcul affiché sur chaque fiche. En Belgique, la taxe
           sur les opérations de bourse (TOB) s'applique à l'achat comme à la
           vente : elle est donc comptée deux fois dans le gain minimum. Au-delà
-          de 3 % de coût à l'achat, un avertissement est affiché.
+          de 3 % de coût à l'achat, un avertissement est affiché. La commission
+          de change ne s'applique qu'aux titres cotés hors zone euro, et se
+          paie elle aussi deux fois : à la conversion aller, puis au retour.
+          Elle est souvent noyée dans la grille tarifaire plutôt qu'affichée
+          comme une ligne de frais — vérifiez-la chez votre courtier.
         </p>
 
         <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-4 space-y-2.5">
@@ -350,6 +357,16 @@ export default function SettingsPage() {
               className={`${CHAMP} w-32`}
               value={tob}
               onChange={(e) => setTob(e.target.value)}
+            />
+          </label>
+          <label className="text-sm">
+            <span className="block text-xs text-slate-500">
+              Commission de change (%)
+            </span>
+            <input
+              className={`${CHAMP} w-32`}
+              value={fxSpread}
+              onChange={(e) => setFxSpread(e.target.value)}
             />
           </label>
           <label className="text-sm">
