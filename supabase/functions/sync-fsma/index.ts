@@ -10,6 +10,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk";
+import { programmerNotification } from "../_shared/push.ts";
 
 const SEC_UA = Deno.env.get("SEC_USER_AGENT") ?? "investment-guide contact@example.com";
 const supabase = createClient(
@@ -310,17 +311,29 @@ Deno.serve(async (req) => {
     .select("*")
     .eq("market", "BE");
 
+  const parUtilisateur = new Map<string, number>();
   try {
     const pistes = await processFsma(issuers ?? []);
     if (pistes.length) {
       const { error } = await supabase.from("pistes").insert(pistes);
       if (error) throw error;
       created += pistes.length;
+      for (const p of pistes) {
+        parUtilisateur.set(p.user_id, (parUtilisateur.get(p.user_id) ?? 0) + 1);
+      }
     }
   } catch (e) {
     const msg = `FSMA: ${e instanceof Error ? e.message : String(e)}`;
     console.error(msg);
     errors.push(msg);
+  }
+
+  for (const [userId, n] of parUtilisateur) {
+    programmerNotification(supabase, userId, {
+      titre: "Veille investissement",
+      corps: `${n} nouvelle${n > 1 ? "s" : ""} piste${n > 1 ? "s" : ""} détectée${n > 1 ? "s" : ""} (FSMA).`,
+      url: "./",
+    });
   }
 
   return new Response(JSON.stringify({ created, errors }), {
