@@ -194,6 +194,80 @@ async function marche() {
   return { indices: resultats, mesureA: new Date().toISOString() };
 }
 
+/**
+ * Bilan retrospectif d'une liste de pistes : pour chacune, la variation du
+ * cours depuis la date de la piste jusqu'a aujourd'hui, comparee a un ETF
+ * mondial sur la meme periode. Toujours des faits deja survenus, jamais une
+ * projection — c'est la meme regle que partout ailleurs dans l'outil.
+ *
+ * Les symboles identiques sont resolus une seule fois (beaucoup de pistes
+ * partagent la meme societe), et l'appel groupe reste dans une seule
+ * requete pour eviter au client de multiplier les allers-retours.
+ */
+async function palmares(
+  items: { id: string; symbole: string; date: string }[],
+): Promise<Record<string, unknown>[]> {
+  // Le cours actuel d'un titre ne depend pas de la date de la piste : un seul
+  // appel par symbole distinct suffit, meme si plusieurs pistes le partagent.
+  const symboles = new Set(items.map((it) => it.symbole));
+  const coursActuels = new Map<string, Cours | Error>();
+  await Promise.all(
+    [...symboles].map(async (s) => {
+      try {
+        coursActuels.set(s, await cours(s));
+      } catch (e) {
+        coursActuels.set(s, e instanceof Error ? e : new Error(String(e)));
+      }
+    }),
+  );
+  let refActuelle: number | null = null;
+  try {
+    refActuelle = (await cours(REF_SYMBOLE)).prix;
+  } catch {
+    refActuelle = null;
+  }
+
+  // Le cours de reference a la date d'une piste ne depend que de cette date :
+  // plusieurs pistes du meme jour partagent le meme appel.
+  const dates = new Set(items.map((it) => it.date));
+  const refHistorique = new Map<string, number | null>();
+  await Promise.all(
+    [...dates].map(async (d) => {
+      try {
+        refHistorique.set(d, (await historique(REF_SYMBOLE, d)).prix);
+      } catch {
+        refHistorique.set(d, null);
+      }
+    }),
+  );
+
+  return await Promise.all(
+    items.map(async (it) => {
+      try {
+        const [h, actuel] = await Promise.all([
+          historique(it.symbole, it.date),
+          Promise.resolve(coursActuels.get(it.symbole)),
+        ]);
+        if (actuel instanceof Error) throw actuel;
+        if (!actuel) throw new Error(`cours indisponible : ${it.symbole}`);
+        return {
+          id: it.id,
+          devise: h.devise,
+          dateReelle: h.dateReelle,
+          prixEntree: h.prix,
+          tauxEntree: h.tauxEur,
+          prixActuel: actuel.prix,
+          tauxActuel: actuel.tauxEur,
+          referenceEntree: refHistorique.get(it.date) ?? null,
+          referenceActuelle: refActuelle,
+        };
+      } catch (e) {
+        return { id: it.id, erreur: e instanceof Error ? e.message : String(e) };
+      }
+    }),
+  );
+}
+
 /** Symboles candidats pour un nom d'entreprise. */
 async function recherche(q: string): Promise<Record<string, unknown>[]> {
   const j = await yahoo(
@@ -330,6 +404,17 @@ Deno.serve(async (req) => {
       }
       case "marche":
         return json(await marche());
+      case "palmares": {
+        const items = (
+          Array.isArray(corps.items) ? corps.items : []
+        ) as { id: string; symbole: string; date: string }[];
+        const valides = items.filter(
+          (it) => it?.id && it?.symbole && /^\d{4}-\d{2}-\d{2}$/.test(it?.date ?? ""),
+        );
+        // Plafond de securite : un usage strictement personnel n'accumule pas
+        // des milliers de pistes, et ca evite un appel demesure au fournisseur.
+        return json({ resultats: await palmares(valides.slice(0, 60)) });
+      }
       default:
         return json({ erreur: `action inconnue : ${action || "(vide)"}` }, 400);
     }

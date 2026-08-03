@@ -627,6 +627,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: CORS_HEADERS });
   }
+  const debut = new Date().toISOString();
   const errors: string[] = [];
   let created = 0;
   // Compte par utilisateur, pour une notification qui dit exactement combien
@@ -677,6 +678,17 @@ Deno.serve(async (req) => {
       url: "./",
     });
   }
+
+  // Journal d'exécution : seule façon de detecter un cron hebdomadaire qui
+  // echoue silencieusement, personne d'autre que l'utilisateur ne surveille
+  // cet outil.
+  await supabase.from("sync_runs").insert({
+    source: "sync-edgar",
+    started_at: debut,
+    created_count: created,
+    errors,
+    ok: errors.length === 0,
+  });
 
   return new Response(JSON.stringify({ created, errors }), {
     headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
