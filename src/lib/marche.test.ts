@@ -3,7 +3,9 @@ import {
   cheminSvg,
   compareStrategies,
   indicateurs,
+  marcheDePiste,
   poidsDesFrais,
+  symboleYahoo,
 } from "./marche";
 import type { PointSerie } from "./marche";
 
@@ -123,5 +125,36 @@ describe("cheminSvg", () => {
 
   it("ne trace rien avec moins de deux points", () => {
     expect(cheminSvg(serie([10]), 100, 50)).toBe("");
+  });
+});
+
+describe("marcheDePiste", () => {
+  it("reconnait les signaux americains", () => {
+    expect(marcheDePiste({ signal: "13f_new", source_url: "https://www.sec.gov/x" })).toBe("US");
+    expect(marcheDePiste({ signal: "form4_buy", source_url: "https://www.sec.gov/x" })).toBe("US");
+  });
+
+  it("distingue la Belgique et la Suede par l'URL de la source, pas seulement le signal", () => {
+    expect(marcheDePiste({ signal: "mar_buy", source_url: "https://www.fsma.be/fr/x" })).toBe("BE");
+    expect(
+      marcheDePiste({ signal: "mar_buy", source_url: "https://marknadssok.fi.se/x" }),
+    ).toBe("SE");
+  });
+
+  it("renvoie null pour un signal ou une source qu'elle ne reconnait pas", () => {
+    expect(marcheDePiste({ signal: "mar_buy", source_url: "https://example.com" })).toBeNull();
+    expect(marcheDePiste({ signal: "inconnu", source_url: "https://www.sec.gov/x" })).toBeNull();
+  });
+});
+
+describe("symboleYahoo", () => {
+  it("n'ajoute aucun suffixe pour les tickers americains", () => {
+    expect(symboleYahoo("AAPL", "US")).toBe("AAPL");
+  });
+
+  it("ajoute .BR pour Bruxelles et .ST pour Stockholm", () => {
+    expect(symboleYahoo("UCB", "BE")).toBe("UCB.BR");
+    // Les classes d'action suedoises font deja partie du ticker stocke.
+    expect(symboleYahoo("VOLV-B", "SE")).toBe("VOLV-B.ST");
   });
 });

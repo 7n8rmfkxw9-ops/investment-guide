@@ -20,6 +20,39 @@ export interface PointSerie {
 }
 
 // ---------------------------------------------------------------------------
+// Resolution du symbole boursier d'une piste
+
+/**
+ * Marche de cotation d'une piste, deduit du signal et de la source — les
+ * pistes n'ont pas de colonne "marche" dediee, mais le signal et l'URL de
+ * source suffisent a le determiner sans ambiguite.
+ */
+export function marcheDePiste(piste: {
+  signal: string;
+  source_url: string;
+}): "US" | "BE" | "SE" | null {
+  if (piste.signal.startsWith("13f") || piste.signal.startsWith("form4")) return "US";
+  if (piste.signal.startsWith("mar")) {
+    if (piste.source_url.includes("fi.se")) return "SE";
+    if (piste.source_url.includes("fsma.be")) return "BE";
+  }
+  return null;
+}
+
+/**
+ * Symbole Yahoo Finance a partir du ticker stocke et du marche. Verifie
+ * empiriquement sur les tickers reellement suivis : Bruxelles se resout en
+ * ajoutant ".BR", Stockholm ".ST" — les tickers eux-memes (ex. "VOLV-B")
+ * incluent deja la classe d'action le cas echeant. Les tickers americains
+ * sont deja au format Yahoo, sans suffixe.
+ */
+export function symboleYahoo(ticker: string, marche: "US" | "BE" | "SE"): string {
+  if (marche === "BE") return `${ticker}.BR`;
+  if (marche === "SE") return `${ticker}.ST`;
+  return ticker;
+}
+
+// ---------------------------------------------------------------------------
 // Description d'une serie
 
 export interface Indicateurs {
