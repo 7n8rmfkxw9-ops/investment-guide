@@ -8,7 +8,14 @@ import {
 } from "../lib/marche";
 import type { PointSerie } from "../lib/marche";
 import { formatEur, formatPct } from "../lib/simulation";
-import { BOUTON_DOUX, CARTE, CHAMP, couleurResultat } from "../lib/theme";
+import {
+  BOUTON_DOUX,
+  CARTE,
+  CHAMP,
+  couleurResultat,
+  iconeResultat,
+  traceResultat,
+} from "../lib/theme";
 import AchatCourtierButton from "./AchatCourtierButton";
 
 interface Candidat {
@@ -55,12 +62,25 @@ async function appel<T>(corps: Record<string, unknown>): Promise<T> {
   return d as T;
 }
 
-function MiniCourbe({ serie, couleur }: { serie: PointSerie[]; couleur: string }) {
+/**
+ * Courbe miniature. Le trace est en pointilles quand la variation est
+ * negative : le vert et le rouge sont indistinguables pour la forme la plus
+ * courante de daltonisme, et une courbe n'a pas de signe ecrit pour compenser.
+ */
+function MiniCourbe({ serie, variation }: { serie: PointSerie[]; variation: number }) {
   const d = cheminSvg(serie, 200, 48);
   if (!d) return <div className="h-12" />;
+  const { couleur, tirets } = traceResultat(variation);
   return (
     <svg viewBox="0 0 200 48" className="w-full h-12" preserveAspectRatio="none">
-      <path d={d} fill="none" stroke={couleur} strokeWidth={2} vectorEffect="non-scaling-stroke" />
+      <path
+        d={d}
+        fill="none"
+        stroke={couleur}
+        strokeWidth={2}
+        strokeDasharray={tirets}
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -194,12 +214,12 @@ export default function MarketPage() {
                       <span className="text-xs font-normal text-slate-400">{i.devise}</span>
                     </p>
                     <p className={`text-xs tabular-nums ${couleurResultat(i.varJourPct ?? 0)}`}>
+                      <span aria-hidden className="mr-0.5">
+                        {iconeResultat(i.varJourPct ?? 0)}
+                      </span>
                       {formatPct(i.varJourPct ?? 0)} aujourd'hui
                     </p>
-                    <MiniCourbe
-                      serie={i.serie}
-                      couleur={(i.varJourPct ?? 0) >= 0 ? "#10b981" : "#f43f5e"}
-                    />
+                    <MiniCourbe serie={i.serie} variation={i.varJourPct ?? 0} />
                   </>
                 ) : (
                   <p className="text-xs text-slate-400">indisponible</p>

@@ -17,6 +17,13 @@
 // peut monter en couronnes et faire perdre de l'argent en euros.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  choisirSeance,
+  deviseDe,
+  extraireSerie,
+  fenetreHistorique,
+  prixCourant,
+} from "../_shared/cotations-calcul.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -53,51 +60,35 @@ async function yahoo(chemin: string): Promise<Record<string, unknown>> {
   return (await r.json()) as Record<string, unknown>;
 }
 
-/** Serie de cloture d'un symbole, dates ISO et cours alignes. */
-async function serie(
-  symbole: string,
-  params: string,
-): Promise<{ meta: Record<string, unknown>; dates: string[]; cloture: number[] }> {
+/**
+ * Serie de cloture d'un symbole, dates ISO et cours alignes.
+ * L'interpretation de la reponse vit dans _shared/cotations-calcul.ts, testee.
+ */
+async function serie(symbole: string, params: string) {
   const j = await yahoo(`/v8/finance/chart/${encodeURIComponent(symbole)}?${params}`);
-  const chart = j.chart as Record<string, unknown> | undefined;
-  const res = (chart?.result as Record<string, unknown>[] | undefined)?.[0];
-  if (!res) {
-    const err = chart?.error as Record<string, unknown> | undefined;
-    throw new Error(String(err?.description ?? `symbole introuvable : ${symbole}`));
+  try {
+    return extraireSerie(j);
+  } catch (e) {
+    // Rendre le symbole visible dans le message : sans lui, une erreur du
+    // fournisseur ne dit pas quelle ligne du bilan a echoue.
+    throw new Error(`${e instanceof Error ? e.message : String(e)} (${symbole})`);
   }
-  const meta = (res.meta ?? {}) as Record<string, unknown>;
-  const ts = (res.timestamp as number[] | undefined) ?? [];
-  const quote = (res.indicators as Record<string, unknown> | undefined)?.quote as
-    | Record<string, unknown>[]
-    | undefined;
-  const closeBrut = (quote?.[0]?.close as (number | null)[] | undefined) ?? [];
-  const dates: string[] = [];
-  const cloture: number[] = [];
-  for (let i = 0; i < ts.length; i++) {
-    const c = closeBrut[i];
-    // Les jours feries laissent des trous dans la serie : on les ignore
-    // plutot que de propager un null jusqu'au calcul.
-    if (typeof c !== "number" || !isFinite(c)) continue;
-    dates.push(new Date(ts[i] * 1000).toISOString().slice(0, 10));
-    cloture.push(c);
-  }
-  return { meta, dates, cloture };
 }
 
 /** Taux de change du jour : combien d'unites de `devise` pour 1 EUR. */
 async function tauxEur(devise: string): Promise<number> {
   if (devise === "EUR") return 1;
   const { meta, cloture } = await serie(`EUR${devise}=X`, "range=5d&interval=1d");
-  const t = Number(meta.regularMarketPrice ?? cloture[cloture.length - 1]);
-  if (!isFinite(t) || t <= 0) throw new Error(`taux de change indisponible : EUR/${devise}`);
+  const t = prixCourant(meta, cloture);
+  if (t === null) throw new Error(`taux de change indisponible : EUR/${devise}`);
   return t;
 }
 
 async function cours(symbole: string): Promise<Cours> {
   const { meta, cloture } = await serie(symbole, "range=5d&interval=1d");
-  const prix = Number(meta.regularMarketPrice ?? cloture[cloture.length - 1]);
-  if (!isFinite(prix) || prix <= 0) throw new Error(`cours indisponible : ${symbole}`);
-  const devise = String(meta.currency ?? "EUR").toUpperCase();
+  const prix = prixCourant(meta, cloture);
+  if (prix === null) throw new Error(`cours indisponible : ${symbole}`);
+  const devise = deviseDe(meta);
   return {
     symbole: String(meta.symbol ?? symbole).toUpperCase(),
     nom: (meta.longName ?? meta.shortName ?? null) as string | null,
@@ -113,17 +104,14 @@ async function cours(symbole: string): Promise<Cours> {
  * apres — simuler un achat a un cours futur n'aurait aucun sens.
  */
 async function historique(symbole: string, date: string): Promise<Cours & { dateReelle: string }> {
-  const cible = new Date(`${date}T00:00:00Z`);
-  const debut = Math.floor((cible.getTime() - 12 * 86400_000) / 1000);
-  const fin = Math.floor((cible.getTime() + 86400_000) / 1000);
+  const { debut, fin } = fenetreHistorique(date);
   const { meta, dates, cloture } = await serie(
     symbole,
     `period1=${debut}&period2=${fin}&interval=1d`,
   );
-  let idx = -1;
-  for (let i = 0; i < dates.length; i++) if (dates[i] <= date) idx = i;
+  const idx = choisirSeance(dates, date);
   if (idx < 0) throw new Error(`aucune séance connue pour ${symbole} au ${date}`);
-  const devise = String(meta.currency ?? "EUR").toUpperCase();
+  const devise = deviseDe(meta);
   return {
     symbole: String(meta.symbol ?? symbole).toUpperCase(),
     nom: (meta.longName ?? meta.shortName ?? null) as string | null,
@@ -147,12 +135,14 @@ async function graphique(symbole: string, periode: string) {
   };
   const params = periodes[periode] ?? periodes["1a"];
   const { meta, dates, cloture } = await serie(symbole, params);
-  const devise = String(meta.currency ?? "EUR").toUpperCase();
+  const devise = deviseDe(meta);
+  const prix = prixCourant(meta, cloture);
+  if (prix === null) throw new Error(`cours indisponible : ${symbole}`);
   return {
     symbole: String(meta.symbol ?? symbole).toUpperCase(),
     nom: (meta.longName ?? meta.shortName ?? null) as string | null,
     devise,
-    prix: Number(meta.regularMarketPrice ?? cloture[cloture.length - 1]),
+    prix,
     tauxEur: await tauxEur(devise),
     // Bornes sur 52 semaines publiees par la place : plus fiables que le
     // min/max de la fenetre affichee, qui depend de la periode choisie.
@@ -176,11 +166,12 @@ async function marche() {
     INDICES.map(async (idx) => {
       try {
         const { meta, dates, cloture } = await serie(idx.symbole, "range=1y&interval=1d");
-        const dernier = Number(meta.regularMarketPrice ?? cloture[cloture.length - 1]);
+        const dernier = prixCourant(meta, cloture);
+        if (dernier === null) throw new Error(`cours indisponible : ${idx.symbole}`);
         const veille = cloture[cloture.length - 2] ?? dernier;
         return {
           ...idx,
-          devise: String(meta.currency ?? "").toUpperCase(),
+          devise: deviseDe(meta),
           prix: dernier,
           varJourPct: veille ? (dernier / veille - 1) * 100 : 0,
           serie: dates.map((d, i) => ({ date: d, prix: cloture[i] })),

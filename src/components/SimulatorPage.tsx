@@ -15,6 +15,7 @@ import {
   CHAMP,
   couleurResultat,
   fondResultat,
+  iconeResultat,
 } from "../lib/theme";
 
 interface Candidat {
@@ -667,6 +668,9 @@ function CarteSimulation({
           {!r.enAttente && (
             <div className="text-right shrink-0">
               <p className={`text-lg font-semibold tabular-nums ${couleurResultat(r.gainEur)}`}>
+                <span aria-hidden className="mr-1 text-sm">
+                  {iconeResultat(r.gainEur)}
+                </span>
                 {formatEur(r.gainEur, true)}
               </p>
               <p className={`text-xs tabular-nums ${couleurResultat(r.gainEur)}`}>
