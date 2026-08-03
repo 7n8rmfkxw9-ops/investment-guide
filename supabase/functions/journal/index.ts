@@ -12,6 +12,14 @@
 // Aucune synthese, aucun resume ecrit par un modele : on relaie le titre et le
 // lien tels que publies. Rien ici ne recommande un placement.
 
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { verifierAppelant } from "../_shared/auth.ts";
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+);
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -146,6 +154,12 @@ Deno.serve(async (req) => {
       status,
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
     });
+
+  // Reserve aux utilisateurs de l'application : sans cela, la seule cle
+  // anonyme (publique par construction) suffirait a faire tourner ce proxy
+  // vers le flux RSS de la FSMA pour n'importe qui.
+  const verif = await verifierAppelant(req, supabase);
+  if (!verif.ok) return json({ erreur: verif.message }, 401);
 
   try {
     let fsma: ActualiteFsma[] = [];

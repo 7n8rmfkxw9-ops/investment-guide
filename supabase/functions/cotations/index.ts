@@ -359,6 +359,14 @@ Deno.serve(async (req) => {
       headers: { ...CORS_HEADERS, "Content-Type": "application/json" },
     });
 
+  // Reserve aux utilisateurs de l'application : sans cela, la seule cle
+  // anonyme (publique par construction, embarquee cote client) suffirait a
+  // faire tourner ce proxy vers Yahoo Finance pour n'importe qui, au risque
+  // de faire bannir l'IP partagee du projet.
+  if (!(await utilisateur(req))) {
+    return json({ erreur: "authentification requise" }, 401);
+  }
+
   try {
     const corps = (await req.json().catch(() => ({}))) as Record<string, unknown>;
     const action = String(corps.action ?? "");

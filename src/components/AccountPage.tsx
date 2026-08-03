@@ -4,6 +4,7 @@ import type { AppLink } from "../lib/types";
 import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, CHAMP } from "../lib/theme";
 import { activer, desactiver, etatActuel, verifieCompatibilite } from "../lib/push";
 import type { EtatAbonnement } from "../lib/push";
+import { exporterDonnees } from "../lib/export";
 
 function estIOS(): boolean {
   return /iP(hone|ad|od)/.test(navigator.userAgent);
@@ -25,6 +26,9 @@ export default function AccountPage() {
   const [pushMsg, setPushMsg] = useState<string | null>(null);
   const [pushBusy, setPushBusy] = useState(false);
   const compat = verifieCompatibilite();
+
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportErr, setExportErr] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
@@ -90,6 +94,17 @@ export default function AccountPage() {
     setPushBusy(false);
   }
 
+  async function exporter() {
+    setExportBusy(true);
+    setExportErr(null);
+    try {
+      await exporterDonnees();
+    } catch (e) {
+      setExportErr(e instanceof Error ? e.message : String(e));
+    }
+    setExportBusy(false);
+  }
+
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
@@ -121,6 +136,21 @@ export default function AccountPage() {
         <p className="text-sm text-slate-600">
           Connecté en tant que <span className="font-medium">{email}</span>
         </p>
+      </section>
+
+      <section className={`${CARTE} p-5 space-y-3`}>
+        <h2 className="font-semibold">Vos données</h2>
+        <p className="text-xs text-slate-500 leading-relaxed">
+          Cet outil vit entièrement dans un projet que vous seul maintenez :
+          avoir votre propre copie de vos pistes, simulations, notes et
+          réglages est une précaution simple. Le fichier téléchargé exclut
+          volontairement les jetons de notification de vos appareils, qui
+          n'ont pas leur place hors de cet outil.
+        </p>
+        {exportErr && <p className="text-sm text-red-600">{exportErr}</p>}
+        <button className={BOUTON_DOUX} onClick={exporter} disabled={exportBusy}>
+          {exportBusy ? "Préparation…" : "Exporter mes données (JSON)"}
+        </button>
       </section>
 
       <section className={`${CARTE} p-5 space-y-3`}>
