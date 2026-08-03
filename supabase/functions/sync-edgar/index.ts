@@ -17,6 +17,15 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { XMLParser } from "npm:fast-xml-parser@4";
 import Anthropic from "npm:@anthropic-ai/sdk";
 import { programmerNotification } from "../_shared/push.ts";
+import {
+  classifierMouvement13F,
+  estAutreEmetteur,
+  filingHumanUrl,
+  filingIndexUrl,
+  formatUsd,
+  normalizeIssuerName,
+  padCik,
+} from "../_shared/parsing.ts";
 
 const SEC_UA = Deno.env.get("SEC_USER_AGENT") ?? "investment-guide contact@example.com";
 const supabase = createClient(
@@ -29,11 +38,8 @@ const anthropic = anthropicKey ? new Anthropic({ apiKey: anthropicKey }) : null;
 const xml = new XMLParser({ ignoreAttributes: false, parseTagValue: false });
 
 // ---------------------------------------------------------------------------
-// Helpers SEC EDGAR
-
-function padCik(cik: string): string {
-  return cik.replace(/\D/g, "").padStart(10, "0");
-}
+// Helpers SEC EDGAR (padCik, accessionNoDash, filingIndexUrl, filingHumanUrl,
+// normalizeIssuerName et formatUsd vivent dans _shared/parsing.ts, testes)
 
 // La SEC plafonne les acces a 10 requetes/seconde et repond 429 au-dela.
 // Tous les appels sont donc serialises avec un intervalle minimal, et les
@@ -99,20 +105,6 @@ async function getSubmissions(cik: string): Promise<Submissions> {
   return (await res.json()) as Submissions;
 }
 
-function accessionNoDash(acc: string): string {
-  return acc.replace(/-/g, "");
-}
-
-function filingIndexUrl(cik: string, acc: string): string {
-  const c = String(Number(cik.replace(/\D/g, "")));
-  return `https://www.sec.gov/Archives/edgar/data/${c}/${accessionNoDash(acc)}`;
-}
-
-/** URL humaine vers la page d'index du filing (utilisee comme source_url). */
-function filingHumanUrl(cik: string, acc: string): string {
-  return `${filingIndexUrl(cik, acc)}/${acc}-index.htm`;
-}
-
 // ---------------------------------------------------------------------------
 // Resolution CUSIP -> ticker / secteur (referentiels publics SEC uniquement).
 // Les 13F ne fournissent que le CUSIP et le nom de l'emetteur ; on rapproche
@@ -120,18 +112,6 @@ function filingHumanUrl(cik: string, acc: string): string {
 // normalise — fiable pour les grandes capitalisations, absente sinon), puis
 // on recupere le secteur (sicDescription) du dossier SEC de l'emetteur.
 // Les resultats sont mis en cache dans la table issuer_map.
-
-function normalizeIssuerName(s: string): string {
-  return s
-    .toUpperCase()
-    .replace(/[^A-Z0-9 ]/g, " ")
-    .replace(
-      /\b(INC|INCORPORATED|CORP|CORPORATION|CO|COMPANY|LTD|LIMITED|PLC|HOLDINGS|HLDGS|GROUP|GRP|THE|CL|CLASS|A|B|C|COM|NEW|DEL|SHS|ADR|ADS)\b/g,
-      " ",
-    )
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 let nameIndex: Map<string, { ticker: string; cik: string }> | null = null;
 
@@ -245,17 +225,6 @@ async function generateContexte(fallback: string, facts: string): Promise<string
 
 // ---------------------------------------------------------------------------
 // 13F
-
-/**
- * Les 13F declarent les valeurs de position en dollars (et non en milliers
- * comme avant l'amendement SEC de 2023). On formate en Md$/M$ car les
- * montants bruts sont illisibles.
- */
-function formatUsd(v: number): string {
-  if (v >= 1e9) return `${(v / 1e9).toFixed(1).replace(".", ",")} Md$`;
-  if (v >= 1e6) return `${(v / 1e6).toFixed(1).replace(".", ",")} M$`;
-  return `${v.toLocaleString("fr-FR")} $`;
-}
 
 interface Holding {
   cusip: string;
@@ -375,22 +344,9 @@ async function process13F(manager: {
 
     for (const [cusip, h] of curr) {
       const p = prev.get(cusip);
-      if (!p) {
-        changes.push({ signal: "13f_new", h, prevShares: 0, deltaPct: null });
-      } else if (h.shares > p.shares * 1.1) {
-        changes.push({
-          signal: "13f_increase",
-          h,
-          prevShares: p.shares,
-          deltaPct: ((h.shares - p.shares) / p.shares) * 100,
-        });
-      } else if (h.shares < p.shares * 0.9) {
-        changes.push({
-          signal: "13f_decrease",
-          h,
-          prevShares: p.shares,
-          deltaPct: ((h.shares - p.shares) / p.shares) * 100,
-        });
+      const mouvement = classifierMouvement13F(p?.shares ?? null, h.shares);
+      if (mouvement) {
+        changes.push({ ...mouvement, h, prevShares: p?.shares ?? 0 });
       }
     }
     for (const [cusip, p] of prev) {
@@ -518,8 +474,8 @@ async function processForm4(issuer: {
     // l'activite d'initie sur la societe suivie : on les ignore, en se fiant
     // a l'emetteur declare dans le document lui-meme.
     const issuerBlock = od.issuer as Record<string, unknown> | undefined;
-    const docIssuerCik = String(issuerBlock?.issuerCik ?? "").replace(/\D/g, "");
-    if (docIssuerCik && Number(docIssuerCik) !== Number(issuer.cik.replace(/\D/g, ""))) {
+    const docIssuerCik = String(issuerBlock?.issuerCik ?? "");
+    if (estAutreEmetteur(docIssuerCik, issuer.cik)) {
       await supabase
         .from("processed_filings")
         .insert({ user_id: issuer.user_id, accession_no: acc, form_type: "4" });
