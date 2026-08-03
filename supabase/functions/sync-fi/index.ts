@@ -15,6 +15,12 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk";
 import { programmerNotification } from "../_shared/push.ts";
+import {
+  decoderCsv,
+  evaluerLigneFi,
+  ligneCsv,
+  normaliserNom,
+} from "../_shared/parsing.ts";
 
 const SEC_UA = Deno.env.get("SEC_USER_AGENT") ?? "investment-guide contact@example.com";
 const supabase = createClient(
@@ -84,66 +90,6 @@ const FI_CSV =
 const FI_REGISTRE = "https://marknadssok.fi.se/publiceringsklient/en-GB/Search/Search?SearchFunctionType=Insyn";
 const FI_MAX_PISTES = 25; // plafond par execution
 const FI_UA = `investment-guide/1.0 (veille personnelle; ${SEC_UA.split(" ").pop()})`;
-
-/** Normalise un nom de societe pour comparer malgre les suffixes juridiques. */
-function normaliserNom(s: string): string {
-  return s
-    .toUpperCase()
-    .replace(/\(PUBL\)/g, " ")
-    .replace(/[^A-Z0-9ÅÄÖ ]/g, " ")
-    .replace(/\b(AB|ASA|OYJ|PLC|SE|NV|SA|GROUP|HOLDING|HOLDINGS)\b/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/** Decoupe une ligne CSV en respectant les guillemets. */
-function ligneCsv(ligne: string): string[] {
-  const out: string[] = [];
-  let cur = "";
-  let dansGuillemets = false;
-  for (let i = 0; i < ligne.length; i++) {
-    const c = ligne[i];
-    if (c === '"') {
-      if (dansGuillemets && ligne[i + 1] === '"') {
-        cur += '"';
-        i++;
-      } else {
-        dansGuillemets = !dansGuillemets;
-      }
-    } else if (c === ";" && !dansGuillemets) {
-      out.push(cur);
-      cur = "";
-    } else {
-      cur += c;
-    }
-  }
-  out.push(cur);
-  return out.map((v) => v.trim());
-}
-
-/**
- * Le CSV de la FI est encode en UTF-16, mais sans marqueur d'encodage (BOM).
- * On detecte donc aussi le cas sans BOM : dans un texte latin encode en
- * UTF-16LE, un octet sur deux vaut zero.
- */
-function decoderCsv(buf: ArrayBuffer): string {
-  const octets = new Uint8Array(buf);
-  if (octets[0] === 0xff && octets[1] === 0xfe) {
-    return new TextDecoder("utf-16le").decode(buf);
-  }
-  if (octets[0] === 0xfe && octets[1] === 0xff) {
-    return new TextDecoder("utf-16be").decode(buf);
-  }
-  const echantillon = Math.min(octets.length, 400);
-  let zerosImpairs = 0;
-  let zerosPairs = 0;
-  for (let i = 0; i < echantillon; i++) {
-    if (octets[i] === 0) (i % 2 === 1 ? zerosImpairs++ : zerosPairs++);
-  }
-  if (zerosImpairs > echantillon / 4) return new TextDecoder("utf-16le").decode(buf);
-  if (zerosPairs > echantillon / 4) return new TextDecoder("utf-16be").decode(buf);
-  return new TextDecoder("utf-8").decode(buf);
-}
 
 interface LigneFi {
   publication: string;
@@ -241,21 +187,12 @@ async function processFi(
     if (!suivi) continue;
 
     // Seules les acquisitions et cessions fermes portent un sens ; les
-    // corrections et autres natures sont ignorees.
-    const estAchat = /acquisition/i.test(l.nature);
-    const estVente = /disposal/i.test(l.nature);
-    if (!estAchat && !estVente) continue;
-    // Le registre contient aussi des lignes annulees ou corrigees.
-    if (/cancel|annull/i.test(l.statut)) continue;
-    // Une levee de stock-options n'est pas un achat de conviction : le
-    // dirigeant acquiert a un prix fixe d'avance, souvent tres inferieur au
-    // cours. La presenter comme un "achat d'initie" induirait en erreur.
-    // Le drapeau du registre est renseigne de facon inegale : il ne retire
-    // qu'une partie de ces lignes, d'ou l'avertissement affiche sur la fiche.
-    if (/^yes$/i.test(l.option)) continue;
-    // Les volumes exprimes autrement qu'en nombre de titres (montant nominal,
-    // par exemple) ne sont pas comparables : on les ecarte.
-    if (l.unite && !/quantity/i.test(l.unite)) continue;
+    // corrections, lignes annulees et levees de stock-options sont ecartees
+    // (voir evaluerLigneFi — c'est cette derniere qui avait laisse passer
+    // une levee d'options a 235,15 SEK presentee comme un achat de Sobi).
+    const decision = evaluerLigneFi(l);
+    if (!decision) continue;
+    const estAchat = decision === "achat";
 
     // Le registre n'expose pas d'identifiant par ligne : on derive une cle
     // stable du contenu de la declaration.

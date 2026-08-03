@@ -11,6 +11,13 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import Anthropic from "npm:@anthropic-ai/sdk";
 import { programmerNotification } from "../_shared/push.ts";
+import {
+  champ,
+  classifierNatureFsma,
+  extraireLigneFsma,
+  parseBeNumber,
+  stripTags,
+} from "../_shared/parsing.ts";
 
 const SEC_UA = Deno.env.get("SEC_USER_AGENT") ?? "investment-guide contact@example.com";
 const supabase = createClient(
@@ -98,52 +105,15 @@ async function fsmaFetch(path: string): Promise<string> {
   return await res.text();
 }
 
-function stripTags(s: string): string {
-  return s
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&#039;|&apos;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-/** Convertit un nombre au format belge ("517.809,50") en nombre. */
-function parseBeNumber(s: string): number {
-  const clean = s.replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
-  const n = Number(clean);
-  return Number.isFinite(n) ? n : 0;
-}
-
-interface FsmaRow {
-  path: string;
-  publishedAt: string; // JJ/MM/AAAA
-  issuer: string;
-  person: string;
-}
-
 /** Lit la liste publique des transactions de dirigeants les plus recentes. */
-async function fsmaRecentRows(): Promise<FsmaRow[]> {
+async function fsmaRecentRows() {
   const html = await fsmaFetch("/fr/transaction-search");
   const table = html.match(/<table[\s\S]*?<\/table>/);
   if (!table) throw new Error("FSMA : tableau introuvable (site modifie ?)");
-  const rows: FsmaRow[] = [];
+  const rows = [];
   for (const tr of table[0].match(/<tr[^>]*>[\s\S]*?<\/tr>/g) ?? []) {
-    const cells = (tr.match(/<td[\s\S]*?<\/td>/g) ?? []).map(stripTags);
-    // Selon la langue, la FSMA renvoie soit une URL parlante
-    // (/en/manager-transaction/barco-66) soit un identifiant de noeud
-    // (/fr/node/619576). Les deux mènent à la même fiche de détail.
-    const link = tr.match(
-      /href="(\/[a-z]{2}\/(?:manager-transaction\/[^"]+|node\/\d+))"/,
-    );
-    if (cells.length < 3 || !link) continue;
-    rows.push({
-      path: link[1],
-      publishedAt: cells[0],
-      issuer: cells[1],
-      person: cells[2],
-    });
+    const ligne = extraireLigneFsma(tr);
+    if (ligne) rows.push(ligne);
   }
   return rows;
 }
@@ -179,11 +149,6 @@ async function fsmaDetail(path: string): Promise<Record<string, string>> {
     }
   }
   return champs;
-}
-
-function champ(c: Record<string, string>, ...cles: string[]): string {
-  for (const k of cles) if (c[k]) return c[k];
-  return "";
 }
 
 async function processFsma(
@@ -223,14 +188,12 @@ async function processFsma(
     }
 
     const nature = champ(c, "Type de transaction", "Transaction Type");
-    const estAchat = /acquisition|achat|purchase|subscription|souscription/i.test(
-      nature,
-    );
-    const estVente = /cession|vente|disposal|sale/i.test(nature);
     // On ne retient que les achats et ventes fermes : les autres natures
     // (donation, transfert, exercice d'options) ne sont pas des operations
     // de marche et n'ont pas la meme signification.
-    if (!estAchat && !estVente) {
+    const natureClassee = classifierNatureFsma(nature);
+    const estAchat = natureClassee === "achat";
+    if (natureClassee === "autre") {
       await supabase.from("processed_filings").insert({
         user_id: suivi.user_id,
         accession_no: ref,
