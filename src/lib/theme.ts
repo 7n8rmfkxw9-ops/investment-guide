@@ -100,6 +100,28 @@ export function fondResultat(v: number): string {
   return "bg-slate-50 border-slate-200/70";
 }
 
+/**
+ * Pictogramme d'un resultat chiffre, a afficher a cote de la couleur.
+ *
+ * Le vert et le rouge sont precisement la paire que la forme la plus courante
+ * de daltonisme ne distingue pas : environ un homme sur douze. Partout ou la
+ * couleur porte seule l'information — filet colore en haut d'une carte, fond
+ * teinte, courbe — ce pictogramme doit l'accompagner. Les montants eux-memes
+ * portent deja leur signe (+/-), ce qui suffit pour du texte chiffre.
+ */
+export function iconeResultat(v: number): string {
+  if (v > 0.005) return "▲";
+  if (v < -0.005) return "▼";
+  return "—";
+}
+
+/** Couleur de trace pour une courbe, avec son equivalent en pointilles. */
+export function traceResultat(v: number): { couleur: string; tirets?: string } {
+  if (v > 0.005) return { couleur: "#10b981" };
+  if (v < -0.005) return { couleur: "#f43f5e", tirets: "5 3" };
+  return { couleur: "#94a3b8", tirets: "2 3" };
+}
+
 /** Classes communes, pour que toutes les pages se ressemblent. */
 export const CARTE =
   "bg-white rounded-2xl border border-slate-200/70 shadow-sm shadow-slate-200/40";

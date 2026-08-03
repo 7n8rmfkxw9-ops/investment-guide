@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { Piste } from "../lib/types";
 import { SIGNAL_LABELS } from "../lib/types";
-import { CARTE, couleurResultat } from "../lib/theme";
+import { CARTE, couleurResultat, fondResultat, iconeResultat } from "../lib/theme";
 import { marcheDePiste, symboleYahoo } from "../lib/marche";
 import { formatPct } from "../lib/simulation";
 
@@ -244,10 +244,11 @@ function BilanChiffre({ r }: { r: ResultatPalmares }) {
       : null;
 
   return (
-    <div className={`rounded-lg border px-3 py-2 text-xs ${
-      varEurPct >= 0 ? "bg-emerald-50 border-emerald-200/70" : "bg-rose-50 border-rose-200/70"
-    }`}>
+    <div className={`rounded-lg border px-3 py-2 text-xs ${fondResultat(varEurPct)}`}>
       <p className="text-slate-600">
+        <span aria-hidden className={`mr-1 ${couleurResultat(varEurPct)}`}>
+          {iconeResultat(varEurPct)}
+        </span>
         Depuis cette piste, le cours a fait{" "}
         <strong className={couleurResultat(varTitrePct)}>{formatPct(varTitrePct)}</strong>
         {r.devise && r.devise !== "EUR" && ` (en ${r.devise})`}
