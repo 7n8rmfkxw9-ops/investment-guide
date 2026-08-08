@@ -81,6 +81,25 @@ npm install
 npm run dev
 ```
 
+### 5. Redéployer une Edge Function après modification
+
+Le frontend se republie seul à chaque push sur `main` (`deploy-pages.yml`),
+**mais pas les Edge Functions**. Tant qu'une fonction modifiée n'est pas
+redéployée, l'interface appelle une version ancienne et reçoit `action
+inconnue` — le symptôme typique d'un onglet vide alors que le code est bien
+sur `main`.
+
+Deux façons de le faire :
+
+```sh
+supabase functions deploy cotations --project-ref uckzkcphatmdmtibyhyk
+```
+
+ou, sans rien installer, via l'onglet **Actions** du dépôt → *Deploy Edge
+Function* → *Run workflow*, après avoir déposé une fois un jeton personnel
+(https://supabase.com/dashboard/account/tokens) dans les secrets du dépôt sous
+le nom `SUPABASE_ACCESS_TOKEN`.
+
 ## Utilisation
 
 1. Créer un compte (Supabase Auth) et se connecter.

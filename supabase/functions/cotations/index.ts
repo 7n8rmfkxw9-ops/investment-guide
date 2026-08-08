@@ -24,6 +24,7 @@ import {
   fenetreHistorique,
   prixCourant,
 } from "../_shared/cotations-calcul.ts";
+import { cadenceMensuelle, fenetresGlissantes } from "../_shared/horizons.ts";
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -183,6 +184,96 @@ async function marche() {
     }),
   );
   return { indices: resultats, mesureA: new Date().toISOString() };
+}
+
+// ---------------------------------------------------------------------------
+// Horizons de detention
+
+/**
+ * Durees de detention presentees.
+ *
+ * 20 et 30 ans depassent volontairement l'historique de l'ETF : l'interface
+ * doit pouvoir dire « cette donnee n'existe pas » plutot que de laisser
+ * croire qu'elle n'a pas ete cherchee. C'est precisement sur ces horizons-la
+ * que la tentation d'extrapoler est la plus forte.
+ */
+const HORIZONS_ANS = [1, 3, 5, 10, 20, 30];
+
+/**
+ * Les deux series servies.
+ *
+ * Toutes deux reinvestissent les revenus a l'interieur du produit : l'ETF
+ * parce qu'il est capitalisant (il ne distribue rien), l'indice parce qu'il
+ * est publie en version « total return ». La cloture vaut donc rendement
+ * total dans les deux cas, sans dependre du cours ajuste du fournisseur —
+ * dont la methode de correction des dividendes n'est ni documentee ni
+ * verifiable, et qu'il aurait donc fallu croire sur parole.
+ */
+const SERIES_HORIZON = [
+  {
+    cle: "etf",
+    symbole: "IWDA.AS",
+    titre: "iShares Core MSCI World (IWDA)",
+    detail:
+      "Le produit lui-même, coté en euros à Amsterdam, dividendes réinvestis dans le fonds.",
+    principal: true,
+  },
+  {
+    cle: "long",
+    symbole: "^SP500TR",
+    titre: "S&P 500, dividendes réinvestis",
+    detail:
+      "Indice différent — 500 sociétés américaines, mesuré en dollars. Présenté uniquement parce qu'il remonte à 1988 et couvre donc les horizons que l'historique de l'ETF ne permet pas d'atteindre.",
+    principal: false,
+  },
+];
+
+async function horizons() {
+  const fin = Math.floor(Date.now() / 1000);
+  const series = await Promise.all(
+    SERIES_HORIZON.map(async (s) => {
+      try {
+        const { meta, dates, cloture } = await serie(
+          s.symbole,
+          `period1=0&period2=${fin}&interval=1mo`,
+        );
+        // Sur un historique de plusieurs decennies, le fournisseur degrade
+        // silencieusement le pas en trimestriel tout en acceptant
+        // `interval=1mo` : la reponse reste bien formee et le piege est
+        // invisible. Une fenetre de 10 ans en couvrirait alors 30, et tous
+        // les rendements annualises seraient faux d'un facteur 3.
+        if (!cadenceMensuelle(dates)) {
+          throw new Error("série renvoyée avec un pas non mensuel");
+        }
+        const points = dates.map((d, i) => ({ date: d, valeur: cloture[i] }));
+        return {
+          ...s,
+          devise: deviseDe(meta),
+          debut: dates[0],
+          fin: dates[dates.length - 1],
+          points: points.length,
+          horizons: HORIZONS_ANS.map((ans) => ({
+            ans,
+            stats: fenetresGlissantes(points, ans),
+          })),
+          erreur: null as string | null,
+        };
+      } catch (e) {
+        // Une serie indisponible ne doit pas vider la page : l'autre reste
+        // exploitable, et l'interface affiche la raison de l'absence.
+        return {
+          ...s,
+          devise: "",
+          debut: null,
+          fin: null,
+          points: 0,
+          horizons: [] as { ans: number; stats: unknown }[],
+          erreur: e instanceof Error ? e.message : String(e),
+        };
+      }
+    }),
+  );
+  return { series, mesureA: new Date().toISOString() };
 }
 
 /**
@@ -403,6 +494,8 @@ Deno.serve(async (req) => {
       }
       case "marche":
         return json(await marche());
+      case "horizons":
+        return json(await horizons());
       case "palmares": {
         const items = (
           Array.isArray(corps.items) ? corps.items : []
