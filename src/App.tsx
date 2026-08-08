@@ -12,11 +12,13 @@ import InvestPage from "./components/InvestPage";
 import SimulatorPage from "./components/SimulatorPage";
 import type { AmorceSimulation } from "./components/SimulatorPage";
 import MarketPage from "./components/MarketPage";
+import HorizonPage from "./components/HorizonPage";
 import JournalPage from "./components/JournalPage";
 
 type Tab =
   | "pistes"
   | "marche"
+  | "horizon"
   | "simuler"
   | "comprendre"
   | "journal"
@@ -33,6 +35,7 @@ type Tab =
 const TABS: { id: Tab; label: string; icone: string }[] = [
   { id: "pistes", label: "Pistes", icone: "📡" },
   { id: "marche", label: "Marché", icone: "📈" },
+  { id: "horizon", label: "Horizon", icone: "⏳" },
   { id: "simuler", label: "S'entraîner", icone: "🎓" },
   { id: "journal", label: "Journal", icone: "📰" },
   { id: "comprendre", label: "Comprendre", icone: "📖" },
@@ -117,6 +120,7 @@ export default function App() {
       <main className="max-w-3xl mx-auto px-4 py-5 pb-16">
         {tab === "pistes" && <Dashboard onSimuler={simulerDepuisPiste} />}
         {tab === "marche" && <MarketPage />}
+        {tab === "horizon" && <HorizonPage />}
         {tab === "simuler" && (
           <SimulatorPage amorce={amorce} onAmorceConsommee={() => setAmorce(null)} />
         )}

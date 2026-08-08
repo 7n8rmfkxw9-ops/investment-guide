@@ -37,6 +37,21 @@ export interface Courtier {
   fraisSource: "officiel" | "estimation";
   fraisConstateLe: string;
   fraisLien: string;
+  /**
+   * Frais de courtage pour un petit ordre d'ETF, quand le courtier les
+   * tarife differemment des actions. Certains courtiers ne facturent rien sur
+   * les ETF : c'est ce qui rend un petit ticket viable alors qu'il ne l'est
+   * pas sur une action. Absent = meme tarif que les actions.
+   */
+  fraisEtfEur?: number;
+  fraisEtfNote?: string;
+  /**
+   * Marge appliquee par le courtier sur le taux de change, en pourcentage.
+   * Ne s'applique qu'aux titres cotes hors euro : un ETF cote en euros a
+   * Amsterdam n'y est pas soumis, meme si ses actifs sous-jacents sont
+   * majoritairement americains.
+   */
+  fxSpreadPct?: number;
 }
 
 export const COURTIERS: Courtier[] = [
@@ -71,6 +86,25 @@ export const COURTIERS: Courtier[] = [
     fraisSource: "officiel",
     fraisConstateLe: "juillet 2026, grille tarifaire 2026",
     fraisLien: "https://www.keytradebank.be/fr/aide/quels-sont-les-couts-impots-et-montant-minimum",
+  },
+  {
+    nom: "MeDirect",
+    lien: "https://www.medirect.be/fr-be/",
+    note: "Banque belge agréée FSMA, établie à Bruxelles. Fonds, ETF, actions et obligations.",
+    // Le moteur de recherche de trackers n'expose pas de parametre de requete
+    // verifiable : mieux vaut la page de recherche, qui fonctionne a coup sur,
+    // qu'une URL devinee qui menerait a une page vide.
+    recherche: () => "https://www.medirect.be/fr-be/investissez-vous/trackers/search/",
+    fraisPetitOrdreEur: 2.5,
+    fraisNote:
+      "Actions sur Euronext (Bruxelles, Amsterdam, Paris) : 0,15 % avec un minimum de 2,50 €. Sous 1 667 € d'ordre, c'est donc le minimum qui s'applique.",
+    fraisEtfEur: 0,
+    fraisEtfNote:
+      "ETF sur Euronext, Xetra, Borsa Italiana, Londres, Zurich et les places nordiques : 0 € et 0 %. Aucun minimum.",
+    fxSpreadPct: 0.8,
+    fraisSource: "officiel",
+    fraisConstateLe: "guide tarifaire en vigueur depuis le 01/07/2026",
+    fraisLien: "https://www.medirect.be/wp-content/uploads/Tariffs-charges-FR.pdf",
   },
   {
     nom: "Saxo Bank",
