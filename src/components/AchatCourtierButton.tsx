@@ -44,7 +44,7 @@ export default function AchatCourtierButton({ nom, ticker }: Props) {
       </button>
       {ouvert && (
         <div id={id} className="mt-2.5 space-y-2">
-          <p className="text-xs text-slate-600 leading-relaxed px-1">
+          <p className="text-sm text-slate-600 leading-relaxed px-1">
             Chaque lien ouvre le site du courtier dans un nouvel onglet. Vous
             achetez avec votre propre compte, sous votre seule responsabilité :
             cet outil ne transmet aucun ordre et ne voit jamais votre compte.

@@ -76,12 +76,12 @@ export default function PisteCard({
     <article className={`${CARTE} overflow-hidden`}>
       {/* Filet colore : la nature du signal se voit avant d'etre lue. */}
       <div className={`h-1 ${accent.barre}`} aria-hidden />
-      <div className="p-4 sm:p-5 space-y-3">
+      <div className="p-5 space-y-4">
         <header className="space-y-2">
-          <h3 className="font-semibold text-slate-800 leading-snug">
+          <h3 className="text-xl font-semibold text-slate-900 leading-tight">
             {piste.company_name}
             {piste.ticker && (
-              <span className="ml-1.5 text-slate-500 font-normal">
+              <span className="ml-2 text-slate-500 font-normal tabular-nums">
                 {piste.ticker}
               </span>
             )}
@@ -104,38 +104,57 @@ export default function PisteCard({
             <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">
               <span aria-hidden>{regulateur.drapeau}</span> {regulateur.nom}
             </span>
-            <span className="text-xs text-slate-500">
-              {piste.filed_at
-                ? `déposé le ${new Date(piste.filed_at).toLocaleDateString("fr-BE")}`
-                : new Date(piste.detected_at).toLocaleDateString("fr-BE")}
-            </span>
           </div>
-          {piste.sector && (
-            <p className="text-xs text-slate-500">{piste.sector}</p>
-          )}
+          {/* Date et secteur sur une seule ligne : deux lignes de metadonnees
+              grises au-dessus du texte utile repoussaient la substance vers
+              le bas sans rien apporter. */}
+          <p className="text-sm text-slate-500">
+            {piste.filed_at
+              ? `Déposé le ${new Date(piste.filed_at).toLocaleDateString("fr-BE")}`
+              : new Date(piste.detected_at).toLocaleDateString("fr-BE")}
+            {piste.sector && (
+              <>
+                <span className="mx-1.5 text-slate-300" aria-hidden>
+                  ·
+                </span>
+                {piste.sector}
+              </>
+            )}
+          </p>
         </header>
 
-        <p className="text-sm text-slate-600 leading-relaxed">{piste.contexte}</p>
+        {/* Tronque a trois lignes : agrandir la police sans reduire la
+            quantite de texte aurait simplement rallonge la fiche. Le texte
+            complet s'affiche avec le reste du detail, en un seul geste. */}
+        <p
+          className={`text-base text-slate-600 leading-relaxed ${
+            explique ? "" : "line-clamp-3"
+          }`}
+        >
+          {piste.contexte}
+        </p>
 
         {/* Rentabilite minimale : la synthese reste visible sans clic, parce
             qu'elle fait partie de ce qu'une fiche doit toujours dire. Seule
             l'explication du calcul se replie. */}
-        <p
-          className={`text-sm rounded-xl px-3.5 py-2.5 border ${
-            fees.tooSmall
-              ? "bg-amber-50 border-amber-200/70 text-amber-900"
-              : "bg-slate-50 border-slate-200/70 text-slate-700"
+        <div
+          className={`rounded-2xl px-4 py-3 flex items-baseline gap-3 ${
+            fees.tooSmall ? "bg-amber-50 text-amber-900" : "bg-slate-50 text-slate-700"
           }`}
         >
-          {fees.tooSmall && (
-            <span className="mr-1" aria-hidden>
-              ⚠
-            </span>
-          )}
-          Il faudrait gagner{" "}
-          <strong>{formatPct(fees.roundTripPct)}</strong> pour couvrir les frais
-          d'un aller-retour sur {positionSizeEur.toFixed(0)} €.
-        </p>
+          <span className="text-2xl font-semibold tabular-nums leading-none shrink-0">
+            {formatPct(fees.roundTripPct)}
+          </span>
+          <span className="text-sm leading-snug">
+            {fees.tooSmall && (
+              <span className="mr-1" aria-hidden>
+                ⚠
+              </span>
+            )}
+            à regagner pour couvrir un aller-retour sur{" "}
+            {positionSizeEur.toFixed(0)} €
+          </span>
+        </div>
 
         {/* Un seul repli pour tout le detail : deux boutons cote a cote
             auraient rendu la fiche aussi chargee qu'avant. */}
@@ -145,9 +164,17 @@ export default function PisteCard({
             onClick={() => setExplique(!explique)}
             aria-expanded={explique}
             aria-controls={idExplication}
-            className={`text-sm font-medium min-h-[44px] -my-2 py-2 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${accent.texte}`}
+            className={`inline-flex items-center gap-1.5 text-sm font-medium min-h-[44px] -my-2 py-2 hover:underline rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${accent.texte}`}
           >
-            {explique ? "− Masquer le détail" : "+ Ce que signifie ce signal, et le détail des frais"}
+            <span
+              className={`grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-xs motion-safe:transition-transform ${
+                explique ? "rotate-180" : ""
+              }`}
+              aria-hidden
+            >
+              ▾
+            </span>
+            {explique ? "Masquer le détail" : "Lire la suite, et ce que signifie ce signal"}
           </button>
           {explique && (
             <div
@@ -200,10 +227,10 @@ export default function PisteCard({
           <button
             type="button"
             onClick={onSimuler}
-            className="w-full min-h-[44px] rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+            className="w-full min-h-[52px] rounded-2xl bg-indigo-600 px-4 py-3 text-base font-semibold text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors shadow-sm motion-safe:active:scale-[0.98] motion-safe:transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
           >
             S'entraîner sur cette société
-            <span className="block text-xs font-normal text-indigo-100">
+            <span className="block text-xs font-normal text-indigo-100 mt-0.5">
               achat fictif, sans argent réel
             </span>
           </button>

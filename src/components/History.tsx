@@ -123,7 +123,7 @@ export default function History() {
         <h2 className="font-semibold text-slate-800">
           Votre carnet de bord
         </h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-base text-slate-600 leading-relaxed">
           Notez ce qui s'est réellement passé après chaque piste — les échecs
           comme les réussites. C'est le seul moyen de savoir, dans six mois ou un
           an, si ces signaux vous ont réellement apporté quelque chose. Un outil
@@ -216,7 +216,7 @@ export default function History() {
         </p>
       )}
 
-      <p className="text-xs text-slate-500 leading-relaxed">
+      <p className="text-sm text-slate-500 leading-relaxed">
         Le bilan chiffré décrit ce qui s'est déjà produit ; il ne prédit rien
         pour la suite. Les cours proviennent d'un service public de données de
         marché et peuvent être différés.

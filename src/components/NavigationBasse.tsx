@@ -34,8 +34,9 @@ interface Props {
 
 function classeCible(actif: boolean): string {
   return [
-    "flex-1 min-w-0 min-h-[56px] flex flex-col items-center justify-center gap-0.5",
-    "px-1 py-1.5 rounded-xl transition-colors",
+    "flex-1 min-w-0 min-h-[58px] flex flex-col items-center justify-center gap-1",
+    "px-1 py-2 rounded-2xl transition-colors motion-safe:active:scale-[0.94]",
+    "motion-safe:transition-transform",
     // L'anneau de focus est visible au clavier et invisible a la souris :
     // sans lui, naviguer au clavier revient a avancer les yeux fermes.
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
@@ -61,27 +62,28 @@ const Cible = forwardRef<HTMLButtonElement, PropsCible>(function Cible(
       type="button"
       onClick={onClick}
       aria-current={actif ? "page" : undefined}
-      className={classeCible(actif)}
+      className={`relative ${classeCible(actif)}`}
       {...reste}
     >
-      <span className="text-lg leading-none" aria-hidden>
+      {/* Pastille d'arriere-plan sur l'onglet actif : plus lisible qu'un
+          simple changement de teinte du libelle, et le repere ne depend pas
+          de la perception des couleurs. */}
+      <span
+        className={`absolute inset-x-1 inset-y-1 rounded-2xl motion-safe:transition-colors ${
+          actif ? "bg-indigo-50" : "bg-transparent"
+        }`}
+        aria-hidden
+      />
+      <span className="relative text-xl leading-none" aria-hidden>
         {icone}
       </span>
       <span
-        className={`text-[11px] leading-tight truncate max-w-full ${
-          actif ? "font-semibold" : ""
+        className={`relative text-xs leading-tight truncate max-w-full ${
+          actif ? "font-semibold" : "font-medium"
         }`}
       >
         {label}
       </span>
-      {/* Repere non colore de l'onglet actif : le daltonisme ne doit pas
-          priver de l'information « vous etes ici ». */}
-      <span
-        className={`block h-0.5 w-5 rounded-full ${
-          actif ? "bg-indigo-600" : "bg-transparent"
-        }`}
-        aria-hidden
-      />
     </button>
   );
 });
@@ -130,7 +132,7 @@ export default function NavigationBasse({
           role="dialog"
           aria-modal="true"
           aria-labelledby="titre-plus"
-          className="fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl max-h-[80vh] overflow-y-auto"
+          className="fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-[1.75rem] shadow-flottant ring-1 ring-slate-900/[0.06] max-h-[80vh] overflow-y-auto motion-safe:animate-monteeFeuille"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 5.5rem)" }}
         >
           <div className="max-w-3xl mx-auto px-4 pt-3 pb-2">
@@ -138,8 +140,8 @@ export default function NavigationBasse({
               className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300"
               aria-hidden
             />
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <h2 id="titre-plus" className="font-semibold text-slate-800">
+            <div className="flex items-center justify-between gap-3 mb-1">
+              <h2 id="titre-plus" className="text-xl font-semibold text-slate-900">
                 Toutes les rubriques
               </h2>
               <button
@@ -180,7 +182,7 @@ export default function NavigationBasse({
                             </span>
                           )}
                         </span>
-                        <span className="block text-sm text-slate-500 leading-relaxed">
+                        <span className="block text-sm text-slate-500 leading-normal">
                           {o.detail}
                         </span>
                       </span>
@@ -195,7 +197,7 @@ export default function NavigationBasse({
 
       <nav
         aria-label="Navigation principale"
-        className="fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200"
+        className="fixed inset-x-0 bottom-0 z-40 bg-white/80 backdrop-blur-xl border-t border-slate-900/[0.06]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <ul className="max-w-3xl mx-auto px-1.5 flex items-stretch">

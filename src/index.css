@@ -2,11 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  /* Le defilement anime rend les sauts d'ancre lisibles au lieu de teleporter
+     le lecteur. Neutralise plus bas si le systeme demande moins d'animation. */
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   @apply bg-slate-50 text-slate-800 antialiased;
   -webkit-text-size-adjust: 100%;
   /* Rebond de defilement blanc sous la barre de navigation fixe sur iOS. */
   overscroll-behavior-y: none;
+  /* Chiffres a chasse proportionnelle dans le texte courant, mais ligatures
+     et alternatives typographiques activees : c'est ce qui fait la difference
+     entre un texte compose et un texte affiche. */
+  font-feature-settings: "kern", "liga", "calt";
+}
+
+/* Les titres se resserrent : une approche legerement negative sur les grandes
+   tailles evite l'effet « texte simplement grossi ». */
+h1,
+h2,
+h3 {
+  @apply text-slate-900;
+  text-wrap: balance;
+}
+
+/* Les paragraphes evitent les lignes orphelines d'un seul mot. */
+p {
+  text-wrap: pretty;
+}
+
+/* Toute suite de chiffres comparables s'aligne verticalement. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Barre defilante sans ascenseur visible (listes horizontales residuelles) */
@@ -37,25 +67,30 @@ textarea {
    voit jamais a la souris.
    ------------------------------------------------------------------------ */
 
-/* Un contour de focus toujours visible et jamais supprime, uniquement au
-   clavier pour ne pas alourdir l'usage tactile. */
 :focus-visible {
   outline: 2px solid theme("colors.indigo.600");
   outline-offset: 2px;
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
 }
 
-/* Cible tactile minimale sur les elements interactifs natifs. 44 px est le
-   seuil recommande ; en dessous, on manque la cible avec le pouce. */
 button,
 [role="button"],
 summary {
   touch-action: manipulation;
 }
 
+/* Le contenu d'une section repliable apparait en fondu : sans cela, l'ouverture
+   est un saut brutal qui fait perdre la ligne de lecture. */
+details[open] > div {
+  animation: ouvertureRepli 180ms ease-out;
+}
+
 /* Le systeme peut demander de reduire les animations : vertiges, troubles
    vestibulaires, migraines. On respecte, sans casser les etats. */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
@@ -69,17 +104,9 @@ summary {
 /* Fond opaque des surfaces flottantes quand la transparence est desactivee
    au niveau du systeme. */
 @media (prefers-reduced-transparency: reduce) {
-  .backdrop-blur-md {
+  .backdrop-blur-md,
+  .backdrop-blur-xl {
     backdrop-filter: none;
     background-color: white;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }

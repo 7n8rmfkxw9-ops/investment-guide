@@ -185,7 +185,7 @@ function CarteHorizon({
           <span className="font-semibold text-slate-700">{duree(ans)}</span>
           <span className="text-xs text-slate-500">Historique insuffisant</span>
         </div>
-        <p className="text-xs text-slate-500 leading-relaxed mt-1.5">
+        <p className="text-sm text-slate-500 leading-relaxed mt-1.5">
           Cet historique ne contient pas assez de périodes de {duree(ans)} pour que
           le résultat décrive autre chose qu'un hasard de date d'entrée. Rien
           n'est affiché plutôt qu'un chiffre extrapolé.
@@ -222,20 +222,20 @@ function CarteHorizon({
           { l: "Meilleur", v: b, e: stats.meilleurFinal100, d: stats.meilleurDepart },
         ].map((c) => (
           <div key={c.l} className="rounded-xl bg-slate-50 px-2 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">
+            <p className="text-xs uppercase tracking-wide text-slate-500">
               {c.l}
             </p>
             <p className={`text-sm font-semibold tabular-nums ${couleurResultat(c.v)}`}>
               {pct(c.v)}
-              <span className="font-normal text-slate-500 text-[10px]"> /an</span>
+              <span className="font-normal text-slate-500 text-xs"> /an</span>
             </p>
             {/* Arrondi a l'euro : sur un capital final, les centimes sont du
                 bruit, et ils faisaient passer le montant a la ligne. */}
-            <p className="text-[11px] text-slate-500 tabular-nums">
+            <p className="text-xs text-slate-500 tabular-nums">
               {euroRond(reel ? capitalApres(c.v, ans) : c.e)}
             </p>
             {c.d && (
-              <p className="text-[10px] text-slate-500 tabular-nums">
+              <p className="text-xs text-slate-500 tabular-nums">
                 dès {c.d.slice(0, 7).replace("-", "/")}
               </p>
             )}
@@ -243,7 +243,7 @@ function CarteHorizon({
         ))}
       </div>
 
-      <p className="text-xs text-slate-600 leading-relaxed">
+      <p className="text-sm text-slate-600 leading-relaxed">
         <span className="font-semibold tabular-nums">
           {stats.partPositivePct.toFixed(0)} %
         </span>{" "}
@@ -283,7 +283,14 @@ export default function HorizonPage() {
       const d = data as Record<string, unknown> | null;
       if (error) setErreur(error.message);
       else if (d?.erreur) setErreur(String(d.erreur));
-      else setDonnees(d as unknown as Reponse);
+      // Une reponse inattendue ne doit pas produire un ecran blanc : sans ce
+      // controle, une charge utile sans `series` faisait planter le rendu au
+      // premier `.find`, et l'utilisateur ne voyait plus rien du tout.
+      else if (Array.isArray((d as { series?: unknown })?.series)) {
+        setDonnees(d as unknown as Reponse);
+      } else {
+        setErreur("réponse inattendue du service de cotations");
+      }
       setChargement(false);
     })();
     return () => {
@@ -291,7 +298,7 @@ export default function HorizonPage() {
     };
   }, []);
 
-  const serie = donnees?.series.find((s) => s.cle === cle) ?? null;
+  const serie = donnees?.series?.find((s) => s.cle === cle) ?? null;
 
   // Domaine commun a tous les horizons de la serie : sans cela, chaque barre
   // aurait sa propre echelle et le resserrement — qui est tout le propos —
@@ -313,18 +320,15 @@ export default function HorizonPage() {
 
   return (
     <div className="space-y-5">
-      <div className={`${CARTE} p-5 space-y-2`}>
-        <h2 className="text-lg font-semibold text-slate-800">
-          Attendre 5, 10 ou 30 ans ?
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold text-slate-900">
+          Attendre 5, 10 ou 30&nbsp;ans&nbsp;?
         </h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
-          Personne ne peut vous dire ce que fera cet ETF. Ce que l'on peut
-          faire, c'est regarder <strong>toutes</strong> les périodes de 5 ans,
-          de 10 ans, de 30 ans qui se sont réellement produites, et compter
-          combien se sont terminées en perte. C'est un constat sur le passé, pas
-          une projection : rien n'oblige l'avenir à ressembler à ces périodes.
+        <p className="text-base text-slate-500 leading-snug">
+          Toutes les périodes qui se sont réellement produites, et combien se
+          sont terminées en perte. Un constat sur le passé, pas une projection.
         </p>
-      </div>
+      </header>
 
       {chargement && (
         <div className={`${CARTE} p-5 text-sm text-slate-500`}>
@@ -341,11 +345,11 @@ export default function HorizonPage() {
       {donnees && (
         <>
           <div className="flex flex-wrap gap-2">
-            {donnees.series.map((s) => (
+            {(donnees.series ?? []).map((s) => (
               <button
                 key={s.cle}
                 onClick={() => setCle(s.cle)}
-                className={s.cle === cle ? BOUTON_PRINCIPAL : BOUTON_DOUX}
+                className={`${s.cle === cle ? BOUTON_PRINCIPAL : BOUTON_DOUX} text-sm`}
               >
                 {s.principal ? "🌍 " : "📊 "}
                 {s.titre}
@@ -356,7 +360,7 @@ export default function HorizonPage() {
           {serie && (
             <>
               <div className={`${CARTE} p-4 space-y-2`}>
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-base text-slate-600 leading-relaxed">
                   {serie.detail}
                 </p>
                 {serie.erreur ? (
@@ -377,7 +381,7 @@ export default function HorizonPage() {
                   <p className="text-sm font-semibold text-amber-900">
                     Pourquoi ces chiffres sont trop beaux
                   </p>
-                  <p className="text-xs text-amber-900 leading-relaxed">
+                  <p className="text-sm text-amber-900 leading-relaxed">
                     L'historique de cet ETF commence en {annee(serie.debut)},
                     c'est-à-dire juste après le krach de 2008. Il ne contient
                     donc <strong>aucune entrée au sommet d'un grand marché
@@ -385,7 +389,7 @@ export default function HorizonPage() {
                     mécaniquement flattés, et le « 100 % de périodes gagnantes »
                     dit surtout que ce produit est jeune.
                   </p>
-                  <p className="text-xs text-amber-900 leading-relaxed">
+                  <p className="text-sm text-amber-900 leading-relaxed">
                     L'autre série, qui remonte à 1988 et traverse 2000 et 2008,
                     montre ce que cet historique-ci ne peut pas montrer : une
                     période de <strong>dix ans</strong> qui s'est terminée en
@@ -418,7 +422,7 @@ export default function HorizonPage() {
               </div>
 
               {reel && (
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-sm text-slate-500 leading-relaxed">
                   Les montants ci-dessous sont exprimés en pouvoir d'achat
                   d'aujourd'hui, sous l'hypothèse que vous venez de saisir. Ce
                   taux est une hypothèse de votre part : l'outil ne prévoit pas
@@ -427,7 +431,7 @@ export default function HorizonPage() {
               )}
 
               <div className="space-y-3">
-                {serie.horizons.map((h) => (
+                {(serie.horizons ?? []).map((h) => (
                   <CarteHorizon
                     key={h.ans}
                     ans={h.ans}
@@ -446,7 +450,7 @@ export default function HorizonPage() {
                 icone="🧭"
                 resume="Quatre réserves qui changent l'interprétation."
               >
-                <ul className="text-sm text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
+                <ul className="text-base text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
                   <li>
                     <strong>Les périodes se chevauchent.</strong> Les périodes
                     de 30 ans tirées de 38 ans d'historique partagent presque
@@ -492,7 +496,7 @@ export default function HorizonPage() {
         <p className="text-xs text-slate-500 tabular-nums">
           {ETF_MONDE.symbole} · {ETF_MONDE.place} · coté en {ETF_MONDE.devise}
         </p>
-        <ul className="text-sm text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
+        <ul className="text-base text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
           {ETF_MONDE.faits.map((f) => (
             <li key={f}>{f}</li>
           ))}
@@ -505,7 +509,7 @@ export default function HorizonPage() {
             Ce que l'outil n'a pas pu vérifier
           </p>
           {ETF_MONDE.aVerifier.map((a) => (
-            <p key={a} className="text-xs text-slate-500 leading-relaxed">
+            <p key={a} className="text-sm text-slate-500 leading-relaxed">
               {a}
             </p>
           ))}
@@ -553,7 +557,7 @@ export default function HorizonPage() {
           </label>
         </div>
 
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-base text-slate-600 leading-relaxed">
           {courtier.fraisEtfNote ? (
             <>
               <strong>{courtier.nom}</strong> — {courtier.fraisEtfNote}
@@ -582,7 +586,7 @@ export default function HorizonPage() {
         </p>
 
         {courtier.fxSpreadPct !== undefined && (
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-sm text-slate-500 leading-relaxed">
             Ce courtier applique une marge de {courtier.fxSpreadPct} % sur le
             taux de change. Elle ne s'applique pas ici : l'ETF est coté en
             euros, donc aucune conversion n'a lieu. Elle s'appliquerait, deux
@@ -606,7 +610,7 @@ export default function HorizonPage() {
                   {formatEur(c.taxeEur)}
                 </p>
                 {ans !== null && (
-                  <p className="text-xs text-slate-500 leading-relaxed">
+                  <p className="text-sm text-slate-500 leading-relaxed">
                     À 6 % par an — hypothèse d'illustration, pas une prévision —
                     il faudrait environ{" "}
                     {ans < 1
@@ -615,7 +619,7 @@ export default function HorizonPage() {
                     pour absorber ce coût.
                   </p>
                 )}
-                <p className="text-[11px] text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   {r.note}
                 </p>
               </div>
@@ -623,7 +627,7 @@ export default function HorizonPage() {
           })}
         </div>
 
-        <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        <p className="text-sm text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
           Lequel de ces deux régimes s'applique dépend de l'inscription de cet
           ETF précis auprès de la FSMA, que l'outil n'a pas pu vérifier —
           l'écart est d'un facteur cinq, il serait donc malhonnête d'en choisir
@@ -633,7 +637,7 @@ export default function HorizonPage() {
         </p>
       </Repliable>
 
-      <p className="text-xs text-slate-500 leading-relaxed">
+      <p className="text-sm text-slate-500 leading-relaxed">
         Ceci n'est pas un conseil en investissement. Cette page décrit des
         périodes passées et des tarifs publiés ; elle ne prévoit aucun cours, ne
         recommande aucun achat et ne tient pas compte de votre situation

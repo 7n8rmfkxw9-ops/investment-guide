@@ -304,7 +304,7 @@ export default function SettingsPage() {
               const c = COURTIERS.find((x) => x.nom === courtierChoisi);
               if (!c) return null;
               return (
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-sm text-slate-500 leading-relaxed">
                   {c.fraisNote}{" "}
                   {c.fraisSource === "estimation" ? (
                     <>

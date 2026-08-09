@@ -170,13 +170,13 @@ export default function MarketPage() {
           </span>
           <div className="space-y-2">
             <h2 className="font-semibold text-slate-800">Cours de bourse, en clair</h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-base text-slate-600 leading-relaxed">
               Ce que vous verrez ici décrit ce qui s'est <strong>déjà produit</strong> :
               un cours, une fourchette sur un an, l'ampleur des secousses passées.
               Aucun de ces chiffres n'indique où le cours ira ensuite — personne ne le
               sait, et un outil qui prétendrait le savoir mentirait.
             </p>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-base text-slate-600 leading-relaxed">
               En revanche, une question a une réponse factuelle utile :{" "}
               <strong>comment répartir un même budget dans le temps</strong> change le
               résultat, à cause des frais et du hasard du calendrier. C'est ce que
@@ -390,7 +390,7 @@ export default function MarketPage() {
               <h4 className="text-sm font-semibold text-slate-700">
                 Le timing, mesuré après coup — pas prédit
               </h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-sm text-slate-500 leading-relaxed">
                 Il n'existe pas de réponse fiable à « quel est le meilleur moment pour
                 investir ? ». Ce qui suit compare, sur les cours déjà connus de la
                 période affichée, ce qu'aurait donné un budget étalé en achats
@@ -439,7 +439,7 @@ export default function MarketPage() {
                     s={comparaison.pireJour}
                   />
                   <LigneStrategie libelle="Tout misé dès le premier jour" s={comparaison.toutDeSuite} />
-                  <p className="text-xs text-slate-500 leading-relaxed pt-1">
+                  <p className="text-sm text-slate-500 leading-relaxed pt-1">
                     Les achats réguliers ne battent jamais la meilleure borne théorique
                     — c'est normal, elle suppose de deviner juste à chaque fois. Leur
                     intérêt est ailleurs : ils évitent de devoir deviner, et lissent le
@@ -467,7 +467,7 @@ export default function MarketPage() {
         )}
       </section>
 
-      <p className="text-xs text-slate-500 leading-relaxed">
+      <p className="text-sm text-slate-500 leading-relaxed">
         Les cours proviennent d'un service public de données de marché et peuvent
         être différés. Rien sur cette page ne prédit un cours futur ni ne recommande
         un achat ou une vente. Les performances passées ne préjugent pas des

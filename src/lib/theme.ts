@@ -147,22 +147,45 @@ export function traceResultat(v: number): { couleur: string; tirets?: string } {
 }
 
 /** Classes communes, pour que toutes les pages se ressemblent. */
+
+/**
+ * Surface de base.
+ *
+ * Bordure pleine remplacee par un liseré d'un pixel en `ring` translucide,
+ * plus une ombre large et tres diffuse. Une bordure grise franche cerne la
+ * carte et decoupe la page en cases ; un liseré translucide la pose dessus.
+ * C'est la difference visuelle la plus rentable entre une interface de 2015
+ * et une interface d'aujourd'hui, pour un cout nul en lisibilite.
+ */
 export const CARTE =
-  "bg-white rounded-2xl border border-slate-200/70 shadow-sm shadow-slate-200/40";
+  "bg-white rounded-2xl ring-1 ring-slate-900/[0.06] shadow-carte";
+
+/** Surface cliquable : l'elevation repond au survol, jamais la couleur seule. */
+export const CARTE_CLIQUABLE =
+  CARTE +
+  " transition-shadow motion-safe:transition-all hover:shadow-carteSurvol hover:ring-slate-900/10";
+
+/** Titre de section, a l'interieur d'une carte. */
+export const TITRE_SECTION = "text-lg font-semibold text-slate-900";
+/** Intertitre discret au-dessus d'un groupe. */
+export const SURTITRE =
+  "text-xs font-semibold uppercase tracking-wider text-slate-500";
 // `min-h-[44px]` sur les deux boutons : c'est la plus petite cible qu'un
 // pouce atteint de facon fiable. En dessous, on rate le bouton une fois sur
 // trois sans savoir pourquoi.
 export const BOUTON_PRINCIPAL =
-  "rounded-xl px-4 py-2.5 min-h-[44px] text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 " +
+  "rounded-xl px-4 py-2.5 min-h-[44px] text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 " +
   "active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm " +
+  "motion-safe:active:scale-[0.98] motion-safe:transition-transform " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2";
 export const BOUTON_DOUX =
-  "rounded-xl px-3.5 py-2 min-h-[44px] text-sm font-medium text-indigo-700 bg-indigo-50 " +
+  "rounded-xl px-4 py-2.5 min-h-[44px] text-base font-medium text-indigo-700 bg-indigo-50 " +
   "hover:bg-indigo-100 disabled:opacity-40 transition-colors " +
+  "motion-safe:active:scale-[0.98] motion-safe:transition-transform " +
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2";
 // L'anneau de focus des champs passe en indigo-500 : indigo-200 sur fond
 // blanc n'atteignait pas le contraste 3:1 exige d'un indicateur de focus.
 export const CHAMP =
-  "border border-slate-300 rounded-xl px-3 py-2 min-h-[44px] text-sm bg-white text-slate-800 " +
+  "border border-slate-300 rounded-xl px-3.5 py-2.5 min-h-[44px] text-base bg-white text-slate-900 " +
   "placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 " +
   "focus:border-indigo-500 transition-colors";
