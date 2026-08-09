@@ -145,7 +145,7 @@ export default function PositionsPage() {
         <div className={`${CARTE} overflow-x-auto`}>
           <table className="text-sm w-full">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-slate-400 border-b">
+              <tr className="text-left text-xs uppercase tracking-wide text-slate-500 border-b">
                 <th className="px-3 py-2">Titre</th>
                 {periods.map((p) => (
                   <th key={p} className="px-3 py-2 whitespace-nowrap">

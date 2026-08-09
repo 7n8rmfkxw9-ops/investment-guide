@@ -141,7 +141,7 @@ export default function SettingsPage() {
           {managers.map((m) => (
             <li key={m.id} className="py-2 flex justify-between items-center">
               <span>
-                {m.name} <span className="text-slate-400">CIK {m.cik}</span>
+                {m.name} <span className="text-slate-500">CIK {m.cik}</span>
               </span>
               <button
                 className="text-xs text-red-600 hover:underline"
@@ -152,7 +152,7 @@ export default function SettingsPage() {
             </li>
           ))}
           {managers.length === 0 && (
-            <li className="py-2 text-slate-400">Aucun gestionnaire suivi.</li>
+            <li className="py-2 text-slate-500">Aucun gestionnaire suivi.</li>
           )}
         </ul>
         <form onSubmit={addManager} className="flex flex-wrap gap-2">
@@ -207,7 +207,7 @@ export default function SettingsPage() {
               <span>
                 {i.name}
                 {i.ticker && ` (${i.ticker})`}{" "}
-                <span className="text-slate-400">
+                <span className="text-slate-500">
                   {i.market === "US"
                     ? `${MARKET_LABELS.US} · CIK ${i.cik}`
                     : MARKET_LABELS[i.market]}
@@ -222,12 +222,13 @@ export default function SettingsPage() {
             </li>
           ))}
           {issuers.length === 0 && (
-            <li className="py-2 text-slate-400">Aucune société suivie.</li>
+            <li className="py-2 text-slate-500">Aucune société suivie.</li>
           )}
         </ul>
         <form onSubmit={addIssuer} className="flex flex-wrap gap-2">
           <select
             className={`${CHAMP} bg-white`}
+            aria-label="Pays de la société à suivre"
             value={iMarket}
             onChange={(e) => setIMarket(e.target.value as Market)}
           >

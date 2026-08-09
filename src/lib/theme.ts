@@ -104,10 +104,17 @@ export const MARCHES: Record<Market, { drapeau: string; nom: string; regulateur:
  * Couleur d'un resultat chiffre. Le zero reste neutre : afficher en vert un
  * gain de 0,00 € donnerait une impression de reussite sans fondement.
  */
+/*
+ * Nuances 700 et non 600 : mesure faite avec axe-core, emerald-600 sur le
+ * gris clair des encarts de resultat ne donne que 3,5:1 et rose-600 4,3:1,
+ * sous le seuil de 4,5:1 exige pour du texte normal. Ce sont precisement les
+ * chiffres que l'utilisateur vient lire — les rendre limites en contraste
+ * serait la pire ligne ou economiser.
+ */
 export function couleurResultat(v: number): string {
-  if (v > 0.005) return "text-emerald-600";
-  if (v < -0.005) return "text-rose-600";
-  return "text-slate-500";
+  if (v > 0.005) return "text-emerald-700";
+  if (v < -0.005) return "text-rose-700";
+  return "text-slate-600";
 }
 
 /** Fond assorti, pour les encarts de resultat. */
@@ -142,13 +149,20 @@ export function traceResultat(v: number): { couleur: string; tirets?: string } {
 /** Classes communes, pour que toutes les pages se ressemblent. */
 export const CARTE =
   "bg-white rounded-2xl border border-slate-200/70 shadow-sm shadow-slate-200/40";
+// `min-h-[44px]` sur les deux boutons : c'est la plus petite cible qu'un
+// pouce atteint de facon fiable. En dessous, on rate le bouton une fois sur
+// trois sans savoir pourquoi.
 export const BOUTON_PRINCIPAL =
-  "rounded-xl px-4 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 " +
-  "active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-sm";
+  "rounded-xl px-4 py-2.5 min-h-[44px] text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 " +
+  "active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2";
 export const BOUTON_DOUX =
-  "rounded-xl px-3.5 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 " +
-  "hover:bg-indigo-100 disabled:opacity-40 transition";
+  "rounded-xl px-3.5 py-2 min-h-[44px] text-sm font-medium text-indigo-700 bg-indigo-50 " +
+  "hover:bg-indigo-100 disabled:opacity-40 transition-colors " +
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2";
+// L'anneau de focus des champs passe en indigo-500 : indigo-200 sur fond
+// blanc n'atteignait pas le contraste 3:1 exige d'un indicateur de focus.
 export const CHAMP =
-  "border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white text-slate-800 " +
-  "placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 " +
-  "focus:border-indigo-300 transition";
+  "border border-slate-300 rounded-xl px-3 py-2 min-h-[44px] text-sm bg-white text-slate-800 " +
+  "placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 " +
+  "focus:border-indigo-500 transition-colors";

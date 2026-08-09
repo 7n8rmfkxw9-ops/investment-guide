@@ -52,6 +52,9 @@ interface ReponseJournal {
 
 type Filtre = "tout" | "mise-en-garde" | "actualite";
 
+/** Articles montres avant de devoir demander la suite. */
+const APERCU = 5;
+
 function dateCourte(d: string | null): string | null {
   if (!d) return null;
   const t = new Date(d);
@@ -92,6 +95,10 @@ export default function JournalPage() {
   const [chargement, setChargement] = useState(true);
   const [filtre, setFiltre] = useState<Filtre>("tout");
   const [themeOuvert, setThemeOuvert] = useState<CleTheme | null>(null);
+  // Les flux comptent 30 et 15 articles : tout derouler faisait a lui seul
+  // plus de sept ecrans. On en montre cinq, le reste sur demande.
+  const [toutFsma, setToutFsma] = useState(false);
+  const [toutAutres, setToutAutres] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     charger();
@@ -107,7 +114,8 @@ export default function JournalPage() {
   }
 
   const fsma = donnees?.fsma ?? [];
-  const items = fsma.filter((a) => filtre === "tout" || a.categorie === filtre);
+  const tousItems = fsma.filter((a) => filtre === "tout" || a.categorie === filtre);
+  const items = toutFsma ? tousItems : tousItems.slice(0, APERCU);
   const nbMisesEnGarde = fsma.filter((a) => a.categorie === "mise-en-garde").length;
   const autres = donnees?.autres ?? [];
   const essentiels = parcoursEssentiel();
@@ -187,7 +195,7 @@ export default function JournalPage() {
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className="font-semibold text-slate-800">{t.libelle}</span>
-                      <span className="text-xs text-slate-400 shrink-0 tabular-nums">
+                      <span className="text-xs text-slate-500 shrink-0 tabular-nums">
                         {lectures.length} {ouvert ? "▲" : "▼"}
                       </span>
                     </span>
@@ -221,7 +229,7 @@ export default function JournalPage() {
             </a>
           ))}
         </div>
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-xs text-slate-500 leading-relaxed">
           {Object.values(SOURCES)
             .map((s) => `${s.nom} — ${s.detail}`)
             .join(" ")}
@@ -236,7 +244,7 @@ export default function JournalPage() {
           <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
             Actualités et mises en garde — FSMA
           </h3>
-          <button onClick={charger} className="text-xs text-slate-400 hover:text-slate-700">
+          <button onClick={charger} className="text-xs text-slate-500 hover:text-slate-700">
             ↻ Actualiser
           </button>
         </div>
@@ -277,10 +285,14 @@ export default function JournalPage() {
           ))}
         </div>
 
-        {chargement && <p className="text-sm text-slate-400">Chargement…</p>}
+        {chargement && (
+          <p className="text-sm text-slate-500" role="status">
+            Chargement…
+          </p>
+        )}
 
         {!chargement && items.length === 0 && donnees && !donnees.erreurFsma && (
-          <p className="text-sm text-slate-400">Rien à afficher pour ce filtre.</p>
+          <p className="text-sm text-slate-500">Rien à afficher pour ce filtre.</p>
         )}
 
         <div className="space-y-2.5">
@@ -294,11 +306,11 @@ export default function JournalPage() {
             >
               <div className="flex items-start gap-2.5">
                 {a.categorie === "mise-en-garde" ? (
-                  <span
-                    className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-medium shrink-0 mt-0.5"
-                    title="La FSMA signale un acteur non agréé ou une pratique douteuse"
-                  >
-                    ⚠️ Mise en garde
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-medium shrink-0 mt-0.5">
+                    <span aria-hidden>⚠️ </span>Mise en garde
+                    <span className="sr-only">
+                      {" "}: la FSMA signale un acteur non agréé ou une pratique douteuse
+                    </span>
                   </span>
                 ) : (
                   <span className="text-xs px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-medium shrink-0 mt-0.5">
@@ -306,7 +318,7 @@ export default function JournalPage() {
                   </span>
                 )}
                 {dateCourte(a.date) && (
-                  <span className="text-xs text-slate-400 mt-0.5">{dateCourte(a.date)}</span>
+                  <span className="text-xs text-slate-500 mt-0.5">{dateCourte(a.date)}</span>
                 )}
               </div>
               <p className="font-medium text-slate-800 mt-1.5 leading-snug">{a.titre}</p>
@@ -315,9 +327,23 @@ export default function JournalPage() {
                   {a.extrait}
                 </p>
               )}
+              <span className="sr-only">(nouvel onglet)</span>
             </a>
           ))}
         </div>
+
+        {tousItems.length > APERCU && (
+          <button
+            type="button"
+            onClick={() => setToutFsma(!toutFsma)}
+            aria-expanded={toutFsma}
+            className={`${BOUTON_DOUX} w-full min-h-[44px]`}
+          >
+            {toutFsma
+              ? "Réduire la liste"
+              : `Voir les ${tousItems.length - APERCU} autres publications`}
+          </button>
+        )}
       </section>
 
       {autres.map((f) => (
@@ -332,7 +358,7 @@ export default function JournalPage() {
             </p>
           ) : (
             <div className="space-y-2.5">
-              {f.articles.map((a) => (
+              {(toutAutres[f.cle] ? f.articles : f.articles.slice(0, APERCU)).map((a) => (
                 <a
                   key={a.lien}
                   href={a.lien}
@@ -341,7 +367,7 @@ export default function JournalPage() {
                   className={`${CARTE} block p-4 hover:border-indigo-300 transition`}
                 >
                   {dateCourte(a.date) && (
-                    <span className="text-xs text-slate-400">{dateCourte(a.date)}</span>
+                    <span className="text-xs text-slate-500">{dateCourte(a.date)}</span>
                   )}
                   <p className="font-medium text-slate-800 mt-1 leading-snug">{a.titre}</p>
                   {a.extrait && (
@@ -349,22 +375,37 @@ export default function JournalPage() {
                       {a.extrait}
                     </p>
                   )}
+                  <span className="sr-only">(nouvel onglet)</span>
                 </a>
               ))}
             </div>
+          )}
+          {!f.erreur && f.articles.length > APERCU && (
+            <button
+              type="button"
+              onClick={() =>
+                setToutAutres((t) => ({ ...t, [f.cle]: !t[f.cle] }))
+              }
+              aria-expanded={!!toutAutres[f.cle]}
+              className={`${BOUTON_DOUX} w-full min-h-[44px]`}
+            >
+              {toutAutres[f.cle]
+                ? "Réduire la liste"
+                : `Voir les ${f.articles.length - APERCU} autres articles`}
+            </button>
           )}
         </section>
       ))}
 
       {!chargement && donnees && autres.length === 0 && (
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-xs text-slate-500 leading-relaxed">
           Une source d'actualité supplémentaire est prête mais n'apparaîtra
           qu'une fois la fonction <code>journal</code> redéployée côté serveur.
           La bibliothèque ci-dessus, elle, ne dépend d'aucun déploiement.
         </p>
       )}
 
-      <p className="text-xs text-slate-400 leading-relaxed">
+      <p className="text-xs text-slate-500 leading-relaxed">
         Ce journal relaie des publications officielles et des contenus
         pédagogiques publics ; il ne les commente pas, n'en tire aucune
         recommandation d'achat ou de vente, et leur présence ici ne constitue
