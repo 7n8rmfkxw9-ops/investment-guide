@@ -181,7 +181,7 @@ export default function AccountPage() {
             </li>
           ))}
           {liens.length === 0 && (
-            <li className="py-2 text-slate-400">Aucun raccourci ajouté.</li>
+            <li className="py-2 text-slate-500">Aucun raccourci ajouté.</li>
           )}
         </ul>
         <form onSubmit={ajouterLien} className="flex flex-wrap gap-2">

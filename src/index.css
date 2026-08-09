@@ -5,9 +5,11 @@
 body {
   @apply bg-slate-50 text-slate-800 antialiased;
   -webkit-text-size-adjust: 100%;
+  /* Rebond de defilement blanc sous la barre de navigation fixe sur iOS. */
+  overscroll-behavior-y: none;
 }
 
-/* Barre d'onglets defilante sans ascenseur visible (iPhone) */
+/* Barre defilante sans ascenseur visible (listes horizontales residuelles) */
 .scrollbar-none {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -23,4 +25,61 @@ input,
 select,
 textarea {
   font-size: 16px !important;
+}
+
+/* ---------------------------------------------------------------------------
+   Accessibilite
+
+   Ces regles s'appliquent a tout ce qui est focalisable, y compris les
+   elements natifs qu'aucune classe utilitaire ne couvre. Les poser ici plutot
+   que composant par composant garantit qu'un futur bouton ecrit sans y penser
+   reste utilisable au clavier — c'est exactement le genre d'oubli qui ne se
+   voit jamais a la souris.
+   ------------------------------------------------------------------------ */
+
+/* Un contour de focus toujours visible et jamais supprime, uniquement au
+   clavier pour ne pas alourdir l'usage tactile. */
+:focus-visible {
+  outline: 2px solid theme("colors.indigo.600");
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Cible tactile minimale sur les elements interactifs natifs. 44 px est le
+   seuil recommande ; en dessous, on manque la cible avec le pouce. */
+button,
+[role="button"],
+summary {
+  touch-action: manipulation;
+}
+
+/* Le systeme peut demander de reduire les animations : vertiges, troubles
+   vestibulaires, migraines. On respecte, sans casser les etats. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Fond opaque des surfaces flottantes quand la transparence est desactivee
+   au niveau du systeme. */
+@media (prefers-reduced-transparency: reduce) {
+  .backdrop-blur-md {
+    backdrop-filter: none;
+    background-color: white;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

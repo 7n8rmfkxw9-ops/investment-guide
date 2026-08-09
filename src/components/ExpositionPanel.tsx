@@ -16,7 +16,7 @@ import { CARTE } from "../lib/theme";
 
 function Barre({ lignes }: { lignes: LigneExposition[] }) {
   if (lignes.length === 0) {
-    return <p className="text-xs text-slate-400">Donnée indisponible.</p>;
+    return <p className="text-xs text-slate-500">Donnée indisponible.</p>;
   }
   return (
     <ul className="space-y-1.5">
@@ -26,7 +26,7 @@ function Barre({ lignes }: { lignes: LigneExposition[] }) {
             <span className="truncate">{l.libelle}</span>
             <span className="tabular-nums shrink-0 text-slate-500">
               {l.partPct.toFixed(0)} %{" "}
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-500">
                 ({formatEur(l.montantEur)})
               </span>
             </span>
@@ -86,13 +86,13 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <p className="text-xs uppercase tracking-wide text-slate-400">
+          <p className="text-xs uppercase tracking-wide text-slate-500">
             Par place de cotation
           </p>
           <Barre lignes={e.parPays} />
         </div>
         <div className="space-y-1.5">
-          <p className="text-xs uppercase tracking-wide text-slate-400">
+          <p className="text-xs uppercase tracking-wide text-slate-500">
             Par devise
           </p>
           <Barre lignes={e.parDevise} />
@@ -107,7 +107,7 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-xs uppercase tracking-wide text-slate-400">
+        <p className="text-xs uppercase tracking-wide text-slate-500">
           Par secteur
         </p>
         <Barre lignes={e.parSecteur} />
@@ -122,7 +122,7 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
         )}
       </div>
 
-      <p className="text-xs text-slate-400 leading-relaxed border-t border-slate-100 pt-3">
+      <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
         Ces chiffres décrivent ce que vous avez déjà engagé. Ils ne disent pas
         qu'une répartition serait meilleure qu'une autre, et ne constituent pas
         un conseil.

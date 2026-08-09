@@ -351,7 +351,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
         <div className={`${CARTE} p-5 space-y-3`}>
           <div className="flex items-baseline justify-between gap-3">
             <h3 className="font-semibold text-slate-800">Votre bilan d'entraînement</h3>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-500">
               {bilan.nombre} simulation{bilan.nombre > 1 ? "s" : ""}
             </span>
           </div>
@@ -459,8 +459,8 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
                       }`}
                     >
                       <span className="font-medium">{c.nom || c.symbole}</span>
-                      <span className="text-slate-400"> · {c.symbole}</span>
-                      <span className="block text-xs text-slate-400">
+                      <span className="text-slate-500"> · {c.symbole}</span>
+                      <span className="block text-xs text-slate-500">
                         {c.place} · {c.type}
                       </span>
                     </button>
@@ -598,7 +598,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
         </form>
       )}
 
-      {chargement && <p className="text-sm text-slate-400">Chargement…</p>}
+      {chargement && <p className="text-sm text-slate-500">Chargement…</p>}
 
       {!chargement && sims.length === 0 && !ouvert && (
         <div className={`${CARTE} p-6 text-sm text-slate-500 leading-relaxed`}>
@@ -650,7 +650,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
         </section>
       )}
 
-      <p className="text-xs text-slate-400 leading-relaxed">
+      <p className="text-xs text-slate-500 leading-relaxed">
         Les cours proviennent d'un service public de données de marché et peuvent
         être différés. Ils servent uniquement à valoriser un exercice : cet outil ne
         passe aucun ordre et ne se connecte à aucun courtier. {DISCLAIMER}
@@ -704,7 +704,7 @@ function CarteSimulation({
             <h4 className="font-semibold text-slate-800 leading-snug">
               {sim.company_name}
             </h4>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               {sim.symbole} · achat fictif du{" "}
               {new Date(sim.date_entree).toLocaleDateString("fr-FR")} ·{" "}
               {r.jours} jour{r.jours > 1 ? "s" : ""}
@@ -837,7 +837,7 @@ function CarteSimulation({
                 )}
 
                 {sim.prix_maj_at && (
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500">
                     Cours du{" "}
                     {new Date(sim.prix_maj_at).toLocaleString("fr-FR", {
                       dateStyle: "short",
@@ -862,7 +862,7 @@ function CarteSimulation({
           )}
           <button
             onClick={onSupprimer}
-            className="text-xs text-slate-400 hover:text-rose-600 ml-auto"
+            className="text-xs text-slate-500 hover:text-rose-700 ml-auto"
           >
             Supprimer
           </button>

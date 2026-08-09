@@ -198,7 +198,7 @@ export default function MarketPage() {
           </p>
         )}
         {!indices && !erreurIndices && (
-          <p className="text-sm text-slate-400">Chargement…</p>
+          <p className="text-sm text-slate-500">Chargement…</p>
         )}
         {indices && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -211,7 +211,7 @@ export default function MarketPage() {
                   <>
                     <p className="font-semibold text-slate-800 tabular-nums">
                       {i.prix.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}{" "}
-                      <span className="text-xs font-normal text-slate-400">{i.devise}</span>
+                      <span className="text-xs font-normal text-slate-500">{i.devise}</span>
                     </p>
                     <p className={`text-xs tabular-nums ${couleurResultat(i.varJourPct ?? 0)}`}>
                       <span aria-hidden className="mr-0.5">
@@ -222,7 +222,7 @@ export default function MarketPage() {
                     <MiniCourbe serie={i.serie} variation={i.varJourPct ?? 0} />
                   </>
                 ) : (
-                  <p className="text-xs text-slate-400">indisponible</p>
+                  <p className="text-xs text-slate-500">indisponible</p>
                 )}
               </div>
             ))}
@@ -278,8 +278,8 @@ export default function MarketPage() {
                   }`}
                 >
                   <span className="font-medium">{c.nom || c.symbole}</span>
-                  <span className="text-slate-400"> · {c.symbole}</span>
-                  <span className="block text-xs text-slate-400">
+                  <span className="text-slate-500"> · {c.symbole}</span>
+                  <span className="block text-xs text-slate-500">
                     {c.place} · {c.type}
                   </span>
                 </button>
@@ -309,18 +309,18 @@ export default function MarketPage() {
           </div>
         )}
 
-        {chargeGraph && <p className="text-sm text-slate-400">Chargement…</p>}
+        {chargeGraph && <p className="text-sm text-slate-500">Chargement…</p>}
 
         {graph && !chargeGraph && (
           <div className="space-y-3">
             <div>
               <p className="font-semibold text-slate-800">
                 {graph.nom ?? graph.symbole}{" "}
-                <span className="text-slate-400 font-normal text-sm">{graph.symbole}</span>
+                <span className="text-slate-500 font-normal text-sm">{graph.symbole}</span>
               </p>
               <p className="text-2xl font-semibold text-slate-800 tabular-nums">
                 {graph.prix.toLocaleString("fr-FR", { maximumFractionDigits: 2 })}{" "}
-                <span className="text-sm font-normal text-slate-400">{graph.devise}</span>
+                <span className="text-sm font-normal text-slate-500">{graph.devise}</span>
               </p>
             </div>
 
@@ -447,7 +447,7 @@ export default function MarketPage() {
                   </p>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-slate-500">
                   Choisissez un budget et un nombre de mois valides.
                 </p>
               )}
@@ -467,7 +467,7 @@ export default function MarketPage() {
         )}
       </section>
 
-      <p className="text-xs text-slate-400 leading-relaxed">
+      <p className="text-xs text-slate-500 leading-relaxed">
         Les cours proviennent d'un service public de données de marché et peuvent
         être différés. Rien sur cette page ne prédit un cours futur ni ne recommande
         un achat ou une vente. Les performances passées ne préjugent pas des

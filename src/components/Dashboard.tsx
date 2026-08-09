@@ -5,7 +5,6 @@ import { SIGNAL_LABELS } from "../lib/types";
 import PisteCard from "./PisteCard";
 import type { AmorceSimulation } from "./SimulatorPage";
 import { BOUTON_DOUX, CARTE, CHAMP } from "../lib/theme";
-import SyncStatusBanner from "./SyncStatusBanner";
 
 interface Props {
   onSimuler?: (a: AmorceSimulation) => void;
@@ -36,7 +35,6 @@ export default function Dashboard({ onSimuler }: Props) {
   const [size, setSize] = useState(150);
   const [tob, setTob] = useState(0);
   const [syncing, setSyncing] = useState(false);
-  const [rafraichirBandeau, setRafraichirBandeau] = useState(0);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [filtresOuverts, setFiltresOuverts] = useState(false);
 
@@ -85,7 +83,6 @@ export default function Dashboard({ onSimuler }: Props) {
     );
     await load();
     setSyncing(false);
-    setRafraichirBandeau((n) => n + 1);
   }
 
   const sources = Array.from(new Set(pistes.map((p) => p.source_name))).sort();
@@ -114,8 +111,6 @@ export default function Dashboard({ onSimuler }: Props) {
 
   return (
     <div className="space-y-4">
-      <SyncStatusBanner rafraichirLe={rafraichirBandeau} />
-
       {/* Barre d'actions, volontairement discrete */}
       <div className="flex items-center gap-2 text-sm">
         <button
@@ -198,7 +193,7 @@ export default function Dashboard({ onSimuler }: Props) {
           {error}
         </p>
       )}
-      {loading && <p className="text-sm text-slate-400">Chargement…</p>}
+      {loading && <p className="text-sm text-slate-500">Chargement…</p>}
 
       {!loading && shown.length === 0 && (
         <div className={`${CARTE} p-6 text-sm text-slate-500 leading-relaxed`}>

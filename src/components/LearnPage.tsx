@@ -2,22 +2,71 @@ import { useState } from "react";
 import { LEXIQUE, EXPLICATIONS } from "../lib/glossaire";
 import { SIGNAL_LABELS } from "../lib/types";
 import type { SignalType } from "../lib/types";
-import { CARTE } from "../lib/theme";
+import Repliable from "./Repliable";
+
+/**
+ * Page « Comprendre ».
+ *
+ * Mesure avant refonte : douze ecrans de prose d'affilee sur un telephone,
+ * sans sommaire ni repere, pour 2 196 mots. Le contenu etait bon et personne
+ * ne pouvait y retrouver quoi que ce soit. Chaque partie est desormais une
+ * section repliable, la premiere ouverte et les autres fermees.
+ *
+ * Un sommaire separe avait d'abord ete ajoute au-dessus, puis retire : la
+ * liste des sections repliees en est deja un, et le doublon coutait a lui seul
+ * un ecran et demi — le defaut que cette refonte corrige.
+ *
+ * Le decoupage n'enleve rien : c'est le meme texte, rendu parcourable.
+ */
+
+/** Sommaire et titres viennent de la meme source, ils ne peuvent pas diverger. */
+const SECTIONS: { id: string; titre: string; icone: string; resume: string }[] = [
+  { id: "s-role", titre: "En une minute : à quoi sert cet outil", icone: "🧭",
+    resume: "Le point de départ, si vous ne lisez qu'une section." },
+  { id: "s-regles", titre: "États-Unis et Europe : deux règles différentes", icone: "🌍",
+    resume: "Pourquoi les pistes américaines et européennes ne se lisent pas pareil." },
+  { id: "s-pays", titre: "Quels pays européens sont couverts, et pourquoi pas tous", icone: "🇪🇺",
+    resume: "Belgique et Suède seulement, et la raison technique." },
+  { id: "s-entrainer", titre: "S'entraîner avant de risquer quoi que ce soit", icone: "🎓",
+    resume: "Le simulateur, et ce qu'il permet de comprendre." },
+  { id: "s-marche", titre: "Marché et Journal : lire des faits, jamais des prédictions", icone: "📈",
+    resume: "Ce que ces deux onglets font, et ce qu'ils refusent de faire." },
+  { id: "s-notifs", titre: "Notifications : un décompte, jamais une incitation", icone: "🔔",
+    resume: "Pourquoi aucune alerte ne vous dira « agis maintenant »." },
+  { id: "s-pro", titre: "Trois choses qu'un professionnel regarderait", icone: "🧮",
+    resume: "Exposition, règle de sortie, coût de change." },
+  { id: "s-13d", titre: "13D et 13G : quand un gros investisseur dépasse 5 %", icone: "📑",
+    resume: "La donnée la plus fraîche que publie la SEC." },
+  { id: "s-fiche", titre: "Comment lire une fiche, ligne par ligne", icone: "🔍",
+    resume: "Chaque élément d'une piste, expliqué." },
+  { id: "s-signaux", titre: "Les signaux, expliqués un par un", icone: "🏷️",
+    resume: "Ce que dit — et ne dit pas — chaque type de signal." },
+  { id: "s-note", titre: "Pourquoi vous ne verrez jamais de note ni de recommandation", icone: "🚫",
+    resume: "Le principe fondateur, et ce qu'il vous coûte." },
+  { id: "s-lexique", titre: "Lexique", icone: "📚",
+    resume: "Tous les mots employés dans l'application." },
+];
 
 function Card({
+  id,
   titre,
   children,
 }: {
+  id: string;
   titre: string;
   children: React.ReactNode;
 }) {
+  const def = SECTIONS.find((s) => s.id === id);
   return (
-    <section className={`${CARTE} p-5 space-y-3`}>
-      <h2 className="font-semibold text-slate-800">{titre}</h2>
-      <div className="text-sm text-slate-600 leading-relaxed space-y-3">
-        {children}
-      </div>
-    </section>
+    <Repliable
+      id={id}
+      titre={titre}
+      icone={def?.icone}
+      resume={def?.resume}
+      ouvertParDefaut={id === SECTIONS[0].id}
+    >
+      {children}
+    </Repliable>
   );
 }
 
@@ -27,8 +76,8 @@ export default function LearnPage() {
   const exp = EXPLICATIONS[signal];
 
   return (
-    <div className="space-y-4">
-      <Card titre="En une minute : à quoi sert cet outil">
+    <div className="space-y-3">
+      <Card id="s-role" titre="En une minute : à quoi sert cet outil">
         <p>
           Aux États-Unis, la loi oblige deux catégories de personnes à rendre
           publiques leurs opérations en bourse : les très gros gestionnaires de
@@ -43,7 +92,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="États-Unis et Europe : deux règles différentes">
+      <Card id="s-regles" titre="États-Unis et Europe : deux règles différentes">
         <p>
           Vous verrez deux origines de pistes, et il est important de ne pas les
           confondre.
@@ -77,7 +126,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="Quels pays européens sont couverts, et pourquoi pas tous">
+      <Card id="s-pays" titre="Quels pays européens sont couverts, et pourquoi pas tous">
         <p>
           Le règlement est européen, mais sa publication ne l'est pas : il n'y a
           pas de base de données commune. Chaque régulateur national publie ses
@@ -117,7 +166,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="S'entraîner avant de risquer quoi que ce soit">
+      <Card id="s-entrainer" titre="S'entraîner avant de risquer quoi que ce soit">
         <p>
           L'onglet <strong>S'entraîner</strong> permet d'enregistrer un achat
           fictif : vous choisissez une société, une somme et une date, et l'outil
@@ -160,7 +209,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="Marché et Journal : lire des faits, jamais des prédictions">
+      <Card id="s-marche" titre="Marché et Journal : lire des faits, jamais des prédictions">
         <p>
           L'onglet <strong>Marché</strong> affiche le cours d'une société, sa
           fourchette sur un an et l'ampleur de ses secousses passées — des faits,
@@ -181,7 +230,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="Notifications : un décompte, jamais une incitation">
+      <Card id="s-notifs" titre="Notifications : un décompte, jamais une incitation">
         <p>
           Dans l'onglet Compte, vous pouvez activer des notifications après
           avoir ajouté cette page à l'écran d'accueil de votre iPhone ou iPad.
@@ -197,7 +246,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="Trois choses qu'un professionnel regarderait, et que l'outil montre maintenant">
+      <Card id="s-pro" titre="Trois choses qu'un professionnel regarderait, et que l'outil montre maintenant">
         <p>
           <strong className="text-slate-800">Votre exposition.</strong> Cinq
           positions dont quatre sur les mêmes marchés ne sont pas cinq paris :
@@ -226,7 +275,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="13D et 13G : quand un gros investisseur dépasse 5 %">
+      <Card id="s-13d" titre="13D et 13G : quand un gros investisseur dépasse 5 %">
         <p>
           Au-delà de 5 % du capital d'une société américaine, un investisseur
           doit se déclarer à la SEC — sous <strong>10 jours</strong>, contre 45
@@ -257,7 +306,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="Comment lire une fiche, ligne par ligne">
+      <Card id="s-fiche" titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>
             <strong className="text-slate-800">Le titre</strong> — l'entreprise
@@ -293,7 +342,7 @@ export default function LearnPage() {
         </ul>
       </Card>
 
-      <Card titre="Les signaux, expliqués un par un">
+      <Card id="s-signaux" titre="Les signaux, expliqués un par un">
         <div className="flex flex-wrap gap-1.5">
           {(Object.keys(SIGNAL_LABELS) as SignalType[]).map((s) => (
             <button
@@ -312,13 +361,13 @@ export default function LearnPage() {
         <div className="pt-1 space-y-3">
           <p className="font-medium text-slate-800">{exp.titre}</p>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+            <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
               Ce que c'est
             </p>
             <p>{exp.cequecest}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+            <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
               Ce que cela ne dit pas
             </p>
             <p>{exp.cequecelanedit}</p>
@@ -326,7 +375,7 @@ export default function LearnPage() {
         </div>
       </Card>
 
-      <Card titre="Pourquoi vous ne verrez jamais de note ni de recommandation">
+      <Card id="s-note" titre="Pourquoi vous ne verrez jamais de note ni de recommandation">
         <p>
           Beaucoup d'applications affichent des scores du type « 72 % de chances
           de hausse ». Ces chiffres n'ont aucune valeur démontrée : ils donnent
@@ -349,7 +398,7 @@ export default function LearnPage() {
         </p>
       </Card>
 
-      <Card titre="Lexique — tous les mots employés dans l'application">
+      <Card id="s-lexique" titre="Lexique — tous les mots employés dans l'application">
         <p className="text-xs text-slate-500">
           Touchez un mot pour voir sa définition complète.
         </p>

@@ -12,6 +12,7 @@ import {
 } from "../lib/etf";
 import { formatEur } from "../lib/simulation";
 import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, CHAMP, couleurResultat } from "../lib/theme";
+import Repliable from "./Repliable";
 
 /**
  * Horizon de detention : ce que la duree a change, dans le passe.
@@ -221,12 +222,12 @@ function CarteHorizon({
           { l: "Meilleur", v: b, e: stats.meilleurFinal100, d: stats.meilleurDepart },
         ].map((c) => (
           <div key={c.l} className="rounded-xl bg-slate-50 px-2 py-2">
-            <p className="text-[11px] uppercase tracking-wide text-slate-400">
+            <p className="text-[11px] uppercase tracking-wide text-slate-500">
               {c.l}
             </p>
             <p className={`text-sm font-semibold tabular-nums ${couleurResultat(c.v)}`}>
               {pct(c.v)}
-              <span className="font-normal text-slate-400 text-[10px]"> /an</span>
+              <span className="font-normal text-slate-500 text-[10px]"> /an</span>
             </p>
             {/* Arrondi a l'euro : sur un capital final, les centimes sont du
                 bruit, et ils faisaient passer le montant a la ligne. */}
@@ -234,7 +235,7 @@ function CarteHorizon({
               {euroRond(reel ? capitalApres(c.v, ans) : c.e)}
             </p>
             {c.d && (
-              <p className="text-[10px] text-slate-400 tabular-nums">
+              <p className="text-[10px] text-slate-500 tabular-nums">
                 dès {c.d.slice(0, 7).replace("-", "/")}
               </p>
             )}
@@ -439,11 +440,13 @@ export default function HorizonPage() {
                 ))}
               </div>
 
-              <div className={`${CARTE} p-5 space-y-2.5`}>
-                <h3 className="font-semibold text-slate-800">
-                  Comment lire ces chiffres sans se tromper
-                </h3>
-                <ul className="text-xs text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
+              <Repliable
+                id="h-lecture"
+                titre="Comment lire ces chiffres sans se tromper"
+                icone="🧭"
+                resume="Quatre réserves qui changent l'interprétation."
+              >
+                <ul className="text-sm text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
                   <li>
                     <strong>Les périodes se chevauchent.</strong> Les périodes
                     de 30 ans tirées de 38 ans d'historique partagent presque
@@ -472,7 +475,7 @@ export default function HorizonPage() {
                     que cette page ne calcule pas.
                   </li>
                 </ul>
-              </div>
+              </Repliable>
             </>
           )}
         </>
@@ -480,8 +483,12 @@ export default function HorizonPage() {
 
       {/* --------------------------------------------------------------- */}
 
-      <div className={`${CARTE} p-5 space-y-3`}>
-        <h3 className="font-semibold text-slate-800">{ETF_MONDE.nom}</h3>
+      <Repliable
+        id="h-etf"
+        titre={ETF_MONDE.nom}
+        icone="🌍"
+        resume="Ce que contient ce produit, et ce qui n'a pas pu être vérifié."
+      >
         <p className="text-xs text-slate-500 tabular-nums">
           {ETF_MONDE.symbole} · {ETF_MONDE.place} · coté en {ETF_MONDE.devise}
         </p>
@@ -494,7 +501,7 @@ export default function HorizonPage() {
           {AVERTISSEMENT_DEVISE}
         </p>
         <div className="border-t border-slate-100 pt-3 space-y-2">
-          <p className="text-xs uppercase tracking-wide text-slate-400">
+          <p className="text-xs uppercase tracking-wide text-slate-500">
             Ce que l'outil n'a pas pu vérifier
           </p>
           {ETF_MONDE.aVerifier.map((a) => (
@@ -503,25 +510,20 @@ export default function HorizonPage() {
             </p>
           ))}
         </div>
-      </div>
+      </Repliable>
 
       {/* --------------------------------------------------------------- */}
 
-      <div className={`${CARTE} p-5 space-y-4`}>
-        <div>
-          <h3 className="font-semibold text-slate-800">
-            Ce qu'un aller-retour vous coûterait
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed mt-1">
-            Acheter puis revendre. C'est ce montant qu'il faut regagner avant le
-            premier euro de gain — et c'est lui qui décide si un petit ticket a
-            un sens.
-          </p>
-        </div>
+      <Repliable
+        id="h-cout"
+        titre="Ce qu'un aller-retour vous coûterait"
+        icone="🧾"
+        resume="Acheter puis revendre : le montant à regagner avant le premier euro de gain."
+      >
 
         <div className="flex flex-wrap gap-3">
           <label className="text-sm text-slate-600 space-y-1">
-            <span className="block text-xs uppercase tracking-wide text-slate-400">
+            <span className="block text-xs uppercase tracking-wide text-slate-500">
               Courtier
             </span>
             <select
@@ -537,7 +539,7 @@ export default function HorizonPage() {
             </select>
           </label>
           <label className="text-sm text-slate-600 space-y-1">
-            <span className="block text-xs uppercase tracking-wide text-slate-400">
+            <span className="block text-xs uppercase tracking-wide text-slate-500">
               Montant placé
             </span>
             <input
@@ -613,7 +615,7 @@ export default function HorizonPage() {
                     pour absorber ce coût.
                   </p>
                 )}
-                <p className="text-[11px] text-slate-400 leading-relaxed">
+                <p className="text-[11px] text-slate-500 leading-relaxed">
                   {r.note}
                 </p>
               </div>
@@ -629,7 +631,7 @@ export default function HorizonPage() {
           le décompte d'ordre indique le taux réellement appliqué, et c'est la
           seule source qui fasse foi.
         </p>
-      </div>
+      </Repliable>
 
       <p className="text-xs text-slate-500 leading-relaxed">
         Ceci n'est pas un conseil en investissement. Cette page décrit des

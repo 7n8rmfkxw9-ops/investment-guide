@@ -167,9 +167,9 @@ export default function History() {
               <div>
                 <span className="font-medium">{p.company_name}</span>
                 {p.ticker && <span className="text-slate-500"> ({p.ticker})</span>}
-                <span className="text-slate-400"> · {SIGNAL_LABELS[p.signal]}</span>
+                <span className="text-slate-500"> · {SIGNAL_LABELS[p.signal]}</span>
               </div>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-slate-500">
                 {new Date(p.detected_at).toLocaleDateString("fr-FR")}
               </span>
             </div>
@@ -179,12 +179,12 @@ export default function History() {
               <BilanChiffre r={r} />
             )}
             {bilanCharge && !r && p.ticker && (
-              <p className="text-xs text-slate-400">Cours en cours de récupération…</p>
+              <p className="text-xs text-slate-500">Cours en cours de récupération…</p>
             )}
 
             {p.outcome_note ? (
               <p className="text-slate-700 bg-slate-50 border border-slate-200 rounded p-2">
-                <span className="text-xs uppercase tracking-wide text-slate-400 block">
+                <span className="text-xs uppercase tracking-wide text-slate-500 block">
                   Ce qui s'est passé ensuite
                 </span>
                 {p.outcome_note}
@@ -192,7 +192,7 @@ export default function History() {
             ) : (
               <div className="flex gap-2">
                 <input
-                  className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
+                  className="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition"
                   placeholder="Ce qui s'est passé ensuite (hausse, baisse, rien…)"
                   value={drafts[p.id] ?? ""}
                   onChange={(e) => setDrafts((d) => ({ ...d, [p.id]: e.target.value }))}
@@ -210,13 +210,13 @@ export default function History() {
       })}
 
       {pistes.length > MAX_BILAN && (
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-500">
           Le bilan chiffré ne porte que sur les {MAX_BILAN} pistes les plus
           récentes ; les plus anciennes gardent votre note manuelle.
         </p>
       )}
 
-      <p className="text-xs text-slate-400 leading-relaxed">
+      <p className="text-xs text-slate-500 leading-relaxed">
         Le bilan chiffré décrit ce qui s'est déjà produit ; il ne prédit rien
         pour la suite. Les cours proviennent d'un service public de données de
         marché et peuvent être différés.
