@@ -38,12 +38,12 @@ export default function Repliable({
     <details
       id={id}
       open={ouvertParDefaut}
-      className={`${CARTE} overflow-hidden group scroll-mt-20`}
+      className={`${CARTE} overflow-hidden group scroll-mt-24 motion-safe:transition-shadow open:shadow-carteSurvol`}
     >
       <summary
         className={[
-          "list-none cursor-pointer select-none px-5 py-4 min-h-[56px]",
-          "flex items-start gap-3 hover:bg-slate-50 transition-colors",
+          "list-none cursor-pointer select-none px-5 py-4 min-h-[60px]",
+          "flex items-start gap-3.5 hover:bg-slate-50/80 transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
           "focus-visible:ring-indigo-500",
           // Safari affiche un triangle par defaut : on le retire pour poser le
@@ -57,11 +57,11 @@ export default function Repliable({
           </span>
         )}
         <span className="min-w-0 flex-1">
-          <span className="block font-semibold text-slate-800 leading-snug">
+          <span className="block text-lg font-semibold text-slate-900 leading-snug">
             {titre}
           </span>
           {resume && (
-            <span className="block text-sm text-slate-500 leading-relaxed mt-0.5">
+            <span className="block text-sm text-slate-500 leading-normal mt-1">
               {resume}
             </span>
           )}
@@ -69,13 +69,13 @@ export default function Repliable({
         {/* Chevron : l'etat reste lisible sans couleur, et l'animation est
             desactivee si le systeme demande de reduire les animations. */}
         <span
-          className="shrink-0 mt-1 text-slate-500 motion-safe:transition-transform group-open:rotate-180"
+          className="shrink-0 mt-1.5 grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-slate-600 text-xs motion-safe:transition-transform group-open:rotate-180"
           aria-hidden
         >
           ▾
         </span>
       </summary>
-      <div className="px-5 pb-5 pt-1 text-sm text-slate-600 leading-relaxed space-y-3">
+      <div className="px-5 pb-5 pt-1 text-base text-slate-600 leading-relaxed space-y-3">
         {children}
       </div>
     </details>

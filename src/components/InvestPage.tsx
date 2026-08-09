@@ -24,7 +24,7 @@ function Section({
   return (
     <section className={`${CARTE} p-5 space-y-3`}>
       <h2 className="font-semibold text-slate-800">{titre}</h2>
-      <div className="text-sm text-slate-600 leading-relaxed space-y-3">
+      <div className="text-base text-slate-600 leading-relaxed space-y-3">
         {children}
       </div>
     </section>
@@ -320,7 +320,7 @@ export default function InvestPage() {
               className="block rounded-xl border border-slate-200/70 bg-white p-4 hover:border-indigo-300 transition"
             >
               <p className="font-medium text-slate-800">{p.nom} ↗</p>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">{p.note}</p>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{p.note}</p>
             </a>
           ))}
         </div>

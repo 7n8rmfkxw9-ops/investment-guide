@@ -50,7 +50,11 @@ export default function App() {
       return;
     }
     window.scrollTo({ top: 0, behavior: "auto" });
-    zoneContenu.current?.focus();
+    // `preventScroll` est indispensable : donner le focus a un element le fait
+    // defiler dans la vue par defaut, ce qui annulait la remontee juste
+    // au-dessus et glissait le titre de page sous l'en-tete collant. Le focus
+    // sert ici a annoncer la destination, pas a deplacer la page.
+    zoneContenu.current?.focus({ preventScroll: true });
   }, [tab]);
 
   function simulerDepuisPiste(a: AmorceSimulation) {
@@ -75,7 +79,13 @@ export default function App() {
   const courant = definitionDe(tab);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-50/60 via-slate-50 to-slate-50">
+    <div className="min-h-screen bg-slate-50">
+      {/* Halo tres doux en haut de page : donne une profondeur a l'ecran sans
+          teinter le contenu ni gener la lecture. */}
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-x-0 top-0 h-64 bg-gradient-to-b from-indigo-100/50 to-transparent"
+      />
       {/* Premier arret de la tabulation : sauter la navigation pour aller au
           contenu, faute de quoi chaque changement de page impose de traverser
           toute la barre au clavier. */}
@@ -86,16 +96,13 @@ export default function App() {
         Aller au contenu
       </a>
 
-      <header className="bg-white/85 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-20">
-        <div className="max-w-3xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <header className="bg-white/70 backdrop-blur-xl border-b border-slate-900/[0.06] sticky top-0 z-20">
+        <div className="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 leading-none">
+            <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600/80 leading-none">
               Veille investissement
             </p>
-            <h1 className="text-base font-semibold text-slate-800 leading-tight truncate">
-              <span className="mr-1" aria-hidden>
-                {courant?.icone}
-              </span>
+            <h1 className="text-xl font-semibold text-slate-900 leading-tight truncate mt-0.5">
               {courant?.label}
             </h1>
           </div>
@@ -113,12 +120,16 @@ export default function App() {
         </div>
       </header>
 
+      {/* `key` sur la zone de contenu : chaque changement d'onglet remonte un
+          nouveau noeud, ce qui rejoue l'animation d'entree. Sans cela la
+          transition ne se produirait qu'au premier rendu. */}
       <main
+        key={tab}
         id="contenu"
         ref={zoneContenu}
         tabIndex={-1}
         aria-label={courant?.label}
-        className="max-w-3xl mx-auto px-4 py-5 focus:outline-none"
+        className="relative max-w-3xl mx-auto px-5 py-6 focus:outline-none motion-safe:animate-entreePage"
         // Hauteur de la barre du bas plus la zone sûre de l'iPhone : sans
         // cela, la derniere carte de chaque page passe sous la navigation.
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}

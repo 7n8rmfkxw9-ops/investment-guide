@@ -316,12 +316,12 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
             <h2 className="font-semibold text-slate-800">
               S'entraîner sans risquer un euro
             </h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-base text-slate-600 leading-relaxed">
               Enregistrez un achat <strong>fictif</strong> : l'outil retient le cours
               réel du jour choisi, puis suit ce que votre décision aurait donné. Rien
               n'est acheté, aucun compte n'est débité, aucun courtier n'est connecté.
             </p>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-base text-slate-600 leading-relaxed">
               Trois choses à observer : les <strong>frais</strong>, qui vous font
               partir perdant ; le <strong>temps</strong>, car quelques jours ne
               prouvent rien ; et la <strong>comparaison</strong> avec un ETF mondial,
@@ -374,7 +374,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
             />
           </div>
           {bilan.gainRef != null && (
-            <p className="text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+            <p className="text-base text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
               Les mêmes sommes placées les mêmes jours sur un ETF mondial auraient
               donné{" "}
               <strong className={couleurResultat(bilan.gainRef)}>
@@ -493,7 +493,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               />
             </label>
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-sm text-slate-500 leading-relaxed">
             Vous pouvez choisir une date passée pour voir ce qu'un achat d'il y a
             trois mois aurait donné. Choisir la date après coup en sachant ce qui
             s'est produit ne prouve rien — l'exercice n'a de valeur que si vous
@@ -522,7 +522,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               value={regleSortie}
               onChange={(e) => setRegleSortie(e.target.value)}
             />
-            <span className="block text-xs text-slate-500 mt-1 leading-relaxed">
+            <span className="block text-sm text-slate-500 mt-1 leading-relaxed">
               Écrire la sortie <strong>avant</strong> l'entrée est ce qui
               distingue une décision d'une réaction. Une fois le cours en
               baisse, tout le monde trouve de bonnes raisons d'attendre encore.
@@ -650,7 +650,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
         </section>
       )}
 
-      <p className="text-xs text-slate-500 leading-relaxed">
+      <p className="text-sm text-slate-500 leading-relaxed">
         Les cours proviennent d'un service public de données de marché et peuvent
         être différés. Ils servent uniquement à valoriser un exercice : cet outil ne
         passe aucun ordre et ne se connecte à aucun courtier. {DISCLAIMER}

@@ -109,13 +109,13 @@ export default function PositionsPage() {
         <h2 className="font-semibold text-slate-800">
           Le portefeuille des gérants que vous suivez
         </h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-base text-slate-600 leading-relaxed">
           Ce tableau montre, entreprise par entreprise, combien d'actions le
           gestionnaire déclarait détenir à la fin de chaque trimestre. Lire une
           ligne de gauche à droite permet de voir s'il a renforcé, allégé ou
           conservé sa position au fil du temps.
         </p>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-sm text-slate-500 leading-relaxed">
           Rappel : ces déclarations paraissent jusqu'à 45 jours après la fin du
           trimestre et ne montrent que les paris à la hausse sur des actions
           américaines. La situation actuelle du fonds peut être différente.

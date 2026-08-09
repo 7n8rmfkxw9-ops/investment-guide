@@ -140,7 +140,7 @@ export default function AccountPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Vos données</h2>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-sm text-slate-500 leading-relaxed">
           Cet outil vit entièrement dans un projet que vous seul maintenez :
           avoir votre propre copie de vos pistes, simulations, notes et
           réglages est une précaution simple. Le fichier téléchargé exclut
@@ -155,7 +155,7 @@ export default function AccountPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Mes applications</h2>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-sm text-slate-500 leading-relaxed">
           Des raccourcis vers vos propres applications bancaires et
           d'investissement — celles que vous utilisez déjà. Chaque lien ouvre
           l'application ou le site dans un nouvel onglet ; cet outil ne s'y
@@ -204,7 +204,7 @@ export default function AccountPage() {
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Installer sur l'écran d'accueil</h2>
         {estIOS() ? (
-          <ol className="text-sm text-slate-600 leading-relaxed list-decimal pl-5 space-y-1.5">
+          <ol className="text-base text-slate-600 leading-relaxed list-decimal pl-5 space-y-1.5">
             <li>
               Ouvrez cette page dans <strong>Safari</strong> (pas un autre
               navigateur — seul Safari le permet sur iPhone/iPad).
@@ -219,7 +219,7 @@ export default function AccountPage() {
             </li>
           </ol>
         ) : (
-          <p className="text-sm text-slate-600 leading-relaxed">
+          <p className="text-base text-slate-600 leading-relaxed">
             Ouvrez cette page dans Safari sur votre iPhone ou iPad, touchez le
             bouton Partager, puis « Sur l'écran d'accueil ». Une icône
             apparaît, l'application s'ouvre alors en plein écran comme les
@@ -234,7 +234,7 @@ export default function AccountPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Notifications</h2>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-sm text-slate-500 leading-relaxed">
           Un message est envoyé après chaque synchronisation hebdomadaire s'il
           y a du nouveau — un simple décompte factuel (« 3 nouvelles pistes »),
           jamais une incitation à agir dans l'urgence. Réglage par appareil :

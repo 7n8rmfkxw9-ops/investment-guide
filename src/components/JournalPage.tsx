@@ -8,7 +8,7 @@ import {
   THEMES,
 } from "../lib/education";
 import type { CleTheme, Lecture } from "../lib/education";
-import { BOUTON_DOUX, CARTE } from "../lib/theme";
+import { BOUTON_DOUX, CARTE, CARTE_CLIQUABLE, SURTITRE } from "../lib/theme";
 
 /**
  * Journal : s'informer et apprendre.
@@ -68,7 +68,7 @@ function CarteLecture({ l }: { l: Lecture }) {
       href={l.lien}
       target="_blank"
       rel="noreferrer"
-      className={`${CARTE} block p-4 hover:border-indigo-300 transition`}
+      className={`${CARTE_CLIQUABLE} block p-4`}
     >
       <div className="flex items-center gap-1.5 flex-wrap">
         <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
@@ -122,35 +122,30 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-6">
-      <div className={`${CARTE} p-5 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200/60`}>
-        <div className="flex items-start gap-3">
-          <span className="text-2xl leading-none" aria-hidden>
-            📰
-          </span>
-          <div className="space-y-2">
-            <h2 className="font-semibold text-slate-800">S'informer, à la source</h2>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              En haut, ce qui vient de paraître. En bas,{" "}
-              <strong>{LECTURES.length} lectures</strong> pour apprendre à
-              investir — conseils, checklists et fiches produits, publiés par des
-              organismes publics d'éducation financière. Aucun résumé n'est
-              réécrit : vous lisez la source elle-même.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Intitule court : la page se comprend par sa structure, pas par un
+          paragraphe d'introduction que personne ne relit. Le detail utile
+          (qui publie, et pourquoi c'est fiable) vit deja au pied de la
+          bibliotheque. */}
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold text-slate-900">
+          S'informer, à la source
+        </h2>
+        <p className="text-base text-slate-500">
+          <strong className="text-slate-700 font-semibold">
+            {LECTURES.length} lectures
+          </strong>{" "}
+          pour apprendre, et l'actualité des régulateurs. Rien n'est réécrit.
+        </p>
+      </header>
 
       {/* ---------------------------------------------------------------- */}
       {/* Apprendre — la partie qui ne périme pas                          */}
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-          Par où commencer
-        </h3>
-        <p className="text-sm text-slate-600 leading-relaxed">
-          Si vous ne deviez lire que quelques pages, celles-ci, dans cet ordre.
-          La protection contre la fraude vient tôt : une arnaque coûte plus cher
-          que n'importe quelle erreur de sélection.
+        <h3 className={SURTITRE}>Par où commencer</h3>
+        <p className="text-base text-slate-500 leading-snug">
+          Dans cet ordre. La fraude vient tôt : une arnaque coûte plus cher que
+          n'importe quelle erreur de sélection.
         </p>
         <ol className="space-y-2.5">
           {essentiels.map((l, i) => (
@@ -175,9 +170,7 @@ export default function JournalPage() {
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-          Toute la bibliothèque
-        </h3>
+        <h3 className={SURTITRE}>Toute la bibliothèque</h3>
         <div className="space-y-2.5">
           {THEMES.map((t) => {
             const lectures = lecturesDuTheme(t.cle);
@@ -229,7 +222,7 @@ export default function JournalPage() {
             </a>
           ))}
         </div>
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-sm text-slate-500 leading-relaxed">
           {Object.values(SOURCES)
             .map((s) => `${s.nom} — ${s.detail}`)
             .join(" ")}
@@ -241,9 +234,7 @@ export default function JournalPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-            Actualités et mises en garde — FSMA
-          </h3>
+          <h3 className={SURTITRE}>Actualités et mises en garde — FSMA</h3>
           <button onClick={charger} className="text-xs text-slate-500 hover:text-slate-700">
             ↻ Actualiser
           </button>
@@ -302,7 +293,7 @@ export default function JournalPage() {
               href={a.lien}
               target="_blank"
               rel="noreferrer"
-              className={`${CARTE} block p-4 hover:border-indigo-300 transition`}
+              className={`${CARTE_CLIQUABLE} block p-4`}
             >
               <div className="flex items-start gap-2.5">
                 {a.categorie === "mise-en-garde" ? (
@@ -348,10 +339,10 @@ export default function JournalPage() {
 
       {autres.map((f) => (
         <section key={f.cle} className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
-            {f.pays} {f.nom}
+          <h3 className={SURTITRE}>
+            <span aria-hidden>{f.pays}</span> {f.nom}
           </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">{f.detail}</p>
+          <p className="text-sm text-slate-500 leading-relaxed">{f.detail}</p>
           {f.erreur ? (
             <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200/70 rounded-xl px-4 py-3">
               Flux momentanément indisponible : {f.erreur}
@@ -364,7 +355,7 @@ export default function JournalPage() {
                   href={a.lien}
                   target="_blank"
                   rel="noreferrer"
-                  className={`${CARTE} block p-4 hover:border-indigo-300 transition`}
+                  className={`${CARTE_CLIQUABLE} block p-4`}
                 >
                   {dateCourte(a.date) && (
                     <span className="text-xs text-slate-500">{dateCourte(a.date)}</span>
@@ -398,14 +389,14 @@ export default function JournalPage() {
       ))}
 
       {!chargement && donnees && autres.length === 0 && (
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-sm text-slate-500 leading-relaxed">
           Une source d'actualité supplémentaire est prête mais n'apparaîtra
           qu'une fois la fonction <code>journal</code> redéployée côté serveur.
           La bibliothèque ci-dessus, elle, ne dépend d'aucun déploiement.
         </p>
       )}
 
-      <p className="text-xs text-slate-500 leading-relaxed">
+      <p className="text-sm text-slate-500 leading-relaxed">
         Ce journal relaie des publications officielles et des contenus
         pédagogiques publics ; il ne les commente pas, n'en tire aucune
         recommandation d'achat ou de vente, et leur présence ici ne constitue
