@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Chapitre, DiapoProjetee } from "../lib/cours";
-import { construireDiapos } from "../lib/cours";
+import {
+  construireDiapos,
+  indexApres,
+  pleinEcranNatifDisponible,
+} from "../lib/cours";
 import { ETUDES, lienDoi } from "../lib/etudes";
 import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, SURTITRE } from "../lib/theme";
 
@@ -16,6 +20,13 @@ import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, SURTITRE } from "../lib/theme";
  * les boutons, le balayage du doigt, les fleches du clavier. Et une vue
  * « tout lire » qui rend le chapitre d'un seul tenant — un diaporama est
  * penible a relire, a imprimer, ou a parcourir avec un lecteur d'ecran.
+ *
+ * Plein ecran : le mode immersif est fait en CSS, pas avec l'API
+ * `requestFullscreen`. Safari sur iPhone ne l'implemente pas, et c'est
+ * l'appareil vise en priorite — un bouton qui se contenterait d'appeler
+ * l'API ne ferait donc rien la ou il sert le plus. L'API est tout de meme
+ * demandee quand elle existe, pour masquer aussi la barre du navigateur sur
+ * les autres plateformes.
  */
 
 function Coquille({ children }: { children: React.ReactNode }) {
@@ -155,13 +166,51 @@ export default function Diaporama({
   const diapos = construireDiapos(chapitre);
   const [i, setI] = useState(0);
   const [toutLire, setToutLire] = useState(false);
+  const [plein, setPlein] = useState(false);
   const zone = useRef<HTMLDivElement>(null);
   const depart = useRef<{ x: number; y: number } | null>(null);
+  const declencheur = useRef<HTMLButtonElement>(null);
+  const panneau = useRef<HTMLDivElement>(null);
 
   const aller = useCallback(
-    (n: number) => setI((v) => Math.min(diapos.length - 1, Math.max(0, v + n))),
+    (n: number) => setI((v) => indexApres(v, n, diapos.length)),
     [diapos.length],
   );
+
+  const entrerPlein = useCallback(() => {
+    setPlein(true);
+    // Supplement la ou l'API existe : masque aussi la barre du navigateur.
+    // L'echec est sans consequence, le mode immersif ne depend pas d'elle.
+    if (pleinEcranNatifDisponible()) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    }
+  }, []);
+
+  const sortirPlein = useCallback(() => {
+    setPlein(false);
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+  }, []);
+
+  // Sortir du plein ecran natif (Echap du navigateur, geste systeme) doit
+  // aussi sortir du mode immersif, sinon l'interface reste bloquee dans un
+  // etat que plus aucun bouton visible ne dement.
+  useEffect(() => {
+    const surChangement = () => {
+      if (!document.fullscreenElement) setPlein(false);
+    };
+    document.addEventListener("fullscreenchange", surChangement);
+    return () => document.removeEventListener("fullscreenchange", surChangement);
+  }, []);
+
+  // Le focus entre dans le panneau immersif et revient sur le bouton a la
+  // sortie : sans cela, un utilisateur au clavier se retrouve en haut du
+  // document apres chaque passage.
+  useEffect(() => {
+    if (plein) {
+      panneau.current?.querySelector<HTMLElement>("button")?.focus();
+      return () => declencheur.current?.focus();
+    }
+  }, [plein]);
 
   // Le chapitre change : on repart de la premiere diapositive, sinon on
   // atterrit au milieu du suivant avec un compteur incoherent.
@@ -175,12 +224,26 @@ export default function Diaporama({
     const surTouche = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") aller(1);
       if (e.key === "ArrowLeft") aller(-1);
+      if (e.key === "Escape" && plein) sortirPlein();
     };
     window.addEventListener("keydown", surTouche);
     return () => window.removeEventListener("keydown", surTouche);
-  }, [aller, toutLire]);
+  }, [aller, toutLire, plein, sortirPlein]);
 
   const derniere = i === diapos.length - 1;
+
+  // Balayage horizontal, partage par les deux modes. Le seuil vertical evite
+  // de changer de diapositive quand l'utilisateur voulait faire defiler.
+  function surBalayage(x: number, y: number) {
+    const d = depart.current;
+    depart.current = null;
+    if (!d) return;
+    const dx = x - d.x;
+    const dy = y - d.y;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      aller(dx < 0 ? 1 : -1);
+    }
+  }
 
   if (toutLire) {
     return (
@@ -201,6 +264,96 @@ export default function Diaporama({
         <button type="button" onClick={onTermine} className={BOUTON_PRINCIPAL}>
           Marquer ce chapitre comme lu
         </button>
+      </div>
+    );
+  }
+
+  if (plein) {
+    return (
+      <div
+        ref={panneau}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${chapitre.titre}, diaporama plein écran`}
+        className="fixed inset-0 z-50 bg-white flex flex-col"
+        // Zones sûres : sans elles, la première ligne passe sous l'encoche et
+        // les commandes sous l'indicateur d'accueil de l'iPhone.
+        style={{
+          paddingTop: "env(safe-area-inset-top)",
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+        onPointerDown={(e) => (depart.current = { x: e.clientX, y: e.clientY })}
+        onPointerUp={(e) => surBalayage(e.clientX, e.clientY)}
+      >
+        <div className="flex items-center gap-3 px-4 pt-3">
+          <div
+            className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden"
+            role="progressbar"
+            aria-valuenow={i + 1}
+            aria-valuemin={1}
+            aria-valuemax={diapos.length}
+            aria-label={`Diapositive ${i + 1} sur ${diapos.length}`}
+          >
+            <div
+              className="h-full rounded-full bg-indigo-500 motion-safe:transition-all"
+              style={{ width: `${((i + 1) / diapos.length) * 100}%` }}
+            />
+          </div>
+          <span className="text-sm text-slate-500 tabular-nums shrink-0">
+            {i + 1} / {diapos.length}
+          </span>
+          <button
+            type="button"
+            onClick={sortirPlein}
+            aria-label="Quitter le plein écran"
+            className="shrink-0 grid h-11 w-11 place-items-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          >
+            <span aria-hidden>✕</span>
+          </button>
+        </div>
+
+        {/* La diapositive occupe tout l'espace restant et se centre : c'est
+            ce qui distingue un plein ecran d'une page simplement plus haute. */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 select-none">
+          <div
+            key={i}
+            aria-live="polite"
+            className="min-h-full flex flex-col justify-center motion-safe:animate-entreePage"
+          >
+            <ContenuDiapo d={diapos[i]} />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 px-4 pb-3">
+          <button
+            type="button"
+            onClick={() => aller(-1)}
+            disabled={i === 0}
+            className={`${BOUTON_DOUX} disabled:opacity-30`}
+          >
+            ← Précédent
+          </button>
+          {derniere ? (
+            <button
+              type="button"
+              onClick={() => {
+                sortirPlein();
+                onTermine();
+              }}
+              className={`${BOUTON_PRINCIPAL} flex-1`}
+            >
+              {suivant ? `Terminer · chapitre ${suivant.numero} →` : "Terminer"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => aller(1)}
+              className={`${BOUTON_PRINCIPAL} flex-1`}
+            >
+              Suivant →
+            </button>
+          )}
+        </div>
       </div>
     );
   }
@@ -235,16 +388,7 @@ export default function Diaporama({
         // Balayage horizontal. Le seuil vertical evite de changer de
         // diapositive quand l'utilisateur voulait simplement faire defiler.
         onPointerDown={(e) => (depart.current = { x: e.clientX, y: e.clientY })}
-        onPointerUp={(e) => {
-          const d = depart.current;
-          depart.current = null;
-          if (!d) return;
-          const dx = e.clientX - d.x;
-          const dy = e.clientY - d.y;
-          if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-            aller(dx < 0 ? 1 : -1);
-          }
-        }}
+        onPointerUp={(e) => surBalayage(e.clientX, e.clientY)}
         className={`${CARTE} p-6 touch-pan-y select-none`}
       >
         {/* `key` : chaque diapositive est un nouveau noeud, ce qui rejoue
@@ -279,13 +423,23 @@ export default function Diaporama({
         )}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setToutLire(true)}
-        className="w-full min-h-[44px] text-sm text-slate-500 hover:text-slate-800 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-      >
-        Tout lire d'un seul tenant
-      </button>
+      <div className="flex gap-2">
+        <button
+          ref={declencheur}
+          type="button"
+          onClick={entrerPlein}
+          className="flex-1 min-h-[44px] text-sm text-slate-600 hover:text-slate-900 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        >
+          <span aria-hidden>⛶</span> Plein écran
+        </button>
+        <button
+          type="button"
+          onClick={() => setToutLire(true)}
+          className="flex-1 min-h-[44px] text-sm text-slate-600 hover:text-slate-900 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        >
+          Tout lire d'un seul tenant
+        </button>
+      </div>
     </div>
   );
 }
