@@ -8,6 +8,7 @@ import SettingsPage from "./components/SettingsPage";
 import AccountPage from "./components/AccountPage";
 import PositionsPage from "./components/PositionsPage";
 import LearnPage from "./components/LearnPage";
+import CoursPage from "./components/CoursPage";
 import InvestPage from "./components/InvestPage";
 import SimulatorPage from "./components/SimulatorPage";
 import type { AmorceSimulation } from "./components/SimulatorPage";
@@ -141,6 +142,7 @@ export default function App() {
           <SimulatorPage amorce={amorce} onAmorceConsommee={() => setAmorce(null)} />
         )}
         {tab === "journal" && <JournalPage />}
+        {tab === "cours" && <CoursPage />}
         {tab === "comprendre" && <LearnPage />}
         {tab === "investir" && <InvestPage />}
         {tab === "positions" && <PositionsPage />}
