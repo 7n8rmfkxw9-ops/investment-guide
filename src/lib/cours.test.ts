@@ -4,6 +4,7 @@ import {
   construireDiapos,
   dureeTotale,
   etudesDuChapitre,
+  indexApres,
   nombreReferences,
 } from "./cours";
 import { ETUDES, lienDoi, TOUTES_LES_ETUDES } from "./etudes";
@@ -195,6 +196,33 @@ describe("construireDiapos", () => {
       expect(n, c.cle).toBeGreaterThanOrEqual(5);
       expect(n, c.cle).toBeLessThanOrEqual(14);
     }
+  });
+});
+
+describe("indexApres", () => {
+  it("avance et recule d'une diapositive", () => {
+    expect(indexApres(3, 1, 10)).toBe(4);
+    expect(indexApres(3, -1, 10)).toBe(2);
+  });
+
+  it("s'arrête à la première sans repartir de la fin", () => {
+    expect(indexApres(0, -1, 10)).toBe(0);
+  });
+
+  it("s'arrête à la dernière sans reboucler", () => {
+    // Reboucler donnerait l'impression d'avoir manqué quelque chose alors
+    // que le chapitre est terminé.
+    expect(indexApres(9, 1, 10)).toBe(9);
+  });
+
+  it("supporte un saut plus grand que ce qui reste", () => {
+    expect(indexApres(2, 50, 10)).toBe(9);
+    expect(indexApres(8, -50, 10)).toBe(0);
+  });
+
+  it("ne renvoie jamais d'index négatif sur un diaporama vide", () => {
+    expect(indexApres(0, 1, 0)).toBe(0);
+    expect(indexApres(0, -1, 0)).toBe(0);
   });
 });
 

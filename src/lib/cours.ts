@@ -504,6 +504,41 @@ export function nombreReferences(): number {
 }
 
 // ---------------------------------------------------------------------------
+// Navigation dans un diaporama
+
+/**
+ * Index de la diapositive atteinte apres un deplacement de `pas`.
+ *
+ * Borne aux extremites plutot que circulaire : revenir a la premiere
+ * diapositive apres la derniere donnerait l'impression d'avoir manque
+ * quelque chose, alors que le chapitre est termine.
+ */
+export function indexApres(courant: number, pas: number, total: number): number {
+  if (total <= 0) return 0;
+  return Math.min(total - 1, Math.max(0, courant + pas));
+}
+
+/**
+ * Le plein ecran natif est-il disponible ?
+ *
+ * Safari sur iPhone ne l'implemente pas — `requestFullscreen` y est
+ * simplement absent. Un bouton qui se contenterait de l'appeler ne ferait
+ * donc rien sur l'appareil vise en priorite par cette application. C'est
+ * pourquoi le mode immersif de l'interface ne depend pas de cette API : elle
+ * n'est qu'un supplement la ou elle existe.
+ */
+export function pleinEcranNatifDisponible(): boolean {
+  if (typeof document === "undefined") return false;
+  const el = document.documentElement as HTMLElement & {
+    webkitRequestFullscreen?: unknown;
+  };
+  return (
+    typeof el.requestFullscreen === "function" ||
+    typeof el.webkitRequestFullscreen === "function"
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Progression
 
 const CLE_STOCKAGE = "cours-chapitres-lus";
