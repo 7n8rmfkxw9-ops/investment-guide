@@ -31,7 +31,7 @@ describe("répartition de la navigation", () => {
     // « Comprendre », noyee hors ecran dans l'ancienne barre.
     const attendus: Onglet[] = [
       "pistes", "marche", "horizon", "simuler", "journal", "comprendre",
-      "investir", "positions", "historique", "configuration", "compte",
+      "cours", "investir", "positions", "historique", "configuration", "compte",
     ];
     const ids = new Set(TOUS_LES_ONGLETS.map((o) => o.id));
     for (const a of attendus) expect(ids.has(a), a).toBe(true);
@@ -58,10 +58,13 @@ describe("répartition de la navigation", () => {
     expect(ONGLETS_PRINCIPAUX[0].id).toBe("pistes");
   });
 
-  it("garde « Comprendre » en tête de la feuille secondaire", () => {
-    // Elle explique l'outil : c'est la premiere que doit voir quelqu'un qui
-    // ouvre « Plus » sans savoir quoi y chercher.
-    expect(ONGLETS_SECONDAIRES[0].id).toBe("comprendre");
+  it("garde l'apprentissage en tête de la feuille secondaire", () => {
+    // Ce que doit voir en premier quelqu'un qui ouvre « Plus » sans savoir
+    // quoi y chercher : de quoi apprendre, pas les reglages.
+    expect(ONGLETS_SECONDAIRES.slice(0, 2).map((o) => o.id)).toEqual([
+      "cours",
+      "comprendre",
+    ]);
   });
 });
 

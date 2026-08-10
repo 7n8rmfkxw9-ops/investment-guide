@@ -25,6 +25,7 @@ export type Onglet =
   | "simuler"
   | "journal"
   | "comprendre"
+  | "cours"
   | "investir"
   | "positions"
   | "historique"
@@ -75,6 +76,12 @@ export const ONGLETS_PRINCIPAUX: DefinitionOnglet[] = [
 ];
 
 export const ONGLETS_SECONDAIRES: DefinitionOnglet[] = [
+  {
+    id: "cours",
+    label: "Cours",
+    icone: "🎓",
+    detail: "Neuf chapitres adossés à des travaux de recherche vérifiés.",
+  },
   {
     id: "comprendre",
     label: "Comprendre",
