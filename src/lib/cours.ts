@@ -19,10 +19,24 @@
 import { ETUDES } from "./etudes";
 import type { Etude } from "./etudes";
 
-export interface SectionChapitre {
-  titre: string;
-  paragraphes: string[];
-}
+/**
+ * Une diapositive porte une seule idee.
+ *
+ * Le cours etait d'abord ecrit en sections de prose : cinq a dix lignes par
+ * paragraphe, plusieurs paragraphes par section. Sur un telephone, cela
+ * produit un mur de texte que personne ne lit jusqu'au bout — le contenu
+ * etait juste, la forme le rendait inutilisable.
+ *
+ * D'ou ce decoupage. Chaque type correspond a une facon de faire passer une
+ * idee : un texte court, un chiffre qui frappe, une liste de points. Le
+ * contenu n'a pas ete allege, il a ete redecoupe — et la vue « tout lire »
+ * permet de le retrouver d'un seul tenant.
+ */
+export type Diapo =
+  | { type: "idee"; titre: string; texte: string }
+  | { type: "chiffre"; valeur: string; legende: string; texte: string }
+  | { type: "liste"; titre: string; points: string[] }
+  | { type: "citation"; texte: string; source: string };
 
 export interface Chapitre {
   cle: string;
@@ -33,7 +47,7 @@ export interface Chapitre {
   /** Duree de lecture estimee, en minutes. */
   minutes: number;
   icone: string;
-  sections: SectionChapitre[];
+  diapos: Diapo[];
   /** Cles d'etudes du catalogue. Jamais vide. */
   etudes: string[];
   /** Ce que le chapitre change concretement. Jamais une recommandation. */
@@ -47,164 +61,251 @@ export const CHAPITRES: Chapitre[] = [
     numero: 1,
     titre: "Les frais, seule variable que vous maîtrisez",
     question: "Pourquoi commencer par les frais plutôt que par le choix des titres ?",
-    minutes: 6,
+    minutes: 4,
     icone: "🧾",
-    sections: [
+    diapos: [
       {
-        titre: "Une soustraction, pas une opinion",
-        paragraphes: [
-          "L'ensemble des investisseurs détient l'ensemble du marché. Ceux qui essaient de le battre et ceux qui se contentent de le suivre se partagent donc exactement la même performance globale, avant frais. Une fois les frais retirés, le premier groupe obtient nécessairement moins que le second, puisqu'il paie davantage pour détenir la même chose.",
-          "Ce raisonnement n'est pas une observation de marché que de nouvelles données pourraient démentir : c'est une identité comptable. Elle tient quelle que soit l'époque, le pays, ou le talent des gérants.",
-        ],
+        type: "idee",
+        titre: "Tout le monde détient tout le marché",
+        texte:
+          "Ceux qui essaient de battre le marché et ceux qui se contentent de le suivre se partagent la même performance globale. Avant frais, les deux groupes obtiennent exactement la même chose.",
       },
       {
-        titre: "Ce que cela coûte en pratique",
-        paragraphes: [
-          "Le coût total payé pour tenter de battre le marché a été chiffré à l'échelle d'un pays entier. Il ne se limite pas aux frais de gestion affichés : s'y ajoutent les frais de courtage, l'écart entre prix d'achat et de vente, et l'impact des ordres sur le marché.",
-          "Pour vous, à votre échelle, cela se traduit simplement : sur un ticket de 100 €, chaque euro de frais est un euro de performance qu'il faudra regagner avant de commencer à gagner quoi que ce soit. C'est le calcul que l'outil affiche sur chaque fiche.",
-        ],
+        type: "idee",
+        titre: "Donc après frais, l'un perd",
+        texte:
+          "Le groupe qui paie davantage pour détenir la même chose obtient nécessairement moins. Ce n'est pas une observation de marché : c'est une soustraction.",
+      },
+      {
+        type: "citation",
+        texte:
+          "Ce raisonnement tient quelle que soit l'époque, le pays ou le talent des gérants. Aucune donnée future ne peut le démentir.",
+        source: "Sharpe, 1991",
+      },
+      {
+        type: "idee",
+        titre: "Les frais ne sont pas que la commission",
+        texte:
+          "S'y ajoutent l'écart entre prix d'achat et de vente, la taxe de bourse, et la commission de change si le titre est coté hors euro. Chacun se paie à l'aller comme au retour.",
+      },
+      {
+        type: "chiffre",
+        valeur: "5,00 %",
+        legende: "à regagner sur un ticket de 100 €",
+        texte:
+          "Avec 2,50 € de frais par ordre, c'est ce qu'il faut gagner rien que pour revenir à zéro après un aller-retour. C'est le chiffre que l'outil affiche sur chaque fiche.",
+      },
+      {
+        type: "idee",
+        titre: "Le seul chiffre connu d'avance",
+        texte:
+          "Vous ne savez pas ce que fera un cours. Vous savez exactement ce que coûtera votre ordre. C'est pour cela que ce chapitre vient en premier.",
       },
     ],
     etudes: ["sharpe1991", "french2008"],
     appliquer: [
-      "Regardez le seuil de rentabilité affiché sur chaque piste avant de regarder l'entreprise elle-même : il ne dépend pas de vos prévisions, seulement de votre courtier et de votre montant.",
-      "Comparez ce seuil entre un ticket de 50 € et de 500 € chez le même courtier — c'est le même geste, et pas du tout le même coût relatif.",
-      "Vérifiez si votre courtier tarife les ETF différemment des actions : chez certains, c'est la différence entre 2,50 € et 0 € par ordre.",
+      "Regardez le seuil de rentabilité d'une piste avant de regarder l'entreprise : il ne dépend d'aucune prévision.",
+      "Comparez ce seuil entre 50 € et 500 € chez le même courtier — même geste, coût relatif dix fois moindre.",
+      "Vérifiez si votre courtier tarife les ETF différemment des actions : chez certains, c'est 0 € contre 2,50 €.",
     ],
     aRetenir:
-      "Les frais sont la seule composante de votre rendement qui soit connue à l'avance et entièrement sous votre contrôle.",
+      "Les frais sont la seule composante de votre rendement connue à l'avance et entièrement sous votre contrôle.",
   },
   {
     cle: "particuliers",
     numero: 2,
-    titre: "Ce que font réellement les particuliers en bourse",
+    titre: "Ce que font réellement les particuliers",
     question: "Les investisseurs individuels battent-ils le marché ?",
-    minutes: 7,
+    minutes: 5,
     icone: "👥",
-    sections: [
+    diapos: [
       {
-        titre: "Le résultat qui a fondé le domaine",
-        paragraphes: [
-          "L'étude de référence a examiné les relevés réels de dizaines de milliers de ménages sur plusieurs années. Constat central : les titres que ces investisseurs choisissaient n'étaient pas absurdes, mais leur rendement net était nettement inférieur à celui du marché. La différence venait de la fréquence des opérations et de leur coût.",
-          "Autrement dit, ce n'est pas d'abord le mauvais choix de société qui coûtait cher, c'était le fait d'échanger souvent.",
-        ],
+        type: "idee",
+        titre: "Des relevés réels, pas un sondage",
+        texte:
+          "L'étude fondatrice a examiné les comptes de dizaines de milliers de ménages sur plusieurs années. Pas des intentions déclarées : des ordres réellement passés.",
       },
       {
-        titre: "Pourquoi on échange trop",
-        paragraphes: [
-          "Une seconde étude, sur les mêmes données, montre que les groupes qui échangent le plus obtiennent les rendements nets les plus faibles, et propose l'excès de confiance comme explication : plus on se croit informé, plus on agit, et plus on paie.",
-          "Le cas extrême a été étudié à l'échelle d'un marché national entier, sur les spéculateurs les plus actifs : une part très minime d'entre eux gagne durablement de l'argent une fois les frais déduits.",
-        ],
+        type: "idee",
+        titre: "Le résultat surprend",
+        texte:
+          "Les titres choisis n'étaient pas absurdes. Pourtant le rendement net était nettement inférieur au marché. La différence ne venait pas du choix, mais de la fréquence des opérations.",
+      },
+      {
+        type: "citation",
+        texte:
+          "Ce n'est pas d'abord la mauvaise société qui coûte cher. C'est le fait d'échanger souvent.",
+        source: "Barber & Odean, 2000",
+      },
+      {
+        type: "idee",
+        titre: "Pourquoi échange-t-on autant ?",
+        texte:
+          "Les groupes qui échangent le plus obtiennent les rendements nets les plus faibles. L'excès de confiance est l'explication proposée : plus on se croit informé, plus on agit, et plus on paie.",
+      },
+      {
+        type: "idee",
+        titre: "Le cas extrême",
+        texte:
+          "Sur l'intégralité des opérations d'un marché national, une part infime des spéculateurs très actifs gagne durablement de l'argent une fois les frais déduits. La grande majorité perd.",
       },
     ],
     etudes: ["barberOdean2000", "barberOdean2001", "barber2014"],
     appliquer: [
-      "Comptez le nombre d'ordres que vous envisagez sur une année : c'est ce nombre, multiplié par vos frais, que votre sélection doit d'abord rembourser.",
-      "Le simulateur de cet outil sert exactement à ça : refaire vos gestes sans les payer, et constater après coup ce qu'ils auraient coûté.",
-      "Écrivez votre règle de sortie avant d'entrer. Le champ existe sur chaque simulation, et il est là pour réduire les décisions prises dans l'instant.",
+      "Comptez les ordres que vous envisagez sur un an : c'est ce total de frais que votre sélection doit d'abord rembourser.",
+      "Le simulateur sert exactement à ça : refaire vos gestes sans les payer, et constater après coup ce qu'ils auraient coûté.",
+      "Écrivez votre règle de sortie avant d'entrer. Le champ existe sur chaque simulation.",
     ],
     aRetenir:
-      "Ce qui distingue les particuliers perdants des autres tient moins au choix des titres qu'à la fréquence des opérations.",
+      "Ce qui distingue les particuliers perdants tient moins au choix des titres qu'à la fréquence des opérations.",
   },
   {
     cle: "biais",
     numero: 3,
-    titre: "Pourquoi on vend ses gagnantes et garde ses perdantes",
+    titre: "Pourquoi on vend ses gagnantes",
     question: "Qu'est-ce qui nous pousse à faire l'inverse de ce qu'on avait prévu ?",
-    minutes: 7,
+    minutes: 5,
     icone: "🧠",
-    sections: [
+    diapos: [
       {
-        titre: "Un réflexe mesuré, pas une impression",
-        paragraphes: [
-          "Sur des comptes réels, les investisseurs vendent leurs positions en gain nettement plus volontiers que celles en perte. Le nom donné à ce réflexe est l'effet de disposition.",
-          "Ce qui le rend coûteux, c'est la suite : les positions gagnantes vendues se sont ensuite mieux comportées que les perdantes conservées. Le réflexe qui donne l'impression de « sécuriser » a donc, en moyenne, retiré du rendement.",
-        ],
+        type: "idee",
+        titre: "Un réflexe mesuré",
+        texte:
+          "Sur des comptes réels, les investisseurs vendent leurs positions en gain bien plus volontiers que celles en perte. Ce réflexe porte un nom : l'effet de disposition.",
       },
       {
+        type: "idee",
+        titre: "Et il coûte de l'argent",
+        texte:
+          "Les gagnantes vendues se sont ensuite mieux comportées que les perdantes conservées. Le geste qui donne l'impression de « sécuriser » a, en moyenne, retiré du rendement.",
+      },
+      {
+        type: "idee",
         titre: "D'où vient ce réflexe",
-        paragraphes: [
-          "Le mécanisme sous-jacent a été décrit bien avant, en psychologie de la décision : une perte pèse davantage qu'un gain de même montant, et face à une perte on devient preneur de risque. Vendre une gagnante fait exister un gain ; vendre une perdante fait exister une perte, ce que l'on repousse.",
-          "Un troisième travail ajoute une dimension pratique : plus on consulte son portefeuille souvent, plus on rencontre de baisses, et moins on supporte le placement — alors que rien n'a changé dans le placement lui-même.",
-        ],
+        texte:
+          "Une perte pèse psychologiquement plus lourd qu'un gain de même montant. Vendre une gagnante fait exister un gain ; vendre une perdante fait exister une perte, ce qu'on repousse.",
+      },
+      {
+        type: "idee",
+        titre: "Regarder souvent change la décision",
+        texte:
+          "Plus on consulte son portefeuille, plus on rencontre de baisses, et moins on supporte le placement — alors que rien n'a changé dans le placement lui-même.",
+      },
+      {
+        type: "citation",
+        texte:
+          "Le principal adversaire d'un plan d'investissement est celui qui l'a écrit, quelques mois plus tard.",
+        source: "Odean 1998 · Kahneman & Tversky 1979 · Benartzi & Thaler 1995",
       },
     ],
     etudes: ["odean1998", "kahneman1979", "benartzi1995"],
     appliquer: [
-      "Formulez votre condition de vente au moment de l'achat, quand aucune somme n'est encore en jeu émotionnellement.",
-      "Choisissez délibérément la fréquence à laquelle vous regardez vos positions. La consultation quotidienne n'apporte aucune information sur un horizon de dix ans, mais elle change ce que vous ressentez.",
-      "Quand vous envisagez de vendre, demandez-vous si vous rachèteriez cette position aujourd'hui au prix actuel. Si oui, la vente ne vient pas de l'analyse.",
+      "Formulez votre condition de vente au moment de l'achat, quand rien n'est encore engagé émotionnellement.",
+      "Choisissez délibérément la fréquence à laquelle vous regardez vos positions.",
+      "Avant de vendre, demandez-vous si vous rachèteriez cette position aujourd'hui au prix actuel. Si oui, la vente ne vient pas de l'analyse.",
     ],
     aRetenir:
-      "Le principal adversaire d'un plan d'investissement est celui qui l'a écrit, quelques mois plus tard.",
+      "Le principal adversaire d'un plan d'investissement est celui qui l'a écrit, quelques mois plus tôt.",
   },
   {
     cle: "concentration",
     numero: 4,
     titre: "La plupart des actions ne rapportent rien",
     question: "Choisir quelques belles entreprises, est-ce raisonnable ?",
-    minutes: 6,
+    minutes: 4,
     icone: "🎲",
-    sections: [
+    diapos: [
       {
-        titre: "Une distribution très déséquilibrée",
-        paragraphes: [
-          "En examinant l'ensemble des actions cotées d'un grand marché sur près d'un siècle, une étude montre que la majorité des titres ont, sur toute leur durée de vie, rapporté moins qu'un placement sans risque à court terme.",
-          "La richesse créée par le marché dans son ensemble provient d'une minorité d'entreprises. Le rendement du marché n'est donc pas le rendement typique d'une action : c'est une moyenne tirée vers le haut par quelques exceptions.",
-        ],
+        type: "idee",
+        titre: "Un siècle, toutes les actions cotées",
+        texte:
+          "Une étude a examiné l'ensemble des actions d'un grand marché sur près de cent ans, en mesurant ce que chaque titre a rapporté sur toute sa durée de vie.",
       },
       {
-        titre: "Ce que cela implique pour un petit portefeuille",
-        paragraphes: [
-          "Si l'essentiel du rendement vient d'une petite fraction de titres, détenir peu de lignes revient à parier que vous en avez attrapé au moins une. Le résultat le plus probable d'un portefeuille concentré n'est pas la moyenne du marché : il est inférieur, parce que la moyenne est tirée par les exceptions que vous n'avez statistiquement pas.",
-          "Une littérature plus ancienne s'est demandé combien de titres sont nécessaires pour être réellement diversifié, et trouve un nombre plus élevé que la dizaine souvent avancée. Pour un particulier, la question est aujourd'hui largement résolue autrement : un fonds indiciel détient plusieurs centaines de sociétés en un seul ordre.",
-        ],
+        type: "chiffre",
+        valeur: "la majorité",
+        legende: "des actions ont rapporté moins qu'un placement sans risque",
+        texte:
+          "Sur toute leur durée de vie, la plupart des titres ont fait moins bien qu'un simple placement de trésorerie à court terme.",
+      },
+      {
+        type: "idee",
+        titre: "La richesse vient d'une minorité",
+        texte:
+          "Le rendement du marché entier est produit par une petite fraction d'entreprises. La moyenne du marché n'est donc pas le rendement d'une action moyenne : elle est tirée vers le haut par des exceptions.",
+      },
+      {
+        type: "idee",
+        titre: "Ce que ça implique pour peu de lignes",
+        texte:
+          "Détenir quelques titres revient à parier que vous avez attrapé une de ces exceptions. Le résultat le plus probable d'un portefeuille concentré n'est pas la moyenne du marché : il est en dessous.",
+      },
+      {
+        type: "idee",
+        titre: "Cinq lignes ne font pas une répartition",
+        texte:
+          "Il faut nettement plus de titres qu'on ne le croit pour être réellement diversifié. Pour un particulier, la question se règle autrement : un fonds indiciel détient des centaines de sociétés en un seul ordre.",
       },
     ],
     etudes: ["bessembinder2018", "statman1987"],
     appliquer: [
-      "Regardez la vue « exposition » du simulateur : elle montre si vos lignes sont réellement réparties ou si elles répètent le même pari.",
+      "Ouvrez la vue « exposition » du simulateur : elle montre si vos lignes sont réparties ou si elles répètent le même pari.",
       "Distinguez « j'ai cinq positions » de « je suis diversifié ». Cinq sociétés du même pays et du même secteur constituent un seul pari.",
-      "Si une piste vous intéresse, demandez-vous ce que vous détiendriez si elle se révélait être l'une des majorités qui ne rapportent rien.",
+      "Devant une piste, demandez-vous ce que vous détiendriez si elle appartenait à la majorité qui ne rapporte rien.",
     ],
     aRetenir:
-      "Le rendement moyen du marché n'est pas le rendement d'une action moyenne ; il est produit par une petite minorité de titres.",
+      "Le rendement moyen du marché n'est pas celui d'une action moyenne : il est produit par une minorité de titres.",
   },
   {
     cle: "inities",
     numero: 5,
-    titre: "Suivre les initiés : ce que la recherche dit vraiment",
+    titre: "Suivre les initiés",
     question: "Les déclarations d'initiés que cet outil affiche sont-elles exploitables ?",
-    minutes: 8,
+    minutes: 6,
     icone: "🔍",
-    sections: [
+    diapos: [
       {
-        titre: "Les dirigeants gagnent, ceux qui les copient moins",
-        paragraphes: [
-          "Le point de départ est établi de longue date : les dirigeants réalisent des gains anormaux sur les titres de leur propre société. C'est précisément ce que la loi cherche à rendre visible en les obligeant à déclarer.",
-          "Mais la même étude ajoute une nuance décisive : un investisseur extérieur qui les imite après la publication officielle ne dégage pas, en moyenne, de quoi couvrir ses frais. L'information est réelle ; ce qui en reste après le délai de publication et les coûts l'est beaucoup moins.",
-        ],
+        type: "idee",
+        titre: "Les dirigeants gagnent, c'est établi",
+        texte:
+          "Les dirigeants réalisent des gains anormaux sur les titres de leur propre société. C'est précisément ce que la loi cherche à rendre visible en les obligeant à déclarer.",
       },
       {
-        titre: "Toutes les déclarations ne se valent pas",
-        paragraphes: [
-          "Des travaux plus récents affinent : les achats de dirigeants portent davantage d'information que leurs ventes — un dirigeant vend pour quantité de raisons étrangères à son opinion sur l'entreprise, un achat est moins ambigu. L'effet est plus marqué sur les petites sociétés.",
-          "Un troisième travail va plus loin en séparant les dirigeants qui échangent selon un calendrier régulier de ceux qui rompent leurs habitudes. Seuls les seconds portent une information ; les opérations de routine n'annoncent rien.",
-        ],
+        type: "idee",
+        titre: "Ceux qui les copient, beaucoup moins",
+        texte:
+          "Un investisseur extérieur qui les imite après la publication officielle ne dégage pas, en moyenne, de quoi couvrir ses frais. L'information est réelle ; ce qui en reste après le délai et les coûts l'est nettement moins.",
       },
       {
-        titre: "Ce que cela dit de cet outil",
-        paragraphes: [
-          "Cet outil affiche les déclarations d'initiés sans faire cette distinction : il ne sait pas dire si une opération est de routine ou non, faute d'un historique suffisant par dirigeant. Une part de ce qu'il vous montre est donc, selon cette littérature, du bruit.",
-          "C'est la raison pour laquelle chaque fiche indique que les motifs d'une opération ne sont jamais déclarés, et pourquoi l'outil ne classe ni ne note les pistes.",
-        ],
+        type: "idee",
+        titre: "Un achat n'est pas l'inverse d'une vente",
+        texte:
+          "Les achats de dirigeants portent plus d'information que leurs ventes. On vend pour quantité de raisons étrangères à son opinion sur l'entreprise ; on achète pour beaucoup moins.",
+      },
+      {
+        type: "idee",
+        titre: "Routine ou rupture d'habitude",
+        texte:
+          "En séparant les dirigeants qui échangent selon un calendrier régulier de ceux qui rompent leurs habitudes, seuls les seconds portent une information. Les opérations de routine n'annoncent rien.",
+      },
+      {
+        type: "citation",
+        texte:
+          "Cet outil ne fait pas cette distinction : il ne sait pas dire si une opération est de routine, faute d'historique par dirigeant. Une part de ce qu'il vous montre est donc du bruit.",
+        source: "Ce que cela dit de cet outil",
+      },
+      {
+        type: "idee",
+        titre: "Comparez les deux nombres",
+        texte:
+          "Le gain anormal rapporté par la littérature est modeste. Le seuil de rentabilité affiché sur la fiche est souvent supérieur. C'est cette comparaison qui décide, pas l'intuition.",
       },
     ],
     etudes: ["seyhun1986", "lakonishok2001", "cohen2012"],
     appliquer: [
-      "Traitez un achat de dirigeant et une vente de dirigeant comme deux informations de nature différente, pas comme un signal et son inverse.",
-      "Avant de considérer une piste, comparez le gain anormal moyen rapporté par la littérature — modeste — au seuil de rentabilité affiché sur la fiche. Souvent, le second dépasse le premier.",
-      "Servez-vous du simulateur pour éprouver l'idée sur plusieurs pistes plutôt que d'engager de l'argent sur la première qui vous convainc.",
+      "Traitez un achat et une vente de dirigeant comme deux informations de nature différente, pas comme un signal et son contraire.",
+      "Mettez côte à côte le gain anormal moyen de la littérature et le seuil de rentabilité de la fiche.",
+      "Éprouvez l'idée sur plusieurs pistes au simulateur plutôt que d'engager de l'argent sur la première qui convainc.",
     ],
     aRetenir:
       "Les déclarations d'initiés contiennent une information réelle, souvent inférieure aux frais nécessaires pour l'exploiter.",
@@ -212,30 +313,34 @@ export const CHAPITRES: Chapitre[] = [
   {
     cle: "copier",
     numero: 6,
-    titre: "Copier les grands fonds à partir de leurs déclarations",
-    question: "Peut-on répliquer un investisseur professionnel via ses positions publiées ?",
-    minutes: 5,
+    titre: "Copier les grands fonds",
+    question: "Peut-on répliquer un professionnel via ses positions publiées ?",
+    minutes: 3,
     icone: "🗂️",
-    sections: [
+    diapos: [
       {
+        type: "idee",
         titre: "Ce qui a été testé",
-        paragraphes: [
-          "Des chercheurs ont construit des portefeuilles recopiant les positions publiées par des fonds actifs, puis comparé leur performance à celle des fonds copiés. Résultat : les copies obtiennent des rendements proches, l'économie de frais compensant en partie le retard de publication.",
-          "Le détail compte : ce qui a été répliqué, c'est le portefeuille entier, pas une ligne isolée. Et la conclusion dépend étroitement du délai entre la constitution de la position et sa publication.",
-        ],
+        texte:
+          "Des chercheurs ont construit des portefeuilles recopiant les positions publiées par des fonds actifs. Résultat : des rendements proches des fonds copiés, l'économie de frais compensant en partie le retard de publication.",
       },
       {
-        titre: "La limite pour vous",
-        paragraphes: [
-          "Les déclarations trimestrielles de portefeuille sont publiées avec un décalage de plusieurs semaines. La position peut avoir été soldée entre-temps, et vous n'en saurez rien avant la publication suivante.",
-          "Prélever une seule ligne dans un portefeuille de plusieurs centaines n'est pas non plus ce qui a été étudié : une position isolée peut jouer un rôle de couverture, ou n'être qu'une fraction marginale d'une stratégie d'ensemble.",
-        ],
+        type: "idee",
+        titre: "Le détail qui change tout",
+        texte:
+          "Ce qui a été répliqué, c'est le portefeuille entier. Pas une ligne prélevée dedans. Une position isolée peut être une couverture, ou une fraction marginale d'une stratégie d'ensemble.",
+      },
+      {
+        type: "idee",
+        titre: "L'âge de l'information",
+        texte:
+          "Les portefeuilles trimestriels sont publiés avec plusieurs semaines de décalage. La position peut avoir été soldée entre-temps, et vous ne le saurez qu'à la publication suivante.",
       },
     ],
     etudes: ["frank2004"],
     appliquer: [
-      "Lisez la date de dépôt affichée sur chaque piste issue d'un portefeuille trimestriel : c'est l'âge réel de l'information.",
-      "Ne confondez pas « ce fonds détient ce titre » avec « ce fonds mise sur ce titre ». Vous voyez une ligne, pas une intention.",
+      "Lisez la date de dépôt sur chaque piste issue d'un portefeuille trimestriel : c'est l'âge réel de l'information.",
+      "Ne confondez pas « ce fonds détient ce titre » et « ce fonds mise sur ce titre ». Vous voyez une ligne, pas une intention.",
     ],
     aRetenir:
       "Répliquer un portefeuille entier a été étudié ; en prélever une ligne au hasard ne l'a pas été.",
@@ -243,62 +348,82 @@ export const CHAPITRES: Chapitre[] = [
   {
     cle: "duree",
     numero: 7,
-    titre: "Le temps réduit-il vraiment le risque ?",
+    titre: "Le temps réduit-il le risque ?",
     question: "« Sur le long terme, les actions montent toujours » — est-ce exact ?",
-    minutes: 6,
+    minutes: 4,
     icone: "⏳",
-    sections: [
+    diapos: [
       {
-        titre: "Deux lectures opposées, toutes deux sérieuses",
-        paragraphes: [
-          "L'observation historique est réelle : sur des périodes longues, les fenêtres perdantes deviennent rares. C'est ce que montre l'onglet Horizon de cet outil, sur données réelles.",
-          "Mais un travail marquant conteste l'interprétation. Il observe que le prix d'une assurance contre le fait de terminer sous un placement sans risque augmente avec l'horizon. Si le risque diminuait vraiment avec le temps, cette assurance deviendrait moins chère, pas plus.",
-        ],
+        type: "idee",
+        titre: "L'observation est réelle",
+        texte:
+          "Sur des périodes longues, les fenêtres perdantes deviennent rares. C'est ce que montre l'onglet Horizon de cet outil, sur données réelles.",
       },
       {
+        type: "idee",
+        titre: "Mais l'interprétation est contestée",
+        texte:
+          "Le prix d'une assurance contre le fait de terminer sous un placement sans risque augmente avec l'horizon. Si le risque diminuait vraiment avec le temps, cette assurance deviendrait moins chère, pas plus.",
+      },
+      {
+        type: "idee",
         titre: "Comment tenir les deux",
-        paragraphes: [
-          "Les deux constats se concilient : la probabilité de perdre diminue avec la durée, mais l'ampleur de ce que l'on peut perdre augmente. Un rendement médian plus stable ne signifie pas un risque disparu.",
-          "S'y ajoute un facteur humain déjà rencontré : plus la période est longue, plus il faudra traverser de baisses sans vendre. Le rendement long terme n'est acquis qu'à celui qui reste, et la difficulté n'est pas statistique mais psychologique.",
-        ],
+        texte:
+          "La probabilité de perdre diminue avec la durée. L'ampleur de ce qu'on peut perdre augmente. Un résultat médian plus stable ne signifie pas un risque disparu.",
+      },
+      {
+        type: "citation",
+        texte:
+          "Le rendement long terme n'est acquis qu'à celui qui reste. La difficulté n'est pas statistique, elle est psychologique.",
+        source: "Bodie 1995 · Benartzi & Thaler 1995",
       },
     ],
     etudes: ["bodie1995", "benartzi1995"],
     appliquer: [
       "Dans l'onglet Horizon, regardez la colonne « pire » autant que la médiane : c'est elle qui décrit ce qu'il faudrait supporter.",
-      "Posez-vous la question en euros, pas en pourcentages : que feriez-vous si la somme engagée perdait un tiers de sa valeur pendant deux ans ?",
-      "Un horizon n'est utile que s'il est tenu. Si l'argent peut être nécessaire avant, l'horizon n'est pas celui que vous croyez.",
+      "Posez la question en euros : que feriez-vous si la somme engagée perdait un tiers de sa valeur pendant deux ans ?",
+      "Si l'argent peut être nécessaire avant l'échéance, l'horizon n'est pas celui que vous croyez.",
     ],
     aRetenir:
-      "Historiquement, les périodes longues perdent rarement ; cela ne veut pas dire que le risque disparaît avec le temps.",
+      "Historiquement les périodes longues perdent rarement ; cela ne veut pas dire que le risque disparaît avec le temps.",
   },
   {
     cle: "gerants",
     numero: 8,
-    titre: "Talent ou chance : les gérants qui battent le marché",
+    titre: "Talent ou chance",
     question: "Si des professionnels y arrivent, pourquoi pas eux plutôt que moi ?",
-    minutes: 6,
-    icone: "🎓",
-    sections: [
+    minutes: 4,
+    icone: "🎯",
+    diapos: [
       {
-        titre: "La performance passée ne se reproduit guère",
-        paragraphes: [
-          "Une étude devenue classique montre que la persistance apparente des bons fonds s'explique largement par les frais et par des effets de style connus, plutôt que par le talent du gérant. La persistance la plus fiable concerne les mauvais fonds, qui tendent à le rester.",
-          "Un travail ultérieur simule ce que le pur hasard produirait sur un grand nombre de gérants, puis compare. Très peu affichent une performance que la chance seule n'expliquerait pas, une fois les frais déduits.",
-        ],
+        type: "idee",
+        titre: "Les bons fonds restent-ils bons ?",
+        texte:
+          "La persistance apparente des bons fonds s'explique largement par les frais et par des effets de style connus, plutôt que par le talent du gérant.",
       },
       {
-        titre: "La conséquence pratique",
-        paragraphes: [
-          "Le problème n'est pas qu'aucun gérant n'ait de talent : c'est qu'on ne peut pas l'identifier à l'avance de façon fiable, et que le classement des dernières années n'y suffit pas.",
-          "Le même raisonnement s'applique à vous. Une série de bons choix ne prouve pas une compétence tant que le nombre d'observations reste faible — et c'est exactement pourquoi cet outil enregistre vos simulations plutôt que vos impressions.",
-        ],
+        type: "idee",
+        titre: "Ce qui persiste vraiment",
+        texte:
+          "La persistance la plus fiable concerne les mauvais fonds : ceux-là tendent à le rester. Les bons, beaucoup moins.",
+      },
+      {
+        type: "idee",
+        titre: "Simuler le hasard pur",
+        texte:
+          "En simulant ce que la chance seule produirait sur un grand nombre de gérants, très peu affichent une performance que le hasard n'expliquerait pas, une fois les frais déduits.",
+      },
+      {
+        type: "idee",
+        titre: "Le même raisonnement s'applique à vous",
+        texte:
+          "Une série de bons choix ne prouve pas une compétence tant que les observations sont peu nombreuses. C'est pourquoi cet outil enregistre vos simulations plutôt que vos impressions.",
       },
     ],
     etudes: ["carhart1997", "famaFrench2010"],
     appliquer: [
-      "Méfiez-vous d'un palmarès sur un an ou trois ans, quel que soit son auteur : la durée est trop courte pour distinguer talent et chance.",
-      "Tenez le compte de toutes vos simulations, y compris les mauvaises. Ne retenir que les bonnes revient à reproduire le biais que ces études mesurent.",
+      "Méfiez-vous d'un palmarès sur un an ou trois ans : la durée est trop courte pour distinguer talent et chance.",
+      "Tenez le compte de toutes vos simulations, y compris les mauvaises. Ne retenir que les bonnes reproduit le biais que ces études mesurent.",
     ],
     aRetenir:
       "Battre le marché est possible ; reconnaître à l'avance celui qui y parviendra ne l'est pas de façon fiable.",
@@ -308,26 +433,60 @@ export const CHAPITRES: Chapitre[] = [
     numero: 9,
     titre: "Le biais domestique",
     question: "Pourquoi ai-je surtout des entreprises de chez moi ?",
-    minutes: 4,
+    minutes: 3,
     icone: "🗺️",
-    sections: [
+    diapos: [
       {
-        titre: "Un déséquilibre général",
-        paragraphes: [
-          "Les investisseurs de tous les pays détiennent une part très majoritaire d'actions de leur propre pays, bien au-delà du poids de ce pays dans le marché mondial. Le phénomène a été documenté sur les grands marchés développés.",
-          "Aucun avantage de rendement identifié ne vient compenser cette concentration. Ce qui reste, c'est une exposition accrue à l'économie d'un seul pays.",
-        ],
+        type: "idee",
+        titre: "Un réflexe universel",
+        texte:
+          "Les investisseurs de tous les pays détiennent une part écrasante d'actions de leur propre pays, très au-delà du poids de ce pays dans le marché mondial.",
+      },
+      {
+        type: "idee",
+        titre: "Sans contrepartie identifiée",
+        texte:
+          "Aucun avantage de rendement connu ne vient compenser cette concentration. Ce qui reste, c'est une exposition accrue à l'économie d'un seul pays.",
+      },
+      {
+        type: "idee",
+        titre: "Familier n'est pas moins risqué",
+        texte:
+          "Un ETF mondial n'est pas plus exotique qu'une action belge : il est réparti différemment. Ce qui change, c'est l'exposition, pas la réputation.",
       },
     ],
     etudes: ["frenchPoterba1991"],
     appliquer: [
-      "Regardez la répartition par place de cotation dans la vue « exposition » : elle montre votre biais domestique en un coup d'œil.",
-      "Un ETF mondial n'est pas plus exotique qu'une action belge — il est simplement réparti différemment. Comparez les deux expositions, pas les deux réputations.",
+      "Regardez la répartition par place de cotation dans la vue « exposition » : votre biais domestique s'y voit en un coup d'œil.",
+      "Comparez deux expositions, pas deux réputations.",
     ],
     aRetenir:
       "Préférer les entreprises de son propre pays est un réflexe universel, mesuré, et sans avantage de rendement connu.",
   },
 ];
+
+/**
+ * Diapositives reellement projetees pour un chapitre.
+ *
+ * Les diapositives pedagogiques viennent du chapitre ; la fin est toujours la
+ * meme et n'est donc pas repetee dans les donnees : une diapositive par etude
+ * citee, puis « appliquer », puis « a retenir ». Cela garantit qu'aucun
+ * chapitre ne puisse etre publie sans ses sources.
+ */
+export type DiapoProjetee =
+  | { kind: "contenu"; diapo: Diapo }
+  | { kind: "etude"; cle: string }
+  | { kind: "appliquer"; points: string[] }
+  | { kind: "retenir"; texte: string };
+
+export function construireDiapos(c: Chapitre): DiapoProjetee[] {
+  return [
+    ...c.diapos.map((d) => ({ kind: "contenu" as const, diapo: d })),
+    ...c.etudes.map((cle) => ({ kind: "etude" as const, cle })),
+    { kind: "appliquer" as const, points: c.appliquer },
+    { kind: "retenir" as const, texte: c.aRetenir },
+  ];
+}
 
 /** Etudes d'un chapitre, resolues depuis le catalogue. */
 export function etudesDuChapitre(c: Chapitre): Etude[] {

@@ -3,15 +3,13 @@ import {
   basculerLu,
   chapitresLus,
   CHAPITRES,
+  construireDiapos,
   dureeTotale,
-  etudesDuChapitre,
   nombreReferences,
 } from "../lib/cours";
-import type { Chapitre } from "../lib/cours";
-import { lienDoi } from "../lib/etudes";
-import type { Etude } from "../lib/etudes";
-import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, SURTITRE } from "../lib/theme";
+import { CARTE, SURTITRE } from "../lib/theme";
 import Repliable from "./Repliable";
+import Diaporama from "./Diaporama";
 
 /**
  * Cours adosses a des travaux de recherche.
@@ -24,126 +22,6 @@ import Repliable from "./Repliable";
  * a mesure ET ses limites. Afficher un resultat sans ses limites reviendrait a
  * presenter une mesure comme une loi.
  */
-
-function FicheEtude({ e }: { e: Etude }) {
-  return (
-    <li className="rounded-2xl bg-slate-50 p-4 space-y-2.5">
-      <div>
-        <p className="font-medium text-slate-900 leading-snug">{e.titre}</p>
-        <p className="text-sm text-slate-500 mt-0.5">
-          {e.auteurs} · {e.annee} · {e.publication}
-        </p>
-      </div>
-      <p className="text-sm text-slate-600 leading-relaxed">{e.resultat}</p>
-      <div className="rounded-xl bg-amber-50 px-3.5 py-2.5">
-        <p className={`${SURTITRE} text-amber-700 mb-1`}>Ce que l'étude ne dit pas</p>
-        <p className="text-sm text-amber-900 leading-relaxed">{e.limites}</p>
-      </div>
-      <a
-        href={lienDoi(e.doi)}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-block text-sm text-indigo-700 hover:text-indigo-900 underline decoration-indigo-300 underline-offset-2 min-h-[44px] py-2.5"
-      >
-        Lire la source · doi.org/{e.doi}
-        <span className="sr-only"> (nouvel onglet)</span>
-      </a>
-    </li>
-  );
-}
-
-function VueChapitre({
-  c,
-  lu,
-  onLu,
-  onRetour,
-  suivant,
-  onSuivant,
-}: {
-  c: Chapitre;
-  lu: boolean;
-  onLu: () => void;
-  onRetour: () => void;
-  suivant: Chapitre | null;
-  onSuivant: () => void;
-}) {
-  const etudes = etudesDuChapitre(c);
-  return (
-    <article className="space-y-6">
-      <button
-        type="button"
-        onClick={onRetour}
-        className="min-h-[44px] -my-2 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
-      >
-        ← Tous les chapitres
-      </button>
-
-      <header className="space-y-2">
-        <p className={SURTITRE}>
-          Chapitre {c.numero} sur {CHAPITRES.length} · {c.minutes} min
-        </p>
-        <h2 className="text-2xl font-semibold text-slate-900">{c.titre}</h2>
-        <p className="text-base text-slate-500">{c.question}</p>
-      </header>
-
-      {c.sections.map((s) => (
-        <section key={s.titre} className={`${CARTE} p-5 space-y-3`}>
-          <h3 className="text-lg font-semibold text-slate-900">{s.titre}</h3>
-          {s.paragraphes.map((p) => (
-            <p key={p} className="text-base text-slate-600 leading-relaxed">
-              {p}
-            </p>
-          ))}
-        </section>
-      ))}
-
-      <section className={`${CARTE} p-5 space-y-3 bg-indigo-50/60 ring-indigo-200/60`}>
-        <h3 className="text-lg font-semibold text-indigo-900">Appliquer</h3>
-        <ul className="space-y-2.5">
-          {c.appliquer.map((a) => (
-            <li key={a} className="flex gap-2.5 text-base text-indigo-900 leading-relaxed">
-              <span className="text-indigo-400 shrink-0" aria-hidden>
-                →
-              </span>
-              <span>{a}</span>
-            </li>
-          ))}
-        </ul>
-        <p className="text-sm text-indigo-800/80 leading-relaxed border-t border-indigo-200/70 pt-3">
-          Ces points traduisent un résultat de recherche en question à se poser.
-          Aucun ne vous dit quoi acheter ni quand.
-        </p>
-      </section>
-
-      <section className="space-y-3">
-        <h3 className={SURTITRE}>
-          Sources ({etudes.length}) — vérifiées une par une
-        </h3>
-        <ul className="space-y-3">
-          {etudes.map((e) => (
-            <FicheEtude key={e.cle} e={e} />
-          ))}
-        </ul>
-      </section>
-
-      <div className={`${CARTE} p-5 space-y-1`}>
-        <p className={SURTITRE}>À retenir</p>
-        <p className="text-lg text-slate-800 leading-snug">{c.aRetenir}</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2.5">
-        <button type="button" onClick={onLu} className={lu ? BOUTON_DOUX : BOUTON_PRINCIPAL}>
-          {lu ? "✓ Chapitre lu" : "Marquer comme lu"}
-        </button>
-        {suivant && (
-          <button type="button" onClick={onSuivant} className={BOUTON_DOUX}>
-            Chapitre {suivant.numero} →
-          </button>
-        )}
-      </div>
-    </article>
-  );
-}
 
 export default function CoursPage() {
   const [ouvert, setOuvert] = useState<string | null>(null);
@@ -167,13 +45,16 @@ export default function CoursPage() {
 
   if (chapitre) {
     return (
-      <VueChapitre
-        c={chapitre}
-        lu={lus.includes(chapitre.cle)}
-        onLu={() => setLus(basculerLu(chapitre.cle))}
-        onRetour={() => setOuvert(null)}
+      <Diaporama
+        chapitre={chapitre}
         suivant={suivant}
-        onSuivant={() => suivant && setOuvert(suivant.cle)}
+        onRetour={() => setOuvert(null)}
+        onTermine={() => {
+          if (!lus.includes(chapitre.cle)) setLus(basculerLu(chapitre.cle));
+          // Enchainer sur le chapitre suivant plutot que de renvoyer a la
+          // liste : c'est ce qu'on attend d'un cours qu'on suit.
+          setOuvert(suivant ? suivant.cle : null);
+        }}
       />
     );
   }
@@ -245,8 +126,8 @@ export default function CoursPage() {
                     {c.question}
                   </span>
                   <span className="block text-xs text-slate-500 mt-1.5 tabular-nums">
-                    {c.minutes} min · {c.etudes.length} source
-                    {c.etudes.length > 1 ? "s" : ""}
+                    {construireDiapos(c).length} écrans · {c.minutes} min ·{" "}
+                    {c.etudes.length} source{c.etudes.length > 1 ? "s" : ""}
                     {lu && <span className="text-emerald-700"> · lu</span>}
                   </span>
                 </span>
