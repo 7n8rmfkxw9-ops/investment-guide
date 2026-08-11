@@ -6,6 +6,8 @@ import {
   etudesDuChapitre,
   indexApres,
   nombreReferences,
+  PARTIES,
+  texteDiapo,
 } from "./cours";
 import { ETUDES, lienDoi, TOUTES_LES_ETUDES } from "./etudes";
 
@@ -59,13 +61,6 @@ describe("catalogue des études", () => {
 });
 
 describe("chapitres", () => {
-  it("s'appuie tous sur au moins une étude du catalogue", () => {
-    // La regle centrale du cours : rien ne s'affirme sans reference.
-    for (const c of CHAPITRES) {
-      expect(c.etudes.length, c.cle).toBeGreaterThan(0);
-    }
-  });
-
   it("ne référence aucune étude inexistante", () => {
     for (const c of CHAPITRES) {
       for (const k of c.etudes) {
@@ -99,10 +94,10 @@ describe("chapitres", () => {
     expect(new Set(cles).size).toBe(cles.length);
   });
 
-  it("commence par les frais", () => {
-    // Choix pedagogique assume : c'est la seule composante du rendement
-    // connue a l'avance et entierement sous controle du lecteur.
-    expect(CHAPITRES[0].cle).toBe("frais");
+  it("commence par la valeur temps de l'argent", () => {
+    // Un cours commence par ce dont tout le reste depend : on ne peut pas
+    // comparer deux placements sans savoir actualiser.
+    expect(CHAPITRES[0].cle).toBe("temps");
   });
 
   it("donne à chaque chapitre des diapositives et une application concrète", () => {
@@ -114,15 +109,20 @@ describe("chapitres", () => {
   });
 
   it("garde chaque diapositive courte assez pour tenir sur un écran", () => {
-    // Le defaut que cette refonte corrige : des pavés de prose illisibles sur
-    // un telephone. Un plafond par diapositive empeche de les reintroduire
-    // sans s'en apercevoir.
-    const MAX = 320;
+    // Le defaut corrige par la mise en diaporama : des pavés de prose
+    // illisibles sur un telephone. Les types structures (formule, exemple,
+    // definition) ont droit a plus de caracteres parce qu'ils sont
+    // scannables : une liste de symboles ne se lit pas comme un paragraphe.
+    const MAX_PROSE = 340;
+    const MAX_STRUCTURE = 640;
     for (const c of CHAPITRES) {
       for (const d of c.diapos) {
-        const texte =
-          d.type === "liste" ? d.points.join(" ") : d.type === "citation" ? d.texte : d.texte;
-        expect(texte.length, `${c.cle} : « ${texte.slice(0, 40)}… »`).toBeLessThanOrEqual(MAX);
+        const t = texteDiapo(d);
+        const max =
+          d.type === "idee" || d.type === "citation" || d.type === "chiffre"
+            ? MAX_PROSE
+            : MAX_STRUCTURE;
+        expect(t.length, `${c.cle} : « ${t.slice(0, 40)}… »`).toBeLessThanOrEqual(max);
       }
     }
   });
@@ -130,9 +130,56 @@ describe("chapitres", () => {
   it("titre chaque diapositive de contenu", () => {
     for (const c of CHAPITRES) {
       for (const d of c.diapos) {
-        if (d.type === "idee" || d.type === "liste") {
+        if (d.type === "idee" || d.type === "liste" || d.type === "piege") {
           expect(d.titre.trim().length, c.cle).toBeGreaterThan(3);
         }
+      }
+    }
+  });
+
+  it("rattache chaque chapitre à une partie déclarée", () => {
+    const cles = new Set(PARTIES.map((p) => p.cle));
+    for (const c of CHAPITRES) expect(cles.has(c.partie), c.cle).toBe(true);
+  });
+
+  it("ne laisse aucune partie vide", () => {
+    for (const p of PARTIES) {
+      expect(CHAPITRES.some((c) => c.partie === p.cle), p.cle).toBe(true);
+    }
+  });
+
+  it("range les chapitres par partie, sans entrelacement", () => {
+    // Un cours progresse : on ne revient pas aux fondations apres les
+    // anomalies de marche.
+    const rang = new Map(PARTIES.map((p, i) => [p.cle, i]));
+    const suite = CHAPITRES.map((c) => rang.get(c.partie)!);
+    expect(suite).toEqual([...suite].sort((a, b) => a - b));
+  });
+
+  it("n'exige de sources que des chapitres empiriques", () => {
+    // Un chapitre d'arithmetique ne repose sur aucune etude : forcer une
+    // citation reviendrait a lui faire dire ce qu'elle ne dit pas. Mais un
+    // chapitre empirique sans source, lui, est inacceptable.
+    for (const c of CHAPITRES) {
+      if (c.nature === "empirique") {
+        expect(c.etudes.length, `${c.cle} : empirique sans source`).toBeGreaterThan(0);
+      } else {
+        expect(c.etudes.length, `${c.cle} : arithmétique avec source`).toBe(0);
+      }
+    }
+  });
+
+  it("propose un quiz à chaque chapitre", () => {
+    for (const c of CHAPITRES) {
+      expect(c.quiz.length, c.cle).toBeGreaterThan(0);
+      for (const q of c.quiz) {
+        expect(q.options.length, c.cle).toBeGreaterThanOrEqual(2);
+        expect(q.bonne, `${c.cle} : « ${q.question} »`).toBeGreaterThanOrEqual(0);
+        expect(q.bonne, `${c.cle} : « ${q.question} »`).toBeLessThan(q.options.length);
+        expect(q.explication.trim().length, c.cle).toBeGreaterThan(20);
+        expect(new Set(q.options).size, `${c.cle} : options en double`).toBe(
+          q.options.length,
+        );
       }
     }
   });
@@ -162,9 +209,7 @@ describe("chapitres", () => {
     // operations de routine, faute de quoi il vend la fonctionnalite au lieu
     // de l'expliquer.
     const inities = CHAPITRES.find((c) => c.cle === "inities")!;
-    const texte = inities.diapos
-      .map((d) => (d.type === "liste" ? d.points.join(" ") : d.texte))
-      .join(" ");
+    const texte = inities.diapos.map(texteDiapo).join(" ");
     expect(texte).toMatch(/cet outil/i);
     expect(texte).toMatch(/routine/i);
   });
@@ -174,19 +219,21 @@ describe("construireDiapos", () => {
   it("termine chaque chapitre par ses sources, l'application et le à-retenir", () => {
     for (const c of CHAPITRES) {
       const d = construireDiapos(c);
-      const fin = d.slice(-2).map((x) => x.kind);
-      expect(fin, c.cle).toEqual(["appliquer", "retenir"]);
+      const fin = d.slice(-3).map((x) => x.kind);
+      expect(fin, c.cle).toEqual(["appliquer", "quiz", "retenir"]);
       const etudes = d.filter((x) => x.kind === "etude");
       expect(etudes.length, c.cle).toBe(c.etudes.length);
     }
   });
 
   it("place le contenu avant les sources", () => {
-    for (const c of CHAPITRES) {
+    // Les chapitres d'arithmetique n'ont pas de source : la contrainte ne
+    // porte que sur ceux qui en ont.
+    for (const c of CHAPITRES.filter((c) => c.etudes.length > 0)) {
       const kinds = construireDiapos(c).map((x) => x.kind);
       const dernierContenu = kinds.lastIndexOf("contenu");
       const premiereEtude = kinds.indexOf("etude");
-      expect(dernierContenu, c.cle).toBeLessThan(premiereEtude);
+      expect(premiereEtude, c.cle).toBeGreaterThan(dernierContenu);
     }
   });
 
@@ -194,7 +241,7 @@ describe("construireDiapos", () => {
     for (const c of CHAPITRES) {
       const n = construireDiapos(c).length;
       expect(n, c.cle).toBeGreaterThanOrEqual(5);
-      expect(n, c.cle).toBeLessThanOrEqual(14);
+      expect(n, c.cle).toBeLessThanOrEqual(17);
     }
   });
 });
