@@ -232,6 +232,140 @@ export const ETUDES: Record<string, Etude> = {
     limites:
       "Document de travail, sur des données du début des années 1990. Le biais s'est atténué depuis, sans disparaître.",
   },
+  markowitz1952: {
+    cle: "markowitz1952",
+    titre: "Portfolio Selection",
+    auteurs: "Markowitz",
+    annee: 1952,
+    publication: "The Journal of Finance",
+    doi: "10.2307/2975974",
+    resultat:
+      "Montre qu'un portefeuille ne se juge pas titre par titre mais dans son ensemble : ce qui compte n'est pas le risque de chaque ligne, c'est la façon dont elles bougent les unes par rapport aux autres. Combiner des actifs peu corrélés réduit le risque total sans réduire le rendement attendu.",
+    limites:
+      "Le modèle suppose connus les rendements attendus, les variances et les corrélations futures. Aucun de ces trois nombres n'est observable : on les estime sur le passé, et cette estimation est fragile.",
+  },
+  sharpe1964: {
+    cle: "sharpe1964",
+    titre: "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk",
+    auteurs: "Sharpe",
+    annee: 1964,
+    publication: "The Journal of Finance",
+    doi: "10.2307/2977928",
+    resultat:
+      "Sépare le risque en deux : celui propre à une entreprise, qui disparaît par diversification, et celui du marché entier, qui ne disparaît pas. Conclusion centrale : seul le second doit être rémunéré, puisque le premier peut être supprimé gratuitement.",
+    limites:
+      "Repose sur des hypothèses fortes (mêmes anticipations pour tous, emprunt sans risque illimité). Les tests empiriques ultérieurs le contredisent partiellement, et l'un d'eux montre qu'il est peut-être intestable en pratique.",
+  },
+  fama1970: {
+    cle: "fama1970",
+    titre: "Efficient Capital Markets: A Review of Theory and Empirical Work",
+    auteurs: "Fama",
+    annee: 1970,
+    publication: "The Journal of Finance",
+    doi: "10.2307/2325486",
+    resultat:
+      "Formalise l'hypothèse d'efficience : si les prix reflètent déjà l'information disponible, aucune information de ce type ne permet de gagner davantage. Distingue trois degrés selon l'information intégrée — les cours passés, l'information publique, l'information privée.",
+    limites:
+      "L'efficience ne se teste jamais seule : il faut supposer un modèle de rendement attendu. Un rejet peut donc venir du modèle plutôt que de l'efficience — c'est le problème dit de l'hypothèse jointe, que l'article reconnaît lui-même.",
+  },
+  malkiel2003: {
+    cle: "malkiel2003",
+    titre: "The Efficient Market Hypothesis and Its Critics",
+    auteurs: "Malkiel",
+    annee: 2003,
+    publication: "Journal of Economic Perspectives",
+    doi: "10.1257/089533003321164958",
+    resultat:
+      "Passe en revue trente ans de contestations de l'efficience et conclut que les écarts documentés sont réels mais souvent trop faibles, trop instables ou trop coûteux à exploiter pour dégager un gain net après frais.",
+    limites:
+      "C'est une revue de littérature, donc un point de vue argumenté plutôt qu'une mesure nouvelle. D'autres chercheurs lisent les mêmes travaux et concluent différemment.",
+  },
+  jensen1968: {
+    cle: "jensen1968",
+    titre: "The Performance of Mutual Funds in the Period 1945-1964",
+    auteurs: "Jensen",
+    annee: 1968,
+    publication: "The Journal of Finance",
+    doi: "10.2307/2325404",
+    resultat:
+      "Première mesure systématique de la performance des fonds une fois corrigée du risque pris. Résultat : en moyenne les fonds ne dégagent pas de surperformance suffisante pour couvrir leurs frais.",
+    limites:
+      "Période et marché anciens, et méthode de correction du risque depuis raffinée. La conclusion a néanmoins été reproduite de nombreuses fois depuis.",
+  },
+  banz1981: {
+    cle: "banz1981",
+    titre: "The relationship between return and market value of common stocks",
+    auteurs: "Banz",
+    annee: 1981,
+    publication: "Journal of Financial Economics",
+    doi: "10.1016/0304-405x(81)90018-0",
+    resultat:
+      "Constate que les petites capitalisations ont dégagé un rendement supérieur à ce que leur risque de marché justifiait. Première anomalie majeure documentée contre le modèle d'équilibre alors dominant.",
+    limites:
+      "L'effet s'est affaibli après publication, et une partie s'explique par la difficulté et le coût d'échanger de très petites valeurs — coûts que l'étude ne déduit pas.",
+  },
+  famaFrench1992: {
+    cle: "famaFrench1992",
+    titre: "The Cross-Section of Expected Stock Returns",
+    auteurs: "Fama, French",
+    annee: 1992,
+    publication: "The Journal of Finance",
+    doi: "10.2307/2329112",
+    resultat:
+      "Montre que la sensibilité au marché explique mal les écarts de rendement entre actions, alors que la taille de l'entreprise et son rapport valeur comptable / valeur boursière les expliquent bien mieux.",
+    limites:
+      "Établit une corrélation, pas un mécanisme. Le débat reste ouvert entre une prime de risque non identifiée et une erreur d'évaluation systématique des investisseurs.",
+  },
+  famaFrench1993: {
+    cle: "famaFrench1993",
+    titre: "Common risk factors in the returns on stocks and bonds",
+    auteurs: "Fama, French",
+    annee: 1993,
+    publication: "Journal of Financial Economics",
+    doi: "10.1016/0304-405x(93)90023-5",
+    resultat:
+      "Propose de décrire le rendement d'un portefeuille par trois facteurs plutôt qu'un seul : le marché, la taille, et le caractère « value ». Ce cadre est devenu la référence pour juger si un gérant a réellement ajouté quelque chose.",
+    limites:
+      "Les facteurs sont construits à partir des données qu'ils expliquent : le pouvoir explicatif ne prouve pas l'existence d'une cause économique sous-jacente.",
+  },
+  jegadeesh1993: {
+    cle: "jegadeesh1993",
+    titre:
+      "Returns to Buying Winners and Selling Losers: Implications for Stock Market Efficiency",
+    auteurs: "Jegadeesh, Titman",
+    annee: 1993,
+    publication: "The Journal of Finance",
+    doi: "10.1111/j.1540-6261.1993.tb04702.x",
+    resultat:
+      "Documente le momentum : sur des horizons de trois à douze mois, les titres qui ont le mieux performé continuent en moyenne de surperformer. C'est directement contraire à l'idée que les cours passés ne renseignent sur rien.",
+    limites:
+      "L'effet exige une rotation fréquente du portefeuille, donc des frais élevés, et s'accompagne d'effondrements brutaux lors des retournements de marché.",
+  },
+  deBondt1985: {
+    cle: "deBondt1985",
+    titre: "Does the Stock Market Overreact?",
+    auteurs: "De Bondt, Thaler",
+    annee: 1985,
+    publication: "The Journal of Finance",
+    doi: "10.1111/j.1540-6261.1985.tb05004.x",
+    resultat:
+      "Sur des horizons de trois à cinq ans, les titres les plus délaissés ont ensuite surperformé les plus recherchés. Les auteurs y voient une surréaction des investisseurs aux nouvelles, corrigée ensuite.",
+    limites:
+      "Horizon long et sensible à la période retenue. Le résultat coexiste avec le momentum sur horizon court, ce que le cadre théorique peine à réconcilier.",
+  },
+  shiller1980: {
+    cle: "shiller1980",
+    titre:
+      "Do Stock Prices Move Too Much to be Justified by Subsequent Changes in Dividends?",
+    auteurs: "Shiller",
+    annee: 1980,
+    publication: "Document de travail NBER",
+    doi: "10.3386/w0456",
+    resultat:
+      "Constate que les cours varient bien davantage que ne le justifieraient les revenus effectivement versés ensuite. Si les prix reflétaient uniquement les revenus futurs, ils devraient être plus stables que ces revenus, pas moins.",
+    limites:
+      "Document de travail, publié ensuite en revue. La méthode a fait l'objet de contestations statistiques nourries, notamment sur le traitement des séries non stationnaires.",
+  },
   carhart1997: {
     cle: "carhart1997",
     titre: "On Persistence in Mutual Fund Performance",

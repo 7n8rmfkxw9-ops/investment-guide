@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { Chapitre, DiapoProjetee } from "../lib/cours";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import type { Chapitre, DiapoProjetee, Question } from "../lib/cours";
 import {
   construireDiapos,
   indexApres,
@@ -37,7 +37,90 @@ function Coquille({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Quiz de fin de chapitre.
+ *
+ * La correction s'affiche apres reponse, avec son explication : un quiz qui
+ * dit seulement « faux » n'apprend rien. Rien n'est enregistre ni compte —
+ * l'objectif est de se rendre compte qu'on a survole, pas d'etre note.
+ */
+function Quiz({ questions }: { questions: Question[] }) {
+  const [reponses, setReponses] = useState<Record<number, number>>({});
+  const id = useId();
+  return (
+    <div className="space-y-6">
+      <p className={SURTITRE}>Vérifier qu'on a compris</p>
+      {questions.map((q, qi) => {
+        const donnee = reponses[qi];
+        const repondu = donnee !== undefined;
+        return (
+          <fieldset key={q.question} className="space-y-2.5">
+            <legend className="text-lg font-semibold text-slate-900 leading-snug mb-2">
+              {q.question}
+            </legend>
+            {q.options.map((o, oi) => {
+              const choisi = donnee === oi;
+              const juste = oi === q.bonne;
+              // Apres reponse, la bonne option est signalee meme si elle n'a
+              // pas ete choisie : sinon on sait qu'on a eu faux sans savoir
+              // ce qui etait vrai.
+              const ton = !repondu
+                ? "border-slate-200 hover:bg-slate-50"
+                : juste
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-900"
+                  : choisi
+                    ? "border-rose-300 bg-rose-50 text-rose-900"
+                    : "border-slate-200 opacity-60";
+              return (
+                <label
+                  key={o}
+                  className={`flex items-start gap-3 rounded-2xl border px-4 py-3 min-h-[52px] cursor-pointer transition-colors ${ton}`}
+                >
+                  <input
+                    type="radio"
+                    name={`${id}-${qi}`}
+                    className="mt-1.5 shrink-0"
+                    checked={choisi}
+                    disabled={repondu}
+                    onChange={() => setReponses((r) => ({ ...r, [qi]: oi }))}
+                  />
+                  <span className="text-base leading-snug">{o}</span>
+                  {repondu && juste && (
+                    <span className="ml-auto shrink-0" aria-label="bonne réponse">
+                      ✓
+                    </span>
+                  )}
+                </label>
+              );
+            })}
+            {repondu && (
+              <p
+                className="text-sm text-slate-600 leading-relaxed rounded-2xl bg-slate-50 px-4 py-3"
+                role="status"
+              >
+                {donnee === q.bonne ? "Exact. " : "Réponse attendue signalée ci-dessus. "}
+                {q.explication}
+              </p>
+            )}
+          </fieldset>
+        );
+      })}
+      <p className="text-sm text-slate-500">
+        Rien n'est enregistré ni compté : c'est un moyen de repérer ce qui n'est
+        pas encore acquis.
+      </p>
+    </div>
+  );
+}
+
 function ContenuDiapo({ d }: { d: DiapoProjetee }) {
+  if (d.kind === "quiz") {
+    return (
+      <div className="min-h-[22rem] flex flex-col justify-center">
+        <Quiz questions={d.questions} />
+      </div>
+    );
+  }
   if (d.kind === "etude") {
     const e = ETUDES[d.cle];
     return (
@@ -102,6 +185,97 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
   }
 
   const diapo = d.diapo;
+
+  if (diapo.type === "definition") {
+    return (
+      <Coquille>
+        <p className={SURTITRE}>Définition</p>
+        <p className="text-2xl font-semibold text-slate-900 leading-tight">
+          {diapo.terme}
+        </p>
+        <p className="text-base text-slate-700 leading-relaxed border-l-4 border-indigo-300 pl-4">
+          {diapo.definition}
+        </p>
+        {diapo.precision && (
+          <p className="text-sm text-slate-500 leading-relaxed">{diapo.precision}</p>
+        )}
+      </Coquille>
+    );
+  }
+
+  if (diapo.type === "formule") {
+    return (
+      <Coquille>
+        <p className="text-xl font-semibold text-slate-900 leading-snug">
+          {diapo.titre}
+        </p>
+        {/* La formule en grand et centree : c'est l'objet de la diapositive,
+            pas une note au milieu d'un paragraphe. */}
+        <p className="rounded-2xl bg-slate-900 px-4 py-5 text-center text-xl text-white tabular-nums overflow-x-auto">
+          {diapo.formule}
+        </p>
+        <dl className="space-y-1.5">
+          {diapo.termes.map((t) => (
+            <div key={t.sym} className="flex gap-3 text-sm">
+              <dt className="font-semibold text-slate-900 tabular-nums shrink-0 min-w-[3.5rem]">
+                {t.sym}
+              </dt>
+              <dd className="text-slate-600">{t.sens}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="text-sm text-slate-500 leading-relaxed">{diapo.lecture}</p>
+      </Coquille>
+    );
+  }
+
+  if (diapo.type === "exemple") {
+    return (
+      <Coquille>
+        <p className={SURTITRE}>Exemple chiffré</p>
+        <p className="text-xl font-semibold text-slate-900 leading-snug">
+          {diapo.titre}
+        </p>
+        <ul className="divide-y divide-slate-100 rounded-2xl bg-slate-50 px-4">
+          {diapo.etapes.map((e) => (
+            <li key={e.calcul} className="flex items-baseline justify-between gap-4 py-2.5">
+              <span className="text-sm text-slate-600">{e.calcul}</span>
+              <span className="text-base font-semibold text-slate-900 tabular-nums shrink-0">
+                {e.resultat}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-base text-slate-700 leading-relaxed">{diapo.conclusion}</p>
+      </Coquille>
+    );
+  }
+
+  if (diapo.type === "piege") {
+    return (
+      <Coquille>
+        <p className={`${SURTITRE} text-amber-700`}>Idée reçue</p>
+        <p className="text-xl font-semibold text-slate-900 leading-snug">
+          {diapo.titre}
+        </p>
+        <p className="rounded-2xl bg-rose-50 px-4 py-3 text-base text-rose-900 leading-relaxed">
+          <span className="font-semibold" aria-hidden>
+            ✗{" "}
+          </span>
+          <span className="sr-only">Croyance fausse : </span>
+          {diapo.croyance}
+        </p>
+        <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-base text-emerald-900 leading-relaxed">
+          <span className="font-semibold" aria-hidden>
+            ✓{" "}
+          </span>
+          <span className="sr-only">En réalité : </span>
+          {diapo.realite}
+        </p>
+      </Coquille>
+    );
+  }
+
   if (diapo.type === "chiffre") {
     return (
       <Coquille>

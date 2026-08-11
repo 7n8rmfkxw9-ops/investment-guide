@@ -6,6 +6,7 @@ import {
   construireDiapos,
   dureeTotale,
   nombreReferences,
+  PARTIES,
 } from "../lib/cours";
 import { CARTE, SURTITRE } from "../lib/theme";
 import Repliable from "./Repliable";
@@ -68,8 +69,9 @@ export default function CoursPage() {
           Comprendre, à partir des travaux publiés
         </h2>
         <p className="text-base text-slate-500 leading-snug">
-          {CHAPITRES.length} chapitres, {dureeTotale()} minutes de lecture,{" "}
-          {nombreReferences()} références vérifiées une par une.
+          {CHAPITRES.length} chapitres en {PARTIES.length} parties,{" "}
+          {dureeTotale()} minutes, {nombreReferences()} références vérifiées une
+          par une. Chaque chapitre finit par un quiz.
         </p>
       </header>
 
@@ -100,42 +102,54 @@ export default function CoursPage() {
         </div>
       )}
 
-      <ol className="space-y-3">
-        {CHAPITRES.map((c) => {
-          const lu = lus.includes(c.cle);
-          return (
-            <li key={c.cle}>
-              <button
-                type="button"
-                onClick={() => setOuvert(c.cle)}
-                className={`${CARTE} w-full text-left p-4 flex items-start gap-3.5 motion-safe:transition-all hover:shadow-carteSurvol focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`}
-              >
-                <span
-                  className={`shrink-0 grid h-10 w-10 place-items-center rounded-2xl text-base font-semibold tabular-nums ${
-                    lu ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-                  }`}
-                  aria-hidden
-                >
-                  {lu ? "✓" : c.numero}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-lg font-semibold text-slate-900 leading-snug">
-                    {c.titre}
-                  </span>
-                  <span className="block text-sm text-slate-500 leading-normal mt-1">
-                    {c.question}
-                  </span>
-                  <span className="block text-xs text-slate-500 mt-1.5 tabular-nums">
-                    {construireDiapos(c).length} écrans · {c.minutes} min ·{" "}
-                    {c.etudes.length} source{c.etudes.length > 1 ? "s" : ""}
-                    {lu && <span className="text-emerald-700"> · lu</span>}
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
+      {/* Regroupement par partie : un programme se lit comme un plan de cours,
+          pas comme dix-huit entrées à la file. */}
+      {PARTIES.map((partie) => (
+        <section key={partie.cle} className="space-y-3">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900">{partie.titre}</h3>
+            <p className="text-sm text-slate-500 leading-snug">{partie.sousTitre}</p>
+          </div>
+          <ol className="space-y-3">
+            {CHAPITRES.filter((c) => c.partie === partie.cle).map((c) => {
+              const lu = lus.includes(c.cle);
+              return (
+                <li key={c.cle}>
+                  <button
+                    type="button"
+                    onClick={() => setOuvert(c.cle)}
+                    className={`${CARTE} w-full text-left p-4 flex items-start gap-3.5 motion-safe:transition-all hover:shadow-carteSurvol focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`}
+                  >
+                    <span
+                      className={`shrink-0 grid h-10 w-10 place-items-center rounded-2xl text-base font-semibold tabular-nums ${
+                        lu ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+                      }`}
+                      aria-hidden
+                    >
+                      {lu ? "✓" : c.numero}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-lg font-semibold text-slate-900 leading-snug">
+                        {c.titre}
+                      </span>
+                      <span className="block text-sm text-slate-500 leading-normal mt-1">
+                        {c.question}
+                      </span>
+                      <span className="block text-xs text-slate-500 mt-1.5 tabular-nums">
+                        {construireDiapos(c).length} écrans · {c.minutes} min ·{" "}
+                        {c.etudes.length > 0
+                          ? `${c.etudes.length} source${c.etudes.length > 1 ? "s" : ""}`
+                          : "arithmétique"}
+                        {lu && <span className="text-emerald-700"> · lu</span>}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))}
 
       {/* La methode compte, mais elle ne doit pas s'interposer entre le
           lecteur et le premier chapitre : elle occupait un ecran entier avant
