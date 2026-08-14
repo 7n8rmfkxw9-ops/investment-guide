@@ -78,7 +78,7 @@ export default function CoursPage() {
       {lus.length > 0 && (
         <div className={`${CARTE} p-4 space-y-2`}>
           <div className="flex items-baseline justify-between gap-3">
-            <span className={SURTITRE}>Votre progression</span>
+            <span className={`${SURTITRE} text-slate-500`}>Votre progression</span>
             <span className="text-sm text-slate-600 tabular-nums">
               {lus.length} / {CHAPITRES.length}
             </span>

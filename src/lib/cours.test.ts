@@ -5,10 +5,12 @@ import {
   dureeTotale,
   etudesDuChapitre,
   indexApres,
+  figuresReferencees,
   nombreReferences,
   PARTIES,
   texteDiapo,
 } from "./cours";
+import { FIGURES } from "../components/Figures";
 import { ETUDES, lienDoi, TOUTES_LES_ETUDES } from "./etudes";
 
 describe("catalogue des études", () => {
@@ -108,15 +110,15 @@ describe("chapitres", () => {
     }
   });
 
-  it("garde chaque diapositive courte assez pour tenir sur un écran", () => {
-    // Le defaut corrige par la mise en diaporama : des pavés de prose
-    // illisibles sur un telephone. Les types structures (formule, exemple,
-    // definition) ont droit a plus de caracteres parce qu'ils sont
-    // scannables : une liste de symboles ne se lit pas comme un paragraphe.
+  it("garde les diapositives de repère courtes", () => {
+    // Une diapositive de repere — une idee, un chiffre, une citation — sert a
+    // marquer un point : elle doit tenir sur un ecran. Les pages de cours
+    // obeissent a la regle inverse, testee juste apres.
     const MAX_PROSE = 340;
     const MAX_STRUCTURE = 640;
     for (const c of CHAPITRES) {
       for (const d of c.diapos) {
+        if (d.type === "cours") continue;
         const t = texteDiapo(d);
         const max =
           d.type === "idee" || d.type === "citation" || d.type === "chiffre"
@@ -124,6 +126,33 @@ describe("chapitres", () => {
             : MAX_STRUCTURE;
         expect(t.length, `${c.cle} : « ${t.slice(0, 40)}… »`).toBeLessThanOrEqual(max);
       }
+    }
+  });
+
+  it("exige de la matière dans chaque page de cours", () => {
+    // Le defaut inverse, et celui qui a motive cette version : des chapitres
+    // reduits a quelques phrases, impossibles a etudier. Un plancher par page
+    // empeche de retomber dans la brievete sans s'en apercevoir.
+    const MIN = 900;
+    for (const c of CHAPITRES) {
+      for (const d of c.diapos) {
+        if (d.type !== "cours") continue;
+        const t = texteDiapo(d);
+        expect(t.length, `${c.cle} / « ${d.titre} »`).toBeGreaterThanOrEqual(MIN);
+      }
+    }
+  });
+
+  it("donne à chaque chapitre au moins une page de cours développée", () => {
+    for (const c of CHAPITRES) {
+      const pages = c.diapos.filter((d) => d.type === "cours");
+      expect(pages.length, `${c.cle} : aucune page de cours`).toBeGreaterThan(0);
+    }
+  });
+
+  it("ne référence que des figures existantes", () => {
+    for (const f of figuresReferencees()) {
+      expect(FIGURES[f], `figure inconnue : ${f}`).toBeDefined();
     }
   });
 

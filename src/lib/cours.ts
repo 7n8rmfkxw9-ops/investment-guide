@@ -55,7 +55,27 @@ export type Diapo =
       conclusion: string;
     }
   /** Idee fausse repandue, corrigee. */
-  | { type: "piege"; titre: string; croyance: string; realite: string };
+  | { type: "piege"; titre: string; croyance: string; realite: string }
+  /**
+   * Notes de cours : un developpement suivi, de la longueur d'une page de
+   * polycopie. C'est le format principal — les autres types servent a
+   * marquer un point precis, celui-ci sert a expliquer.
+   */
+  | { type: "cours"; titre: string; blocs: BlocCours[] };
+
+/** Elements d'une page de notes de cours. */
+export type BlocCours =
+  | { b: "p"; texte: string }
+  | { b: "soustitre"; texte: string }
+  /** Terme technique defini au fil du texte, mis en evidence. */
+  | { b: "terme"; mot: string; texte: string }
+  | { b: "puces"; points: string[] }
+  /** Encadre : remarque importante, mise en garde, ou point d'histoire. */
+  | { b: "encadre"; titre: string; texte: string }
+  /** Figure du registre `Figures.tsx`, avec sa legende. */
+  | { b: "figure"; fig: string; legende: string }
+  /** Calcul deroule, aligne. */
+  | { b: "calcul"; lignes: { gauche: string; droite: string }[] };
 
 /**
  * Parties du programme.
@@ -154,6 +174,98 @@ export const CHAPITRES: Chapitre[] = [
     icone: "⏱️",
     diapos: [
       {
+        type: "cours",
+        titre: "Pourquoi une somme a une date",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Toute la finance repose sur une observation banale : un euro disponible aujourd'hui n'est pas le même bien qu'un euro disponible dans dix ans. Le premier peut être placé, prêté, investi ; le second ne le peut pas encore. Deux sommes numériquement identiques mais situées à des dates différentes sont donc deux objets économiques différents, et les additionner directement n'a pas plus de sens que d'additionner des mètres et des kilogrammes.",
+          },
+          {
+            b: "terme",
+            mot: "Valeur temps de l'argent",
+            texte:
+              "principe selon lequel la valeur d'une somme dépend de la date à laquelle elle est disponible. C'est la convention qui permet de ramener des flux étalés dans le temps à une unité commune, et donc de les comparer.",
+          },
+          {
+            b: "p",
+            texte:
+              "Ce principe a une conséquence pratique immédiate : avant de comparer deux placements, il faut les ramener à une même date. C'est l'opération que font tous les modèles d'évaluation, du plus simple au plus sophistiqué. Une action vaut la somme, ramenée à aujourd'hui, de tout ce qu'elle rapportera ; une obligation vaut la somme, ramenée à aujourd'hui, de ses coupons et de son remboursement. Le désaccord entre investisseurs porte sur les montants futurs et sur le taux employé, jamais sur la méthode.",
+          },
+          { b: "soustitre", texte: "Capitaliser : aller vers le futur" },
+          {
+            b: "p",
+            texte:
+              "Placer une somme à un taux r pendant une période la multiplie par (1 + r). Recommencer une deuxième période multiplie de nouveau par (1 + r), mais en partant d'un montant déjà accru. C'est cette réapplication du taux sur un capital qui inclut les intérêts déjà acquis qu'on appelle capitalisation, ou intérêts composés.",
+          },
+          {
+            b: "calcul",
+            lignes: [
+              { gauche: "1 000 € à 6 %, après 1 an", droite: "1 060 €" },
+              { gauche: "après 10 ans", droite: "1 791 €" },
+              { gauche: "après 30 ans", droite: "5 743 €" },
+              { gauche: "intérêts simples sur 30 ans", droite: "2 800 €" },
+            ],
+          },
+          {
+            b: "p",
+            texte:
+              "L'écart entre les deux dernières lignes est l'objet même du chapitre. Avec des intérêts simples — le taux appliqué chaque année au seul capital initial — trente ans à 6 % rapportent 1 800 € d'intérêts. Avec des intérêts composés, ils en rapportent 4 743 €, soit plus du double. Aucun taux n'a changé : seule la réapplication a produit la différence.",
+          },
+          {
+            b: "figure",
+            fig: "croissance",
+            legende:
+              "Les deux courbes se confondent presque pendant cinq ans. C'est ce qui rend l'effet contre-intuitif : il ne se voit pas quand on l'observe, seulement quand on attend.",
+          },
+          {
+            b: "encadre",
+            titre: "Pourquoi l'intuition échoue",
+            texte:
+              "Le cerveau extrapole linéairement. Devant une croissance de 6 % par an sur trente ans, l'intuition annonce 180 % ; la réalité est 474 %. Cette erreur est systématique et documentée en psychologie de la décision : elle explique une bonne part de la difficulté à épargner tôt, puisque le bénéfice de l'anticipation est précisément celui qu'on n'imagine pas.",
+          },
+        ],
+      },
+      {
+        type: "cours",
+        titre: "Actualiser, et lire un taux correctement",
+        blocs: [
+          { b: "soustitre", texte: "Actualiser : revenir vers le présent" },
+          {
+            b: "p",
+            texte:
+              "L'opération inverse consiste à diviser par (1 + r) autant de fois qu'il y a de périodes. Elle répond à la question : combien vaut aujourd'hui la promesse de recevoir 1 000 € dans huit ans ? À 5 %, la réponse est 677 €. Ce n'est pas une opinion : c'est le montant qui, placé aujourd'hui à 5 %, produirait exactement 1 000 € dans huit ans. Les deux propositions sont donc équivalentes pour qui peut placer à ce taux.",
+          },
+          {
+            b: "terme",
+            mot: "Taux d'actualisation",
+            texte:
+              "le taux employé pour ramener une somme future au présent. Le choisir n'est pas neutre : plus il est élevé, moins les flux lointains pèsent. C'est le principal levier de désaccord entre deux évaluations d'une même entreprise.",
+          },
+          { b: "soustitre", texte: "La règle de 72" },
+          {
+            b: "p",
+            texte:
+              "Divisez 72 par le rendement annuel exprimé en pourcentage : vous obtenez, à un an près, le nombre d'années nécessaires pour doubler. À 6 %, douze ans. À 9 %, huit ans. À 2 %, trente-six ans. L'approximation est fiable entre 4 et 12 %, et elle suffit largement pour juger de tête si une promesse commerciale est plausible.",
+          },
+          {
+            b: "puces",
+            points: [
+              "Elle permet de vérifier un ordre de grandeur sans calculatrice, y compris en face d'un conseiller.",
+              "Elle rend visible la brutalité des taux faibles : à 1 %, doubler demande soixante-douze ans, soit davantage qu'une vie d'épargne.",
+              "Elle fonctionne aussi à l'envers, pour l'inflation : à 3 % de hausse des prix, le pouvoir d'achat d'une somme dormante est divisé par deux en vingt-quatre ans.",
+            ],
+          },
+          {
+            b: "encadre",
+            titre: "Ce qui rend un taux comparable",
+            texte:
+              "Un taux ne veut rien dire sans sa période ni sa méthode de composition. « 12 % » peut désigner 12 % par an, ou 1 % par mois — soit 12,68 % par an une fois composé. Dans le crédit à la consommation, cette différence est la source la plus courante de malentendu, et c'est pourquoi la réglementation européenne impose un taux annuel effectif global, calculé de façon uniforme.",
+          },
+        ],
+      },
+      {
         type: "definition",
         terme: "Valeur temps de l'argent",
         definition:
@@ -251,6 +363,57 @@ export const CHAPITRES: Chapitre[] = [
     icone: "📐",
     diapos: [
       {
+        type: "cours",
+        titre: "Deux moyennes, deux réponses",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Il existe plusieurs manières de résumer une série de rendements par un seul nombre, et elles ne donnent pas le même résultat. Ce n'est pas une subtilité de statisticien : l'écart entre elles est précisément ce qui sépare la performance annoncée d'un placement de celle que son détenteur a réellement obtenue.",
+          },
+          {
+            b: "terme",
+            mot: "Rendement arithmétique",
+            texte:
+              "la somme des rendements de chaque période divisée par leur nombre. Il répond à la question « quel rendement puis-je attendre l'année prochaine, en moyenne ? ».",
+          },
+          {
+            b: "terme",
+            mot: "Rendement géométrique",
+            texte:
+              "le taux constant qui, appliqué à chaque période, aurait produit exactement le capital final observé. Il répond à la question « qu'ai-je réellement gagné sur toute la durée ? ».",
+          },
+          { b: "soustitre", texte: "L'exemple qui règle la question" },
+          {
+            b: "calcul",
+            lignes: [
+              { gauche: "Année 1", droite: "+50 %" },
+              { gauche: "Année 2", droite: "−50 %" },
+              { gauche: "Moyenne arithmétique", droite: "0 %" },
+              { gauche: "Capital final (100 € au départ)", droite: "75 €" },
+              { gauche: "Rendement géométrique", droite: "−13,4 %/an" },
+            ],
+          },
+          {
+            b: "p",
+            texte:
+              "La moyenne arithmétique annonce l'équilibre ; le détenteur a perdu un quart de sa mise. Aucun des deux chiffres n'est faux : ils répondent à deux questions différentes. Mais un seul décrit ce qui s'est passé, et c'est le second. La raison est mécanique : une baisse de 50 % exige une hausse de 100 % pour être effacée, parce qu'elle s'applique à un capital réduit.",
+          },
+          { b: "soustitre", texte: "La règle générale" },
+          {
+            b: "p",
+            texte:
+              "Le rendement géométrique est toujours inférieur ou égal à l'arithmétique, avec égalité seulement si tous les rendements sont identiques. L'écart entre les deux croît avec la dispersion des rendements. Deux placements affichant la même moyenne arithmétique n'ont donc pas la même valeur finale si l'un est plus agité que l'autre — le plus volatil finit plus bas, à moyenne égale.",
+          },
+          {
+            b: "encadre",
+            titre: "Conséquence pratique",
+            texte:
+              "La volatilité n'est pas seulement inconfortable : elle coûte du rendement réalisé. C'est un argument en faveur de la diversification qui ne dépend d'aucune prévision de marché, et qui tient même si l'on croit tous les actifs également prometteurs.",
+          },
+        ],
+      },
+      {
         type: "definition",
         terme: "Rendement arithmétique",
         definition:
@@ -335,6 +498,50 @@ export const CHAPITRES: Chapitre[] = [
     minutes: 4,
     icone: "🧾",
     diapos: [
+      {
+        type: "cours",
+        titre: "L'arithmétique de la gestion active",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "En 1991, William Sharpe publie un argument d'une page qui n'a jamais été réfuté, parce qu'il n'est pas réfutable : c'est une identité comptable, pas une hypothèse. Partagez l'ensemble des détenteurs d'un marché en deux groupes — ceux qui détiennent le marché tel quel, et tous les autres. Le premier groupe obtient, par construction, le rendement du marché. Comme les deux groupes réunis détiennent l'intégralité du marché, le second groupe obtient également le rendement du marché, en moyenne pondérée.",
+          },
+          {
+            b: "p",
+            texte:
+              "Avant frais, les deux camps font donc jeu égal. Mais le second supporte des coûts nettement supérieurs : recherche, rotation du portefeuille, écarts entre prix d'achat et de vente, rémunération des gérants. Après frais, il obtient nécessairement moins. Non pas parce que ses membres seraient incompétents, mais parce que l'arithmétique l'impose.",
+          },
+          {
+            b: "encadre",
+            titre: "Ce que l'argument ne dit pas",
+            texte:
+              "Il ne dit pas qu'aucun gérant ne bat le marché : il en existe. Il dit que leur gain est pris à d'autres gérants actifs, et que le groupe pris dans son ensemble perd la valeur de ses frais. Repérer à l'avance ceux qui gagneront est une question distincte, traitée au chapitre 18.",
+          },
+          { b: "soustitre", texte: "Le coût, composante par composante" },
+          {
+            b: "puces",
+            points: [
+              "Frais de courtage : montant fixe ou proportionnel prélevé à chaque ordre, à l'achat comme à la vente.",
+              "Taxe sur les opérations de bourse : en Belgique, un pourcentage du montant, variable selon le produit et son lieu d'enregistrement.",
+              "Écart achat-vente : la différence permanente entre le prix auquel on peut vendre et celui auquel on peut acheter. Invisible sur le relevé, réel dans le résultat.",
+              "Commission de change : marge appliquée par le courtier sur le taux, dès que le titre n'est pas coté dans votre devise.",
+              "Frais courants du fonds : prélevés en continu sur la valeur, donc déjà intégrés au cours publié.",
+            ],
+          },
+          {
+            b: "figure",
+            fig: "fraisTemps",
+            legende:
+              "Un et demi pour cent de frais annuels sur trente ans. La zone colorée n'est pas un détail de gestion : c'est près d'un tiers du capital final.",
+          },
+          {
+            b: "p",
+            texte:
+              "La particularité des frais est qu'ils sont certains. Le rendement d'une action est une hypothèse ; le coût de l'ordre est un fait connu avant même de passer l'ordre. C'est la seule composante du résultat sur laquelle un investisseur individuel exerce un contrôle complet, et c'est pourquoi un cours d'investissement sérieux commence par là plutôt que par la sélection de titres.",
+          },
+        ],
+      },
       {
         type: "idee",
         titre: "Tout le monde détient tout le marché",
@@ -428,6 +635,50 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🛒",
     diapos: [
       {
+        type: "cours",
+        titre: "Ce que mesure vraiment un rendement",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Un rendement s'exprime en euros, mais un euro n'est pas une unité stable. Si les prix montent de 3 % pendant qu'un placement rapporte 3 %, le détenteur possède davantage d'euros et exactement autant de biens. Son enrichissement est nul, alors que son relevé affiche un gain. Distinguer les deux lectures est la première hygiène d'un investisseur.",
+          },
+          {
+            b: "terme",
+            mot: "Rendement nominal",
+            texte: "la variation exprimée en unités monétaires, telle qu'elle apparaît sur un relevé de compte.",
+          },
+          {
+            b: "terme",
+            mot: "Rendement réel",
+            texte:
+              "la variation du pouvoir d'achat, c'est-à-dire le rendement nominal corrigé de la hausse générale des prix sur la même période.",
+          },
+          {
+            b: "p",
+            texte:
+              "La correction exacte ne consiste pas à soustraire mais à diviser : on rapporte le facteur de croissance du capital au facteur de croissance des prix. Sur des taux faibles, la soustraction donne une approximation acceptable ; dès que les taux montent, l'écart devient sensible et joue toujours dans le même sens, celui qui flatte.",
+          },
+          {
+            b: "figure",
+            fig: "inflationReel",
+            legende:
+              "Trente ans à 7 % nominal, avec 2 % d'inflation. La courbe pleine est ce que le relevé affiche ; la courbe pointillée est ce que la somme permet réellement d'acheter.",
+          },
+          {
+            b: "p",
+            texte:
+              "L'écart n'est pas marginal : sur cet exemple, 341 € des 761 € affichés n'existent que dans l'unité de compte. C'est la raison pour laquelle un objectif d'épargne gagne à être formulé en biens — « de quoi vivre deux ans », « l'apport d'un logement » — plutôt qu'en montant nominal, qui perd sa signification à mesure qu'on s'éloigne.",
+          },
+          {
+            b: "encadre",
+            titre: "L'illusion monétaire",
+            texte:
+              "Les économistes appellent ainsi la tendance à raisonner en unités nominales plutôt qu'en pouvoir d'achat. Elle explique qu'un livret rémunéré 1 % avec 3 % d'inflation paraisse sûr : son solde ne baisse jamais. Il perd pourtant 2 % de valeur réelle par an, de façon quasi certaine — un rendement négatif garanti, ce qu'aucun placement en actions ne peut offrir.",
+          },
+        ],
+      },
+      {
         type: "definition",
         terme: "Rendement nominal",
         definition: "Ce que votre relevé affiche : la variation en euros, sans autre correction.",
@@ -497,6 +748,46 @@ export const CHAPITRES: Chapitre[] = [
     icone: "📊",
     diapos: [
       {
+        type: "cours",
+        titre: "Définir le risque avant de le mesurer",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "La finance a adopté une mesure du risque commode et discutable : la dispersion des rendements autour de leur moyenne, appelée volatilité ou écart-type. Elle a l'avantage de se calculer sur des données passées et d'entrer dans des modèles. Elle a l'inconvénient de traiter la hausse et la baisse à égalité, alors qu'aucun investisseur ne se plaint d'une bonne surprise.",
+          },
+          {
+            b: "terme",
+            mot: "Volatilité",
+            texte:
+              "écart-type des rendements sur une période. Une volatilité annuelle de 20 % signifie qu'environ deux années sur trois, le rendement s'écarte de sa moyenne de moins de vingt points, dans un sens ou dans l'autre.",
+          },
+          {
+            b: "terme",
+            mot: "Perte maximale",
+            texte:
+              "recul le plus important entre un sommet et le creux qui le suit. C'est la mesure qui décrit ce qu'il faut supporter sans vendre, et elle ne se déduit pas de la volatilité.",
+          },
+          { b: "soustitre", texte: "Pourquoi les deux ne se confondent pas" },
+          {
+            b: "p",
+            texte:
+              "Un placement peut monter régulièrement pendant des années puis s'effondrer une fois. Sa volatilité mesurée reste modeste, parce que la plupart des périodes sont calmes ; sa perte maximale est catastrophique. Inversement, un actif qui oscille beaucoup sans jamais chuter durablement affiche une forte volatilité pour un risque vécu faible. Les deux nombres décrivent des choses différentes et il faut les regarder ensemble.",
+          },
+          {
+            b: "encadre",
+            titre: "La définition qui compte vraiment",
+            texte:
+              "Pour un épargnant, le risque n'est ni la volatilité ni la perte maximale : c'est la probabilité de ne pas disposer de la somme nécessaire au moment où elle est nécessaire. Cette définition dépend de l'objectif et de l'horizon, pas seulement du produit. Un livret d'épargne est très peu volatil et parfaitement inadapté à un objectif de retraite dans trente ans ; un fonds actions est très volatil et parfaitement inadapté à un apport immobilier prévu dans dix-huit mois.",
+          },
+          {
+            b: "p",
+            texte:
+              "Cette dernière remarque a une portée pratique immédiate : le même produit n'a pas le même niveau de risque selon la personne qui le détient et l'usage prévu de la somme. Toute affirmation du type « ce placement est risqué » sans mention d'un horizon est incomplète.",
+          },
+        ],
+      },
+      {
         type: "definition",
         terme: "Volatilité (écart-type)",
         definition:
@@ -564,6 +855,46 @@ export const CHAPITRES: Chapitre[] = [
     minutes: 7,
     icone: "🧩",
     diapos: [
+      {
+        type: "cours",
+        titre: "Le seul repas gratuit de la finance",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "En 1952, Harry Markowitz démontre un résultat qui change la discipline : le risque d'un portefeuille n'est pas la moyenne des risques de ses composants. Il dépend aussi, et surtout, de la façon dont ces composants bougent les uns par rapport aux autres. Deux actions également risquées prises isolément peuvent former un ensemble nettement moins risqué, si elles ne montent et ne baissent pas en même temps.",
+          },
+          {
+            b: "terme",
+            mot: "Corrélation",
+            texte:
+              "mesure comprise entre −1 et +1 de la tendance de deux actifs à varier ensemble. À +1 ils sont interchangeables ; à 0 leurs mouvements sont sans rapport ; à −1 l'un monte exactement quand l'autre baisse.",
+          },
+          {
+            b: "p",
+            texte:
+              "La conséquence est remarquable : en combinant des actifs imparfaitement corrélés, on réduit le risque total sans réduire le rendement attendu, qui reste la moyenne pondérée des rendements attendus. C'est la seule opération en finance qui améliore un terme sans en dégrader un autre — d'où l'expression consacrée de repas gratuit.",
+          },
+          {
+            b: "figure",
+            fig: "frontiere",
+            legende:
+              "Chaque point est un portefeuille possible. La courbe supérieure rassemble ceux qui offrent le meilleur rendement pour un risque donné : la frontière efficiente. Tout ce qui est en dessous est dominé.",
+          },
+          { b: "soustitre", texte: "Là où le modèle rencontre la réalité" },
+          {
+            b: "p",
+            texte:
+              "Construire ce portefeuille optimal suppose de connaître trois choses : les rendements attendus, les volatilités et les corrélations futures. Aucune n'est observable. On les estime sur le passé, et cette estimation est instable — surtout celle des rendements attendus, dont une erreur modeste déplace massivement le portefeuille recommandé.",
+          },
+          {
+            b: "encadre",
+            titre: "Le défaut au pire moment",
+            texte:
+              "Les corrélations ne sont pas constantes : elles augmentent nettement pendant les krachs. Des actifs qui se comportaient indépendamment en régime calme chutent ensemble quand la liquidité se raréfie. La diversification s'affaiblit donc précisément au moment où l'on comptait sur elle — limite bien documentée, qui ne l'annule pas mais interdit d'y voir une protection absolue.",
+          },
+        ],
+      },
       {
         type: "idee",
         titre: "Le résultat qui a fondé la finance moderne",
@@ -648,6 +979,58 @@ export const CHAPITRES: Chapitre[] = [
     icone: "⚖️",
     diapos: [
       {
+        type: "cours",
+        titre: "Décomposer le risque en deux",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Si la diversification réduit le risque, jusqu'où peut-elle aller ? La réponse, formalisée par William Sharpe en 1964, structure encore aujourd'hui la façon dont la profession parle du risque. Le risque d'une action se décompose en deux parties de nature différente.",
+          },
+          {
+            b: "terme",
+            mot: "Risque spécifique",
+            texte:
+              "ce qui n'affecte qu'une entreprise : un procès, un incendie d'usine, un dirigeant qui démissionne, un produit qui échoue. Il se dilue à mesure qu'on détient d'autres titres, parce que ces événements ne se produisent pas tous en même temps.",
+          },
+          {
+            b: "terme",
+            mot: "Risque systématique",
+            texte:
+              "ce qui affecte l'ensemble du marché : une récession, une remontée des taux, une crise financière. Aucune diversification à l'intérieur du marché ne le supprime, puisqu'il frappe tout le monde ensemble.",
+          },
+          {
+            b: "figure",
+            fig: "risqueDiversification",
+            legende:
+              "Le risque chute vite entre un et vingt titres, puis se stabilise. Le plancher est le risque systématique : la diversification n'y peut rien.",
+          },
+          { b: "soustitre", texte: "La conclusion, contre-intuitive" },
+          {
+            b: "p",
+            texte:
+              "Seul le risque systématique est rémunéré. Le raisonnement est le suivant : si un risque peut être supprimé gratuitement en diversifiant, personne n'acceptera de payer une prime à celui qui choisit de le porter. Le marché ne récompense donc pas le courage, il récompense l'exposition à ce qu'on ne peut pas éviter.",
+          },
+          {
+            b: "p",
+            texte:
+              "Concentrer un portefeuille sur trois titres ajoute donc massivement du risque spécifique — celui qui n'est pas payé — sans augmenter le rendement attendu. C'est la réponse la plus directe à l'idée répandue selon laquelle « plus de risque égale plus de rendement » : encore faut-il que ce soit le bon risque.",
+          },
+          {
+            b: "terme",
+            mot: "Bêta",
+            texte:
+              "sensibilité d'un titre aux mouvements du marché. Un bêta de 1,4 signifie qu'historiquement, quand le marché varie de 10 %, ce titre varie d'environ 14 %, dans le même sens.",
+          },
+          {
+            b: "encadre",
+            titre: "Un modèle contesté, une idée robuste",
+            texte:
+              "Les tests empiriques des années 1990 montrent que le bêta explique mal les écarts de rendement entre actions — c'est le point de départ des travaux de Fama et French étudiés au chapitre 11. Le modèle est donc enseigné pour son idée centrale, qui tient, plutôt que pour sa précision prédictive, qui ne tient pas.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Deux risques, pas un",
         texte:
@@ -724,6 +1107,46 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🎲",
     diapos: [
       {
+        type: "cours",
+        titre: "La forme de la distribution",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "On parle couramment du « rendement des actions » comme s'il s'agissait d'une grandeur homogène. En 2018, Hendrik Bessembinder examine l'intégralité des actions américaines cotées depuis 1926 et mesure ce que chacune a rapporté sur toute sa durée de vie. Le résultat contredit frontalement l'intuition : la majorité des titres ont fait moins bien qu'un placement de trésorerie sans risque.",
+          },
+          {
+            b: "p",
+            texte:
+              "La totalité de la création de richesse du marché est attribuable à une petite fraction des entreprises. Le reste, pris ensemble, n'a rien produit de plus qu'un placement monétaire. Le rendement du marché n'est donc pas le rendement d'une action typique : c'est une moyenne tirée vers le haut par une poignée de réussites extrêmes.",
+          },
+          {
+            b: "figure",
+            fig: "asymetrie",
+            legende:
+              "La masse des titres se situe à gauche ; quelques exceptions très à droite déplacent la moyenne loin au-dessus de la médiane. C'est la signature d'une distribution asymétrique.",
+          },
+          {
+            b: "terme",
+            mot: "Distribution asymétrique",
+            texte:
+              "distribution dont la moyenne et la médiane diffèrent nettement, parce que des valeurs extrêmes d'un seul côté tirent la moyenne. Sur ce type de distribution, la moyenne cesse d'être un bon résumé du cas typique.",
+          },
+          { b: "soustitre", texte: "Ce que cela implique pour un portefeuille" },
+          {
+            b: "p",
+            texte:
+              "Si l'essentiel du rendement provient d'une minorité de titres, détenir peu de lignes revient à parier qu'on en a attrapé au moins une. Le résultat le plus probable d'un portefeuille concentré n'est pas la moyenne du marché : il est inférieur, puisque la moyenne est produite par des exceptions que l'on n'a statistiquement pas.",
+          },
+          {
+            b: "encadre",
+            titre: "L'argument le plus solide pour l'indiciel",
+            texte:
+              "Il ne repose ni sur l'efficience des marchés, ni sur l'incompétence des gérants, mais sur la forme de la distribution : détenir tout le marché garantit de détenir les quelques titres qui produiront l'essentiel du résultat. On renonce à surperformer, on s'assure de ne pas manquer les exceptions.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Un siècle, toutes les actions cotées",
         texte:
@@ -797,6 +1220,42 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🗺️",
     diapos: [
       {
+        type: "cours",
+        titre: "Le poids de la familiarité",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "En 1991, Kenneth French et James Poterba mesurent la composition des portefeuilles d'actions dans les grands pays développés. Le constat est frappant et régulier : dans chaque pays, les investisseurs détiennent une écrasante majorité de titres nationaux, très au-delà du poids de leur pays dans la capitalisation mondiale.",
+          },
+          {
+            b: "p",
+            texte:
+              "Ce déséquilibre est incompatible avec la théorie du portefeuille étudiée au chapitre 6, qui recommanderait une répartition proche des poids mondiaux. Aucune prime de rendement identifiée ne compense la concentration ainsi acceptée. Ce qui reste, c'est une exposition renforcée à une seule économie, une seule devise et un seul cadre réglementaire.",
+          },
+          { b: "soustitre", texte: "Les explications avancées" },
+          {
+            b: "puces",
+            points: [
+              "Coûts et frictions : autrefois substantiels sur les marchés étrangers, aujourd'hui marginaux pour un particulier via un fonds indiciel mondial.",
+              "Couverture du risque de change : argument sérieux, mais qui justifie une préférence modérée, pas les proportions observées.",
+              "Familiarité : on surestime ce qu'on croit connaître. Un investisseur belge juge Anheuser-Busch InBev moins risquée que Nestlé parce qu'il en connaît le nom, pas parce qu'il en a analysé le bilan.",
+            ],
+          },
+          {
+            b: "encadre",
+            titre: "Le cas belge",
+            texte:
+              "La Belgique représente une fraction très minoritaire de la capitalisation boursière mondiale. Un portefeuille composé d'actions belges n'est donc pas un portefeuille prudent : c'est un pari concentré sur une économie de taille modeste, exposée à quelques grands secteurs. Le biais est d'autant plus coûteux que le marché domestique est petit.",
+          },
+          {
+            b: "p",
+            texte:
+              "Le phénomène s'est atténué depuis la publication, sans disparaître. Il reste l'un des écarts les mieux documentés entre ce que la théorie recommande et ce que les investisseurs font réellement — y compris les investisseurs professionnels.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Un réflexe universel",
         texte:
@@ -847,6 +1306,48 @@ export const CHAPITRES: Chapitre[] = [
     minutes: 7,
     icone: "🎯",
     diapos: [
+      {
+        type: "cours",
+        titre: "Ce que signifie « efficient »",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "En 1970, Eugene Fama rassemble deux décennies de travaux épars sous une formulation unique. Un marché est dit efficient au regard d'un ensemble d'information si les prix reflètent déjà pleinement cette information. La conséquence pratique est immédiate : personne ne peut tirer de gain systématique d'une information déjà intégrée dans les prix.",
+          },
+          {
+            b: "p",
+            texte:
+              "Le mécanisme invoqué n'est pas la sagesse des foules mais la concurrence. Si une information permettait de gagner, quelqu'un l'exploiterait, et son action ferait bouger le prix jusqu'à ce que l'occasion disparaisse. L'efficience est donc le résultat de l'effort de ceux qui cherchent à la démentir — ce qui contient un paradoxe : si tout le monde renonçait à chercher, elle cesserait de tenir.",
+          },
+          { b: "soustitre", texte: "Les trois degrés" },
+          {
+            b: "puces",
+            points: [
+              "Forme faible : les prix intègrent l'historique des cours. Conséquence : l'analyse des graphiques passés ne procure aucun avantage.",
+              "Forme semi-forte : ils intègrent toute l'information publique — bilans, communiqués, annonces. Conséquence : lire les publications au moment où tout le monde les lit ne suffit pas.",
+              "Forme forte : ils intègrent jusqu'à l'information privée. Conséquence : même un dirigeant ne gagnerait rien sur ses propres titres.",
+            ],
+          },
+          {
+            b: "p",
+            texte:
+              "La forme forte est contredite par les faits, et le chapitre 16 le montre : les dirigeants réalisent bien des gains anormaux. Les deux premières formes résistent nettement mieux, sans faire l'unanimité — les chapitres 11 et 12 exposent les anomalies et les critiques.",
+          },
+          {
+            b: "encadre",
+            titre: "Le problème de l'hypothèse jointe",
+            texte:
+              "On ne peut jamais tester l'efficience seule. Pour dire qu'un rendement est anormal, il faut d'abord un modèle du rendement normal. Tout rejet peut donc venir du modèle plutôt que du marché, et Fama le reconnaît lui-même. C'est la difficulté centrale du domaine, et la raison pour laquelle le débat dure depuis un demi-siècle sans se clore.",
+          },
+          {
+            b: "terme",
+            mot: "Ce que l'efficience ne dit pas",
+            texte:
+              "elle n'affirme pas que les prix sont justes, ni que les marchés sont sages. Elle affirme qu'ils intègrent l'information disponible. Un marché peut se tromper collectivement et rester impossible à battre après frais : ce sont deux propositions distinctes.",
+          },
+        ],
+      },
       {
         type: "definition",
         terme: "Marché efficient",
@@ -933,6 +1434,46 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🔬",
     diapos: [
       {
+        type: "cours",
+        titre: "Trois écarts qui ont résisté",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "À partir de la fin des années 1970, des chercheurs constatent des rendements systématiquement supérieurs pour certaines catégories d'actions, que leur sensibilité au marché ne suffit pas à expliquer. Ces écarts, appelés anomalies, sont la principale contestation empirique du modèle d'équilibre étudié au chapitre 7.",
+          },
+          { b: "soustitre", texte: "Effet de taille" },
+          {
+            b: "p",
+            texte:
+              "Rolf Banz montre en 1981 que les petites capitalisations ont dégagé un rendement supérieur à ce que leur bêta justifiait. L'effet s'est nettement affaibli après publication, et une partie s'explique par les coûts de transaction élevés sur les très petites valeurs, que l'étude ne déduisait pas.",
+          },
+          { b: "soustitre", texte: "Effet valeur" },
+          {
+            b: "p",
+            texte:
+              "Fama et French établissent en 1992 que le rapport entre valeur comptable et valeur boursière explique bien mieux les écarts de rendement que le bêta. Les titres « bon marché » selon ce critère ont surperformé les titres chers, sur longue période et sur plusieurs marchés.",
+          },
+          { b: "soustitre", texte: "Momentum" },
+          {
+            b: "p",
+            texte:
+              "Narasimhan Jegadeesh et Sheridan Titman documentent en 1993 le plus dérangeant des trois : sur trois à douze mois, les titres qui ont le mieux performé continuent en moyenne de surperformer. C'est directement contraire à l'efficience sous forme faible, qui affirme que les cours passés n'informent sur rien.",
+          },
+          {
+            b: "encadre",
+            titre: "Deux lectures irréconciliées",
+            texte:
+              "Ou bien ces catégories portent un risque réel que le modèle ne capte pas, et la prime est méritée ; ou bien les investisseurs se trompent systématiquement, et la prime est une erreur persistante. Quarante ans plus tard, la profession reste partagée. Fama défend la première lecture, Thaler la seconde ; ils ont reçu le prix Nobel à trois ans d'intervalle.",
+          },
+          {
+            b: "p",
+            texte:
+              "L'usage professionnel dominant de ces facteurs n'est plus d'en tirer une stratégie mais d'en faire un étalon : comparer un gérant à un indice de même style permet de distinguer ce qu'il a réellement apporté de ce qu'une exposition connue aurait procuré sans lui.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Des écarts que le modèle n'expliquait pas",
         texte:
@@ -1000,6 +1541,45 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🌊",
     diapos: [
       {
+        type: "cours",
+        titre: "Les prix bougent-ils trop ?",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "En 1980, Robert Shiller construit un argument d'une simplicité redoutable. Si le prix d'une action n'est que la somme actualisée des revenus qu'elle versera, alors ce prix est une moyenne pondérée d'un grand nombre de flux futurs. Or une moyenne est mécaniquement plus stable que les grandeurs qu'elle résume. Les cours devraient donc varier moins que les dividendes effectivement versés.",
+          },
+          {
+            b: "p",
+            texte:
+              "L'observation donne l'inverse, et de très loin. Les cours varient bien davantage que ne le justifient les revenus constatés ensuite. Si le modèle d'évaluation est juste, quelque chose d'autre que l'anticipation rationnelle des revenus fait bouger les prix.",
+          },
+          {
+            b: "encadre",
+            titre: "Une contestation méthodologique nourrie",
+            texte:
+              "Le résultat a fait l'objet de critiques statistiques sérieuses, notamment sur le traitement des séries dont la moyenne n'est pas stable dans le temps. Le débat n'a jamais été tranché à la satisfaction des deux camps — raison de plus pour le présenter comme un débat et non comme un acquis.",
+          },
+          { b: "soustitre", texte: "La surréaction" },
+          {
+            b: "p",
+            texte:
+              "Werner De Bondt et Richard Thaler apportent en 1985 un élément complémentaire : sur trois à cinq ans, les titres les plus délaissés ont ensuite surperformé les plus recherchés. Leur interprétation est que les investisseurs réagissent trop fortement aux nouvelles, puis corrigent lentement.",
+          },
+          {
+            b: "p",
+            texte:
+              "Ces travaux fondent la finance comportementale comme discipline. Ils ne fournissent pas de méthode d'investissement : savoir que les prix s'écartent parfois de leur valeur ne dit ni quand, ni dans quel sens, ni pour combien de temps.",
+          },
+          {
+            b: "encadre",
+            titre: "Une contradiction ouverte",
+            texte:
+              "Momentum et surréaction coexistent dans la littérature : continuation sur quelques mois, retournement sur plusieurs années. Aucun cadre théorique ne les réconcilie proprement. C'est le genre de tension qu'un cours doit signaler plutôt que masquer — l'état réel du savoir comporte des zones non résolues.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Un raisonnement simple et dévastateur",
         texte:
@@ -1058,6 +1638,45 @@ export const CHAPITRES: Chapitre[] = [
     minutes: 5,
     icone: "👥",
     diapos: [
+      {
+        type: "cours",
+        titre: "Ce que révèlent les relevés de courtage",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Jusqu'aux années 1990, la performance des investisseurs individuels relevait de l'anecdote. Brad Barber et Terrance Odean obtiennent l'accès aux relevés réels de dizaines de milliers de ménages américains sur plusieurs années : non pas des intentions déclarées, mais chaque ordre effectivement passé. C'est le premier examen à grande échelle de ce que font les particuliers, par opposition à ce qu'ils disent faire.",
+          },
+          {
+            b: "p",
+            texte:
+              "Le résultat est double et c'est le second qui surprend. D'abord, les titres sélectionnés ne sont pas absurdes : bruts de frais, les choix ne détruisent pas de valeur de façon spectaculaire. Ensuite, le rendement net est nettement inférieur au marché — et l'écart s'explique par la fréquence des opérations, non par la qualité de la sélection.",
+          },
+          {
+            b: "encadre",
+            titre: "La conclusion en une phrase",
+            texte:
+              "Ce n'est pas d'abord le mauvais choix d'entreprise qui coûte cher au particulier. C'est le fait d'échanger souvent, chaque opération prélevant sa dîme en frais et en écart de cotation.",
+          },
+          { b: "soustitre", texte: "Pourquoi échange-t-on autant ?" },
+          {
+            b: "p",
+            texte:
+              "L'année suivante, les mêmes auteurs proposent une explication : l'excès de confiance. En comparant les comportements d'échange selon le sexe — le sexe servant d'indicateur indirect d'un trait mesuré par ailleurs en psychologie — ils constatent que le groupe qui échange le plus est aussi celui dont le rendement net souffre le plus. Plus on se croit informé, plus on agit ; plus on agit, plus on paie.",
+          },
+          {
+            b: "p",
+            texte:
+              "Le cas extrême a été étudié à l'échelle d'un marché national entier, sur les spéculateurs les plus actifs. Une part infime d'entre eux dégage un rendement anormal positif de façon persistante après frais. La grande majorité perd de l'argent, et l'attrition est rapide.",
+          },
+          {
+            b: "encadre",
+            titre: "Portée et limites",
+            texte:
+              "Ces données sont américaines et datent d'une époque où le courtage coûtait bien plus cher qu'aujourd'hui. L'ampleur chiffrée n'est plus transposable. Le mécanisme — l'activité coûte, et l'excès de confiance la nourrit — a été retrouvé sur d'autres marchés et d'autres périodes.",
+          },
+        ],
+      },
       {
         type: "idee",
         titre: "Des relevés réels, pas un sondage",
@@ -1123,6 +1742,46 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🧠",
     diapos: [
       {
+        type: "cours",
+        titre: "Vendre les gagnantes, garder les perdantes",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "En 1998, Terrance Odean documente sur comptes réels un comportement d'une régularité remarquable : les investisseurs vendent leurs positions en gain nettement plus volontiers que celles en perte. Le phénomène porte un nom, l'effet de disposition, et il ne dépend ni du niveau de richesse ni de l'expérience déclarée.",
+          },
+          {
+            b: "p",
+            texte:
+              "Ce qui rend ce réflexe coûteux est la suite de l'histoire. Les positions gagnantes vendues se sont ensuite mieux comportées que les positions perdantes conservées. Le geste qui donne le sentiment de « sécuriser un gain » a donc, en moyenne, retiré du rendement — auquel s'ajoute, dans les régimes fiscaux qui taxent les plus-values, un impôt payé plus tôt que nécessaire.",
+          },
+          { b: "soustitre", texte: "D'où vient le mécanisme" },
+          {
+            b: "p",
+            texte:
+              "L'explication précède de vingt ans l'observation. En 1979, Daniel Kahneman et Amos Tversky établissent que les décisions ne se prennent pas sur les niveaux de richesse mais sur les écarts à un point de référence, et que les pertes pèsent nettement plus que les gains de même ampleur. Face à une perte, on devient preneur de risque : on conserve, on espère revenir au point de départ.",
+          },
+          {
+            b: "terme",
+            mot: "Point de référence",
+            texte:
+              "niveau à partir duquel un résultat est perçu comme gain ou perte. Pour un investisseur, c'est presque toujours le prix d'achat — un nombre sans aucune pertinence pour la valeur future du titre, mais qui gouverne la décision.",
+          },
+          { b: "soustitre", texte: "La fréquence de consultation" },
+          {
+            b: "p",
+            texte:
+              "Shlomo Benartzi et Richard Thaler ajoutent une dimension pratique en 1995. Plus on évalue son portefeuille souvent, plus on rencontre de périodes négatives, et moins les actions paraissent supportables — alors que rien n'a changé dans le placement. Un même portefeuille examiné chaque jour et examiné chaque année produit deux expériences vécues très différentes.",
+          },
+          {
+            b: "encadre",
+            titre: "Conséquence opérationnelle",
+            texte:
+              "Deux décisions valent d'être prises à froid, avant tout engagement : la condition de vente, et la fréquence de consultation. La première évite d'improviser sous le coup de l'émotion ; la seconde réduit le nombre d'occasions d'improviser.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Un réflexe mesuré",
         texte:
@@ -1187,6 +1846,40 @@ export const CHAPITRES: Chapitre[] = [
     icone: "⏳",
     diapos: [
       {
+        type: "cours",
+        titre: "Deux lectures d'un même fait",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "L'observation historique n'est pas contestée : sur des périodes longues, les fenêtres de détention perdantes deviennent rares, et l'éventail des rendements annualisés se resserre. C'est ce que montre l'onglet Horizon de cette application, sur données réelles. La question est de savoir ce qu'on en déduit.",
+          },
+          {
+            b: "figure",
+            fig: "dispersionHorizon",
+            legende:
+              "L'écart entre le meilleur et le pire cas se réduit avec la durée. Attention à ce que la figure montre : des rendements annualisés, pas des montants.",
+          },
+          { b: "soustitre", texte: "L'objection de Bodie" },
+          {
+            b: "p",
+            texte:
+              "Zvi Bodie formule en 1995 une objection restée célèbre. Considérons le coût d'une assurance garantissant qu'au terme, le placement en actions n'aura pas fait moins bien qu'un placement sans risque. Si le risque diminuait réellement avec l'horizon, cette assurance deviendrait moins chère à mesure que l'horizon s'allonge. On observe l'inverse : son prix augmente.",
+          },
+          {
+            b: "p",
+            texte:
+              "La réconciliation tient à ce que l'on mesure. La probabilité de terminer en perte diminue effectivement avec la durée. Mais l'ampleur de ce que l'on peut perdre, elle, augmente : sur trente ans, un écart annualisé de deux points représente une différence de capital considérable. Rendement médian plus stable ne signifie pas risque disparu.",
+          },
+          {
+            b: "encadre",
+            titre: "Le facteur qui décide vraiment",
+            texte:
+              "Le rendement long terme n'est acquis qu'à celui qui reste investi pendant toute la période, y compris au creux. Or plus l'horizon est long, plus il faudra traverser de baisses sans vendre. La difficulté n'est pas statistique, elle est psychologique — et le chapitre 14 explique pourquoi elle est plus grande qu'on ne l'anticipe.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "L'observation est réelle",
         texte:
@@ -1244,6 +1937,50 @@ export const CHAPITRES: Chapitre[] = [
     minutes: 6,
     icone: "🔍",
     diapos: [
+      {
+        type: "cours",
+        titre: "Ce que gagnent les initiés, et ce qu'il en reste",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Les dirigeants d'une société connaissent son état avant le public. La loi américaine les oblige à déclarer leurs opérations sur les titres de leur propre entreprise, dans un délai aujourd'hui de deux jours ouvrés. Cette obligation crée un jeu de données que les chercheurs exploitent depuis quarante ans, et que cette application affiche.",
+          },
+          {
+            b: "p",
+            texte:
+              "Le premier résultat, établi par Nejat Seyhun dès 1986, confirme l'intuition : les dirigeants réalisent bien des gains anormaux sur leurs propres titres. Le second résultat, dans le même article, la contredit : un investisseur extérieur qui les imite après la publication officielle ne dégage pas, en moyenne, de quoi couvrir ses frais de transaction.",
+          },
+          {
+            b: "figure",
+            fig: "delaiPublication",
+            legende:
+              "Entre l'opération et le moment où vous la lisez, le marché a déjà intégré une partie de l'information. Ce qui reste à capter est la différence, pas le gain total du dirigeant.",
+          },
+          { b: "soustitre", texte: "Tous les signaux ne se valent pas" },
+          {
+            b: "p",
+            texte:
+              "Josef Lakonishok et Inmoo Lee affinent en 2001 : les achats de dirigeants portent nettement plus d'information que leurs ventes. La raison est de bon sens — on vend pour financer un achat immobilier, un divorce, un impôt, une diversification personnelle ; on achète des titres de son employeur pour une raison plus étroite. L'effet est aussi plus marqué sur les petites sociétés, moins suivies par les analystes.",
+          },
+          {
+            b: "p",
+            texte:
+              "Lauren Cohen, Christopher Malloy et Lukasz Pomorski franchissent une étape supplémentaire en 2012 en séparant deux populations. Certains dirigeants échangent selon un calendrier régulier — même mois chaque année, plan d'épargne automatique. D'autres rompent leurs habitudes. Seuls les seconds portent une information exploitable ; les opérations de routine n'annoncent rien.",
+          },
+          {
+            b: "encadre",
+            titre: "Ce que cela dit de cette application",
+            texte:
+              "Cet outil n'opère pas cette distinction : établir le caractère routinier d'un dirigeant demande plusieurs années d'historique individuel, dont il ne dispose pas. Une part de ce qu'il affiche est donc, selon cette littérature, du bruit. C'est pourquoi il ne classe ni ne note les pistes, et rappelle sur chaque fiche que les motifs d'une opération ne sont jamais déclarés.",
+          },
+          {
+            b: "p",
+            texte:
+              "La conclusion opérationnelle est une comparaison de deux nombres : le gain anormal moyen rapporté par la littérature, qui est modeste, et le seuil de rentabilité affiché sur la fiche, qui ne l'est pas toujours. Quand le second dépasse le premier, l'espérance est négative avant même d'avoir eu raison.",
+          },
+        ],
+      },
       {
         type: "idee",
         titre: "Les dirigeants gagnent, c'est établi",
@@ -1315,6 +2052,42 @@ export const CHAPITRES: Chapitre[] = [
     icone: "🗂️",
     diapos: [
       {
+        type: "cours",
+        titre: "Répliquer un portefeuille déclaré",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Les gestionnaires américains dépassant un certain encours doivent publier chaque trimestre la liste de leurs positions en actions. L'idée de s'en servir pour copier les meilleurs est ancienne et séduisante : pourquoi payer des frais de gestion si le portefeuille est public ?",
+          },
+          {
+            b: "p",
+            texte:
+              "Murray Frank, James Poterba, Douglas Shackelford et John Shoven testent la proposition en 2004 en construisant des portefeuilles qui répliquent les positions publiées, puis en comparant leur performance à celle des fonds copiés. Le résultat est nuancé : les copies obtiennent des rendements proches, l'économie de frais compensant en partie le retard de publication.",
+          },
+          {
+            b: "encadre",
+            titre: "Ce qui a été testé, exactement",
+            texte:
+              "La réplication du portefeuille entier, ligne par ligne, avec rééquilibrage à chaque publication. Ce n'est pas la même chose que prélever une position dans une liste de plusieurs centaines et l'acheter seule. Cette seconde pratique — celle que suggère spontanément un flux de déclarations — n'a pas été étudiée par cet article.",
+          },
+          { b: "soustitre", texte: "Trois limites à garder en tête" },
+          {
+            b: "puces",
+            points: [
+              "Le décalage : plusieurs semaines entre la constitution de la position et sa publication. Elle peut avoir été soldée entre-temps, et vous ne l'apprendrez qu'au trimestre suivant.",
+              "L'incomplétude : seules les actions cotées sont déclarées. Les positions vendeuses, les obligations et les instruments dérivés n'y figurent pas — une ligne apparemment offensive peut être la couverture d'autre chose.",
+              "Le contexte : une position de 0,3 % dans un portefeuille de plusieurs centaines de lignes n'exprime pas la même conviction que la même ligne isolée dans un portefeuille de cinq titres.",
+            ],
+          },
+          {
+            b: "p",
+            texte:
+              "Ces publications restent instructives : elles montrent comment un professionnel construit un ensemble, quels secteurs il privilégie, à quel rythme il tourne. C'est un matériau d'étude solide. En faire un signal d'achat sur un titre isolé est un usage que la recherche n'a pas validé.",
+          },
+        ],
+      },
+      {
         type: "idee",
         titre: "Ce qui a été testé",
         texte:
@@ -1365,6 +2138,40 @@ export const CHAPITRES: Chapitre[] = [
     minutes: 4,
     icone: "🎯",
     diapos: [
+      {
+        type: "cours",
+        titre: "Distinguer le talent de la chance",
+        blocs: [
+          {
+            b: "p",
+            texte:
+              "Sur plusieurs milliers de gérants, certains afficheront de bons résultats plusieurs années de suite par le seul effet du hasard, comme certains joueurs enchaînent les faces à pile ou face. La question n'est donc pas de savoir si des gérants surperforment — il y en a — mais si l'on peut distinguer, à l'avance, ceux qui le feront de ceux à qui la chance a souri.",
+          },
+          {
+            b: "p",
+            texte:
+              "Michael Jensen pose la première pierre en 1968 en mesurant la performance des fonds corrigée du risque pris. En moyenne, les fonds ne dégagent pas de surperformance suffisante pour couvrir leurs frais. Le résultat a été reproduit de nombreuses fois depuis, sur d'autres périodes et d'autres marchés.",
+          },
+          { b: "soustitre", texte: "La performance passée persiste-t-elle ?" },
+          {
+            b: "p",
+            texte:
+              "Mark Carhart montre en 1997 que la persistance apparente des bons fonds s'explique en grande partie par les frais et par des expositions de style connues — notamment le momentum étudié au chapitre 11 — plutôt que par le talent du gérant. Détail éloquent : la persistance la plus fiable concerne les mauvais fonds, qui tendent à le rester, car des frais élevés sont un handicap durable là où une bonne année ne l'est pas.",
+          },
+          { b: "soustitre", texte: "Simuler le hasard" },
+          {
+            b: "p",
+            texte:
+              "Eugene Fama et Kenneth French adoptent en 2010 une approche différente : simuler des milliers d'univers où aucun gérant n'a de talent, puis comparer la distribution obtenue à la distribution réelle. Si le talent existait largement, la queue supérieure réelle devrait être nettement plus épaisse que celle du hasard. Elle l'est très peu, une fois les frais déduits.",
+          },
+          {
+            b: "encadre",
+            titre: "Le même raisonnement s'applique à vous",
+            texte:
+              "Une série de bons choix ne démontre pas une compétence tant que les observations sont peu nombreuses. C'est précisément pourquoi cette application enregistre vos simulations, y compris les mauvaises, plutôt que vos impressions : ne retenir que les réussites reproduit exactement le biais que ces travaux mesurent.",
+          },
+        ],
+      },
       {
         type: "idee",
         titre: "Les bons fonds restent-ils bons ?",
@@ -1455,7 +2262,40 @@ export function texteDiapo(d: Diapo): string {
       return `${d.titre} ${d.etapes.map((e) => `${e.calcul} ${e.resultat}`).join(" ")} ${d.conclusion}`;
     case "piege":
       return `${d.titre} ${d.croyance} ${d.realite}`;
+    case "cours":
+      return `${d.titre} ${d.blocs.map(texteBloc).join(" ")}`;
   }
+}
+
+export function texteBloc(b: BlocCours): string {
+  switch (b.b) {
+    case "p":
+    case "soustitre":
+      return b.texte;
+    case "terme":
+      return `${b.mot} ${b.texte}`;
+    case "puces":
+      return b.points.join(" ");
+    case "encadre":
+      return `${b.titre} ${b.texte}`;
+    case "figure":
+      return b.legende;
+    case "calcul":
+      return b.lignes.map((l) => `${l.gauche} ${l.droite}`).join(" ");
+  }
+}
+
+/** Figures referencees par l'ensemble des cours. */
+export function figuresReferencees(): string[] {
+  const out = new Set<string>();
+  for (const c of CHAPITRES) {
+    for (const d of c.diapos) {
+      if (d.type === "cours") {
+        for (const b of d.blocs) if (b.b === "figure") out.add(b.fig);
+      }
+    }
+  }
+  return [...out];
 }
 
 export function construireDiapos(c: Chapitre): DiapoProjetee[] {

@@ -41,7 +41,10 @@ function classeCible(actif: boolean): string {
     // sans lui, naviguer au clavier revient a avancer les yeux fermes.
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
     "focus-visible:ring-offset-2 focus-visible:ring-offset-white",
-    actif ? "text-indigo-700" : "text-slate-500 hover:text-slate-800",
+    // La barre est translucide : ce qui defile dessous change la couleur de
+    // fond reelle des libelles. Un slate-500 passait sous 4,5:1 des qu'un
+    // bloc indigo glissait derriere. Le slate-600 tient dans tous les cas.
+    actif ? "text-indigo-700" : "text-slate-600 hover:text-slate-900",
   ].join(" ");
 }
 
@@ -197,7 +200,7 @@ export default function NavigationBasse({
 
       <nav
         aria-label="Navigation principale"
-        className="fixed inset-x-0 bottom-0 z-40 bg-white/80 backdrop-blur-xl border-t border-slate-900/[0.06]"
+        className="fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-900/[0.06]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <ul className="max-w-3xl mx-auto px-1.5 flex items-stretch">
