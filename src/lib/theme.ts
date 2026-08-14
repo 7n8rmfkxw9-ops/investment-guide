@@ -167,9 +167,16 @@ export const CARTE_CLIQUABLE =
 
 /** Titre de section, a l'interieur d'une carte. */
 export const TITRE_SECTION = "text-lg font-semibold text-slate-900";
-/** Intertitre discret au-dessus d'un groupe. */
-export const SURTITRE =
-  "text-xs font-semibold uppercase tracking-wider text-slate-500";
+/**
+ * Intertitre discret au-dessus d'un groupe.
+ *
+ * Sans couleur : deux classes de couleur dans le meme attribut ne se
+ * departagent pas par leur ordre d'ecriture mais par leur ordre dans la
+ * feuille de style generee. Ajouter `text-indigo-700` apres ce jeton ne
+ * garantissait donc rien — et laissait passer un contraste insuffisant.
+ * La couleur est desormais fournie explicitement a chaque emploi.
+ */
+export const SURTITRE = "text-xs font-semibold uppercase tracking-wider";
 // `min-h-[44px]` sur les deux boutons : c'est la plus petite cible qu'un
 // pouce atteint de facon fiable. En dessous, on rate le bouton une fois sur
 // trois sans savoir pourquoi.

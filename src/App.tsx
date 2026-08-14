@@ -97,7 +97,7 @@ export default function App() {
         Aller au contenu
       </a>
 
-      <header className="bg-white/70 backdrop-blur-xl border-b border-slate-900/[0.06] sticky top-0 z-20">
+      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-900/[0.06] sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600/80 leading-none">

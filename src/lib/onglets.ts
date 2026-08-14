@@ -80,7 +80,7 @@ export const ONGLETS_SECONDAIRES: DefinitionOnglet[] = [
     id: "cours",
     label: "Cours",
     icone: "🎓",
-    detail: "Neuf chapitres adossés à des travaux de recherche vérifiés.",
+    detail: "Dix-huit chapitres adossés à des travaux de recherche vérifiés.",
   },
   {
     id: "comprendre",

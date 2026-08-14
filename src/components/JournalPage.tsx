@@ -142,7 +142,7 @@ export default function JournalPage() {
       {/* Apprendre — la partie qui ne périme pas                          */}
 
       <section className="space-y-3">
-        <h3 className={SURTITRE}>Par où commencer</h3>
+        <h3 className={`${SURTITRE} text-slate-500`}>Par où commencer</h3>
         <p className="text-base text-slate-500 leading-snug">
           Dans cet ordre. La fraude vient tôt : une arnaque coûte plus cher que
           n'importe quelle erreur de sélection.
@@ -170,7 +170,7 @@ export default function JournalPage() {
       </section>
 
       <section className="space-y-3">
-        <h3 className={SURTITRE}>Toute la bibliothèque</h3>
+        <h3 className={`${SURTITRE} text-slate-500`}>Toute la bibliothèque</h3>
         <div className="space-y-2.5">
           {THEMES.map((t) => {
             const lectures = lecturesDuTheme(t.cle);
@@ -234,7 +234,7 @@ export default function JournalPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h3 className={SURTITRE}>Actualités et mises en garde — FSMA</h3>
+          <h3 className={`${SURTITRE} text-slate-500`}>Actualités et mises en garde — FSMA</h3>
           <button onClick={charger} className="text-xs text-slate-500 hover:text-slate-700">
             ↻ Actualiser
           </button>
@@ -339,7 +339,7 @@ export default function JournalPage() {
 
       {autres.map((f) => (
         <section key={f.cle} className="space-y-3">
-          <h3 className={SURTITRE}>
+          <h3 className={`${SURTITRE} text-slate-500`}>
             <span aria-hidden>{f.pays}</span> {f.nom}
           </h3>
           <p className="text-sm text-slate-500 leading-relaxed">{f.detail}</p>

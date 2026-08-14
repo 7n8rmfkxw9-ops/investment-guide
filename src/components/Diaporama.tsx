@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import type { Chapitre, DiapoProjetee, Question } from "../lib/cours";
+import type { BlocCours, Chapitre, DiapoProjetee, Question } from "../lib/cours";
 import {
   construireDiapos,
   indexApres,
@@ -7,6 +7,7 @@ import {
 } from "../lib/cours";
 import { ETUDES, lienDoi } from "../lib/etudes";
 import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, SURTITRE } from "../lib/theme";
+import { Figure } from "./Figures";
 
 /**
  * Diaporama d'un chapitre : une idee par ecran.
@@ -49,7 +50,7 @@ function Quiz({ questions }: { questions: Question[] }) {
   const id = useId();
   return (
     <div className="space-y-6">
-      <p className={SURTITRE}>Vérifier qu'on a compris</p>
+      <p className={`${SURTITRE} text-slate-500`}>Vérifier qu'on a compris</p>
       {questions.map((q, qi) => {
         const donnee = reponses[qi];
         const repondu = donnee !== undefined;
@@ -113,6 +114,72 @@ function Quiz({ questions }: { questions: Question[] }) {
   );
 }
 
+/**
+ * Une page de notes de cours.
+ *
+ * Mise en page pensee pour la lecture longue et non pour le survol : mesure
+ * limitee, interlignage genereux, sous-titres qui donnent des points d'appui,
+ * et encadres qui detachent ce qui merite de l'etre. Une page de cours n'a
+ * pas a tenir sur un ecran — elle a a donner envie de continuer.
+ */
+function Bloc({ b }: { b: BlocCours }) {
+  switch (b.b) {
+    case "soustitre":
+      return (
+        <h4 className="text-lg font-semibold text-slate-900 leading-snug mt-6 first:mt-0">
+          {b.texte}
+        </h4>
+      );
+    case "p":
+      return <p className="text-base text-slate-700 leading-[1.75]">{b.texte}</p>;
+    case "terme":
+      return (
+        <p className="text-base text-slate-700 leading-[1.75] border-l-4 border-indigo-200 pl-4">
+          <strong className="font-semibold text-slate-900">{b.mot}</strong> —{" "}
+          {b.texte}
+        </p>
+      );
+    case "puces":
+      return (
+        <ul className="space-y-2">
+          {b.points.map((p) => (
+            <li key={p} className="flex gap-3 text-base text-slate-700 leading-[1.7]">
+              <span className="text-indigo-300 shrink-0 mt-1" aria-hidden>
+                ◆
+              </span>
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    case "encadre":
+      return (
+        <aside className="rounded-2xl bg-indigo-50/70 ring-1 ring-indigo-100 px-4 py-3.5">
+          <p className={`${SURTITRE} text-indigo-800 mb-1`}>{b.titre}</p>
+          <p className="text-base text-indigo-950/90 leading-[1.7]">{b.texte}</p>
+        </aside>
+      );
+    case "figure":
+      return <Figure cle={b.fig} legende={b.legende} />;
+    case "calcul":
+      return (
+        <ul className="rounded-2xl bg-slate-900 px-4 py-3 divide-y divide-white/10">
+          {b.lignes.map((l) => (
+            <li
+              key={l.gauche}
+              className="flex items-baseline justify-between gap-4 py-2 text-white"
+            >
+              <span className="text-sm text-slate-300">{l.gauche}</span>
+              <span className="text-base font-semibold tabular-nums shrink-0">
+                {l.droite}
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+  }
+}
+
 function ContenuDiapo({ d }: { d: DiapoProjetee }) {
   if (d.kind === "quiz") {
     return (
@@ -125,7 +192,7 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
     const e = ETUDES[d.cle];
     return (
       <Coquille>
-        <p className={SURTITRE}>Source</p>
+        <p className={`${SURTITRE} text-slate-500`}>Source</p>
         <p className="text-xl font-semibold text-slate-900 leading-snug">
           {e.titre}
         </p>
@@ -134,7 +201,7 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
         </p>
         <p className="text-base text-slate-600 leading-relaxed">{e.resultat}</p>
         <div className="rounded-2xl bg-amber-50 px-4 py-3">
-          <p className={`${SURTITRE} text-amber-700 mb-1`}>
+          <p className={`${SURTITRE} text-amber-800 mb-1`}>
             Ce que l'étude ne dit pas
           </p>
           <p className="text-sm text-amber-900 leading-relaxed">{e.limites}</p>
@@ -155,7 +222,7 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
   if (d.kind === "appliquer") {
     return (
       <Coquille>
-        <p className={SURTITRE}>Appliquer</p>
+        <p className={`${SURTITRE} text-slate-500`}>Appliquer</p>
         <ul className="space-y-3.5">
           {d.points.map((p) => (
             <li key={p} className="flex gap-3 text-lg text-slate-800 leading-snug">
@@ -176,7 +243,7 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
   if (d.kind === "retenir") {
     return (
       <Coquille>
-        <p className={SURTITRE}>À retenir</p>
+        <p className={`${SURTITRE} text-slate-500`}>À retenir</p>
         <p className="text-2xl font-semibold text-slate-900 leading-tight">
           {d.texte}
         </p>
@@ -186,10 +253,25 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
 
   const diapo = d.diapo;
 
+  if (diapo.type === "cours") {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-2xl font-semibold text-slate-900 leading-tight">
+          {diapo.titre}
+        </h3>
+        <div className="space-y-4">
+          {diapo.blocs.map((b, i) => (
+            <Bloc key={i} b={b} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (diapo.type === "definition") {
     return (
       <Coquille>
-        <p className={SURTITRE}>Définition</p>
+        <p className={`${SURTITRE} text-slate-500`}>Définition</p>
         <p className="text-2xl font-semibold text-slate-900 leading-tight">
           {diapo.terme}
         </p>
@@ -232,7 +314,7 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
   if (diapo.type === "exemple") {
     return (
       <Coquille>
-        <p className={SURTITRE}>Exemple chiffré</p>
+        <p className={`${SURTITRE} text-slate-500`}>Exemple chiffré</p>
         <p className="text-xl font-semibold text-slate-900 leading-snug">
           {diapo.titre}
         </p>
@@ -628,7 +710,7 @@ function EnTete({ c, onRetour }: { c: Chapitre; onRetour: () => void }) {
       >
         ← Tous les chapitres
       </button>
-      <p className={SURTITRE}>Chapitre {c.numero} · {c.minutes} min</p>
+      <p className={`${SURTITRE} text-slate-500`}>Chapitre {c.numero} · {c.minutes} min</p>
       <h2 className="text-2xl font-semibold text-slate-900 leading-tight">
         {c.titre}
       </h2>
