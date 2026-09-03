@@ -10,6 +10,7 @@ import PositionsPage from "./components/PositionsPage";
 import LearnPage from "./components/LearnPage";
 import CoursPage from "./components/CoursPage";
 import PropositionsPage from "./components/PropositionsPage";
+import DonneesPage from "./components/DonneesPage";
 import InvestPage from "./components/InvestPage";
 import SimulatorPage from "./components/SimulatorPage";
 import type { AmorceSimulation } from "./components/SimulatorPage";
@@ -138,6 +139,7 @@ export default function App() {
       >
         {tab === "pistes" && <Dashboard onSimuler={simulerDepuisPiste} />}
         {tab === "propositions" && <PropositionsPage />}
+        {tab === "donnees" && <DonneesPage />}
         {tab === "marche" && <MarketPage />}
         {tab === "horizon" && <HorizonPage />}
         {tab === "simuler" && (

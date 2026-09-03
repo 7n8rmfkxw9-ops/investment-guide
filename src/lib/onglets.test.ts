@@ -30,8 +30,8 @@ describe("répartition de la navigation", () => {
     // qu'aucun bouton n'y mene : exactement ce qui est arrive a
     // « Comprendre », noyee hors ecran dans l'ancienne barre.
     const attendus: Onglet[] = [
-      "pistes", "propositions", "marche", "horizon", "simuler", "journal",
-      "comprendre", "cours", "investir", "positions", "historique",
+      "pistes", "propositions", "donnees", "marche", "horizon", "simuler",
+      "journal", "comprendre", "cours", "investir", "positions", "historique",
       "configuration", "compte",
     ];
     const ids = new Set(TOUS_LES_ONGLETS.map((o) => o.id));

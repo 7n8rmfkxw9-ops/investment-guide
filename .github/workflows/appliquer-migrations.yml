@@ -31,6 +31,7 @@ on:
         options:
           - inspecter
           - appliquer
+          - contenu
           - reparer
 
 env:
@@ -82,6 +83,17 @@ jobs:
             supabase/migrations/20260903000000_socle_contenu.sql \
             supabase/migrations/20260903000100_socle_assistant.sql \
             supabase/migrations/20260903000200_regles_assurances.sql \
+            supabase/migrations/20260903000300_contenu_cours.sql
+
+      # Le fichier de contenu est le seul concu pour etre rejoue : il remplace
+      # ses blocs. On le relance apres chaque correction du cours, sans toucher
+      # aux migrations de schema.
+      - name: Recharger le contenu du cours
+        if: ${{ inputs.mode == 'contenu' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          node scripts/appliquer-migrations.mjs rejouer \
             supabase/migrations/20260903000300_contenu_cours.sql
 
       - name: Vérifier le résultat

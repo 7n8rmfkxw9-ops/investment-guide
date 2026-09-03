@@ -66,6 +66,8 @@ export default function PropositionsPage() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
   const [historique, setHistorique] = useState(false);
+  const [evaluation, setEvaluation] = useState(false);
+  const [echecMoteur, setEchecMoteur] = useState<string | null>(null);
 
   const charger = useCallback(async () => {
     setChargement(true);
@@ -83,9 +85,34 @@ export default function PropositionsPage() {
     setChargement(false);
   }, []);
 
-  useEffect(() => {
-    charger();
+  /**
+   * Reevaluer les regles a l'ouverture de la page.
+   *
+   * Pas de tache planifiee : une tache planifiee suppose de deposer la cle de
+   * role service quelque part pour qu'elle puisse s'authentifier, alors que la
+   * session de l'utilisateur suffit — la fonction en deduit son identite. Et le
+   * moment ou ces verifications sont utiles est precisement celui ou l'on ouvre
+   * cette page.
+   *
+   * Le calcul est idempotent : une proposition en attente au raisonnement
+   * inchange n'est pas redeposee. Rouvrir la page ne cree donc pas de doublon.
+   */
+  const evaluer = useCallback(async () => {
+    setEvaluation(true);
+    setEchecMoteur(null);
+    const { error } = await supabase.functions.invoke("propositions", { body: {} });
+    setEvaluation(false);
+    // Un echec du moteur ne doit pas cacher les propositions deja deposees :
+    // on le signale et on affiche quand meme ce qui existe.
+    if (error) setEchecMoteur(error.message);
+    await charger();
   }, [charger]);
+
+  useEffect(() => {
+    evaluer();
+    // Une seule fois par montage de la page : `evaluer` depend de `charger`,
+    // stable, donc cet effet ne se rejoue pas a chaque rendu.
+  }, [evaluer]);
 
   const enAttente = propositions.filter((p) => p.status === "pending");
   const decidees = propositions.filter((p) => p.status !== "pending");
@@ -133,10 +160,28 @@ export default function PropositionsPage() {
         </button>
       </div>
 
-      {chargement && (
+      <button
+        type="button"
+        onClick={evaluer}
+        disabled={evaluation}
+        className="text-sm text-indigo-700 underline hover:text-indigo-900 min-h-[44px]"
+      >
+        ↻ Revérifier maintenant
+      </button>
+
+      {(chargement || evaluation) && (
         <p className="text-sm text-slate-600" role="status">
-          Chargement…
+          {evaluation ? "Vérification en cours…" : "Chargement…"}
         </p>
+      )}
+
+      {echecMoteur && (
+        <div className={`${CARTE} p-4 border-l-4 border-l-amber-500`}>
+          <p className="text-sm text-slate-700 leading-relaxed">
+            Les vérifications n'ont pas pu être relancées ({echecMoteur}). Ce qui
+            s'affiche ci-dessous a été calculé plus tôt et peut être daté.
+          </p>
+        </div>
       )}
 
       {erreur && (
@@ -155,8 +200,15 @@ export default function PropositionsPage() {
           <p className="text-base text-slate-700 leading-relaxed">
             {historique
               ? "Aucune décision enregistrée pour l'instant."
-              : "Rien à valider. C'est le cas normal : les règles ne se déclenchent que lorsqu'un seuil est franchi, qu'une échéance approche ou qu'un changement sourcé a été enregistré."}
+              : "Rien à valider. Les règles ne se déclenchent que lorsqu'un seuil est franchi, qu'une échéance approche ou qu'un changement sourcé a été enregistré."}
           </p>
+          {!historique && (
+            <p className="text-base text-slate-700 leading-relaxed mt-3">
+              Si vous n'avez encore rien saisi, c'est attendu : les vérifications
+              se calculent sur vos données, et l'outil n'en invente aucune.
+              Renseignez-les dans <strong>Mes données</strong>.
+            </p>
+          )}
         </div>
       )}
 

@@ -2229,6 +2229,58 @@ export const CHAPITRES: Chapitre[] = [
  * citee, puis « appliquer », puis « a retenir ». Cela garantit qu'aucun
  * chapitre ne puisse etre publie sans ses sources.
  */
+/**
+ * Blocs dont le contenu restitue une etude precise, nommee dans le texte.
+ *
+ * Les etudes sont attachees au chapitre, pas au paragraphe : c'est la limite
+ * relevee au moment de porter le cours en base. Rattacher a la main chaque
+ * paragraphe a une reference serait une invention — sauf dans un cas, celui-ci :
+ * quand le texte NOMME lui-meme les auteurs et decrit leur travail. Le lien
+ * n'est alors pas un choix editorial, c'est une lecture de ce qui est ecrit.
+ *
+ * Cinq autres blocs avaient ete signales comme ambigus et sont restes
+ * `mecanique_standard`, deliberement :
+ *
+ *   - « 5,00 % a regagner sur un ticket de 100 € » et l'exemple de correlation
+ *     sont de l'arithmetique, pas des mesures. Les dire verifies laisserait
+ *     croire qu'une etude les a observes ;
+ *   - la decomposition du risque du chapitre MEDAF cite bien Sharpe 1964, mais
+ *     ce qu'elle expose est un MODELE, pas un resultat mesure ;
+ *   - les deux blocs du biais domestique generalisent (« tous les grands
+ *     marches ») au-dela de ce que French et Poterba ont mesure. Les marquer
+ *     verifies ferait porter a la source une affirmation plus large que la
+ *     sienne.
+ *
+ * L'identification se fait par le titre du bloc, pas par sa position : un
+ * chapitre reordonne ne doit pas deplacer silencieusement une attribution. Un
+ * test exige que chaque entree corresponde a exactement un bloc, et que
+ * l'etude citee figure deja parmi celles du chapitre.
+ */
+export interface Attribution {
+  chapitre: string;
+  /** Titre exact du bloc concerne. */
+  titre: string;
+  etudes: string[];
+}
+
+export const ATTRIBUTIONS: Attribution[] = [
+  {
+    chapitre: "particuliers",
+    titre: "Ce que révèlent les relevés de courtage",
+    etudes: ["barberOdean2000"],
+  },
+  {
+    chapitre: "biais",
+    titre: "Un réflexe mesuré",
+    etudes: ["odean1998"],
+  },
+  {
+    chapitre: "copier",
+    titre: "Répliquer un portefeuille déclaré",
+    etudes: ["frank2004"],
+  },
+];
+
 export type DiapoProjetee =
   | { kind: "contenu"; diapo: Diapo }
   | { kind: "etude"; cle: string }
