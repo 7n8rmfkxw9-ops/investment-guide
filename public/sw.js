@@ -1,13 +1,60 @@
-// Service worker minimal : uniquement les notifications push et leur clic.
-// Aucune mise en cache, aucun mode hors-ligne — ce n'est pas l'objet de cet
-// outil, et un cache mal invalide serait plus genant qu'utile ici.
+// Service worker : notifications push, et fraicheur de la page.
+//
+// Ce fichier ne mettait rien en cache, par choix. Le probleme est que
+// l'absence de cache PROPRE ne supprime pas le cache : elle laisse celui du
+// navigateur, sur lequel on n'a aucune prise. GitHub Pages sert `index.html`
+// avec `max-age=600` et rien ne permet de changer cet en-tete ; ajoutee a
+// l'ecran d'accueil d'un iPhone, l'application peut alors continuer d'afficher
+// une version publiee depuis longtemps, sans aucun moyen de le savoir ni de
+// forcer la mise a jour.
+//
+// D'ou cette strategie, limitee aux navigations : reseau d'abord, cache en
+// secours. En ligne, on voit toujours la derniere version publiee. Hors ligne,
+// on voit la derniere vue au lieu d'une page d'erreur. Les fichiers d'assets
+// portent une empreinte dans leur nom et ne peuvent pas devenir perimes : ils
+// ne sont pas touches ici.
+
+const CACHE = "coquille-v1";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    (async () => {
+      // Une version anterieure du service worker a pu laisser d'autres caches.
+      const noms = await caches.keys();
+      await Promise.all(noms.filter((n) => n !== CACHE).map((n) => caches.delete(n)));
+      await self.clients.claim();
+    })(),
+  );
+});
+
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+  // Uniquement la page elle-meme : c'est la seule ressource dont la peremption
+  // silencieuse fait afficher une application entierement obsolete.
+  if (req.mode !== "navigate") return;
+
+  event.respondWith(
+    (async () => {
+      try {
+        const reponse = await fetch(req);
+        // `cache: "reload"` n'est pas utilise : la requete telle qu'elle vient
+        // du navigateur suffit, et la reponse fraiche remplace la precedente.
+        const copie = reponse.clone();
+        const c = await caches.open(CACHE);
+        await c.put("page", copie);
+        return reponse;
+      } catch {
+        const c = await caches.open(CACHE);
+        const secours = await c.match("page");
+        if (secours) return secours;
+        throw new Error("hors ligne et aucune page en cache");
+      }
+    })(),
+  );
 });
 
 self.addEventListener("push", (event) => {

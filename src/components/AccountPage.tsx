@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { AppLink } from "../lib/types";
-import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, CHAMP } from "../lib/theme";
+import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, CHAMP, TITRE_SECTION } from "../lib/theme";
 import { activer, desactiver, etatActuel, verifieCompatibilite } from "../lib/push";
 import type { EtatAbonnement } from "../lib/push";
 import { exporterDonnees } from "../lib/export";
@@ -290,6 +290,28 @@ export default function AccountPage() {
             {busy ? "Modification…" : "Modifier le mot de passe"}
           </button>
         </form>
+      </section>
+
+      {/* Version affichee : une page gardee en cache par le navigateur est
+          autrement indistinguable d'une publication qui n'aurait pas eu lieu.
+          Comparer cette date a celle du dernier deploiement repond a la
+          question en une seconde. */}
+      <section className={`${CARTE} p-5 space-y-1`}>
+        <h3 className={TITRE_SECTION}>Version</h3>
+        <p className="text-sm text-slate-600">
+          Application compilée le{" "}
+          <span className="tabular-nums">
+            {new Date(__DATE_BUILD__).toLocaleString("fr-BE")}
+          </span>
+          .
+        </p>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Si cette date est plus ancienne que la dernière mise à jour annoncée,
+          c'est une copie gardée par votre navigateur. Fermez complètement
+          l'application et rouvrez-la : la page est désormais rechargée depuis
+          le réseau à chaque ouverture, et la version en cache ne sert plus que
+          hors connexion.
+        </p>
       </section>
     </div>
   );
