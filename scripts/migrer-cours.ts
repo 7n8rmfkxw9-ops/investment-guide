@@ -87,12 +87,26 @@ function blocsAmbigus(): Ambigu[] {
 // ---------------------------------------------------------------------------
 // Generation du SQL
 
-function seed(): string {
+function seed(migration: boolean): string {
   const l: string[] = [];
   l.push("-- Genere par scripts/migrer-cours.ts — ne pas editer a la main.");
+  l.push("-- Regenerer apres toute modification de src/lib/cours.ts :");
+  l.push("--   npm run migrer:cours -- --migration > ce-fichier.sql");
   l.push("-- Rejouable : chaque objet est identifie par sa cle stable.");
-  l.push("begin;");
-  l.push("");
+  if (migration) {
+    // Pas de `begin`/`commit` : la CLI Supabase enveloppe deja chaque fichier
+    // de migration dans une transaction, et un BEGIN imbrique ferait valider
+    // la transaction externe au premier COMMIT rencontre.
+    //
+    // La contrainte de source obligatoire tient sans cela : chaque bloc verifie
+    // et sa liaison sont ecrits par une SEULE instruction (CTE `with ...
+    // returning`), donc la contrainte differee est satisfaite des la fin de
+    // l'instruction, transaction englobante ou non.
+    l.push("");
+  } else {
+    l.push("begin;");
+    l.push("");
+  }
 
   l.push("-- Sources ------------------------------------------------------------");
   for (const e of Object.values(ETUDES)) {
@@ -153,24 +167,35 @@ function seed(): string {
     const c = CHAPITRES.find((x) => x.cle === chapitre)!;
     l.push(`-- ${c.numero}. ${c.titre}`);
     lignes.forEach((b, i) => {
+      const colonnes =
+        "content_blocks (chapter_id, block_type, payload, body_md, position, figure_ref, evidence_level)";
+      const valeurs =
+        `  select id, ${q(b.blockType)}, ${j(b.payload)}, ${q(b.bodyMd)}, ${i + 1}, ${q(b.figureRef)}, ${q(b.niveau)}\n` +
+        `  from chapters where key = ${q(chapitre)}`;
+
+      if (b.sources.length === 0) {
+        l.push(`insert into ${colonnes}\n${valeurs};`);
+        return;
+      }
+
+      // Le bloc et sa liaison dans UNE seule instruction : la contrainte
+      // « fait_verifie exige une source » est alors satisfaite des la fin de
+      // l'instruction, que le fichier soit joue dans une transaction ou non.
       const ref = `bloc_${chapitre}_${i + 1}`;
       l.push(
         `with ${ref} as (\n` +
-          "  insert into content_blocks (chapter_id, block_type, payload, body_md, position, figure_ref, evidence_level)\n" +
-          `  select id, ${q(b.blockType)}, ${j(b.payload)}, ${q(b.bodyMd)}, ${i + 1}, ${q(b.figureRef)}, ${q(b.niveau)}\n` +
-          `  from chapters where key = ${q(chapitre)}\n` +
+          `  insert into ${colonnes}\n` +
+          `${valeurs}\n` +
           "  returning id\n" +
           ")\n" +
-          (b.sources.length > 0
-            ? "insert into content_block_sources (content_block_id, source_id)\n" +
-              `  select ${ref}.id, sources.id from ${ref}, sources where sources.key in (${b.sources.map(q).join(", ")});`
-            : `select id from ${ref};`),
+          "insert into content_block_sources (content_block_id, source_id)\n" +
+          `  select ${ref}.id, sources.id from ${ref}, sources where sources.key in (${b.sources.map(q).join(", ")});`,
       );
     });
     l.push("");
   }
 
-  l.push("commit;");
+  if (!migration) l.push("commit;");
   l.push("");
   return l.join("\n");
 }
@@ -216,4 +241,7 @@ function rapport(): string {
 
 // ---------------------------------------------------------------------------
 
-process.stdout.write(process.argv.slice(2).includes("--rapport") ? `${rapport()}\n` : seed());
+const args = process.argv.slice(2);
+process.stdout.write(
+  args.includes("--rapport") ? `${rapport()}\n` : seed(args.includes("--migration")),
+);

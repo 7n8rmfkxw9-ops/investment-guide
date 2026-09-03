@@ -55,12 +55,20 @@ supabase init          # si pas déjà fait, lier au projet : supabase link
 supabase db push       # applique tout supabase/migrations/
 ```
 
-Puis charger le contenu du cours en base :
+Le contenu du cours fait partie des migrations
+(`20260903000300_contenu_cours.sql`), donc `db push` le charge aussi.
+
+Sans machine sous la main, le workflow **Appliquer les migrations**
+(`workflow_dispatch`) fait la même chose depuis le dépôt. Il commence par un
+essai à blanc ; il n'écrit que si l'entrée `appliquer` vaut `true`. Il demande
+deux secrets : `SUPABASE_ACCESS_TOKEN` et `SUPABASE_DB_PASSWORD`.
+
+Après toute modification de `src/lib/cours.ts`, régénérer la migration de
+contenu :
 
 ```sh
-npm run migrer:cours -- --rapport   # inventaire, sans rien écrire
-npm run migrer:cours > seed.sql     # SQL rejouable
-psql "$DATABASE_URL" -f seed.sql
+npm run migrer:cours -- --rapport                                    # inventaire
+npm run migrer:cours -- --migration > supabase/migrations/20260903000300_contenu_cours.sql
 ```
 
 `src/lib/cours.ts` reste la **source de rédaction** : on y écrit les chapitres,
