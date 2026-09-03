@@ -181,6 +181,26 @@ async function inspecter() {
   console.log("Tables publiques :");
   for (const t of tables) console.log(`  ${t.table_name}`);
 
+  // Ce que contient le socle, quand il existe. Une table creee mais vide se
+  // lit comme une migration reussie alors que le contenu manque.
+  try {
+    const n = await executer(`
+      select
+        (select count(*) from parts) as parties,
+        (select count(*) from chapters) as chapitres,
+        (select count(*) from content_blocks) as blocs,
+        (select count(*) from content_block_sources) as liaisons,
+        (select count(*) from sources) as sources,
+        (select count(*) from content_blocks where figure_ref is not null) as figures,
+        (select count(*) from content_blocks where evidence_level = 'fait_verifie') as verifies,
+        (select count(*) from rules) as regles;
+    `);
+    console.log("\nContenu :");
+    for (const [k, v] of Object.entries(n[0] ?? {})) console.log(`  ${k.padEnd(10)} ${v}`);
+  } catch {
+    console.log("\nContenu : socle absent.");
+  }
+
   let histo;
   try {
     histo = await executer(
@@ -192,6 +212,28 @@ async function inspecter() {
   }
   console.log(`\nHistorique de migrations (${histo.length}) :`);
   for (const h of histo) console.log(`  ${h.version}`);
+}
+
+/**
+ * Inscrit a l'historique des migrations deja en place.
+ *
+ * La base a ete montee a la main, sans table d'historique : les onze migrations
+ * de juillet et aout sont appliquees mais rien ne le dit. Un `supabase db push`
+ * depuis une machine voudrait donc les rejouer et echouerait sur des objets
+ * existants. Les inscrire retablit la coherence, sans toucher au schema — c'est
+ * l'equivalent de `supabase migration repair --status applied`.
+ */
+async function reparer(versions) {
+  await executer(`
+    create schema if not exists supabase_migrations;
+    create table if not exists supabase_migrations.schema_migrations (version text primary key);
+  `);
+  const valeurs = versions.map((v) => `('${v}')`).join(", ");
+  await executer(
+    `insert into supabase_migrations.schema_migrations (version) values ${valeurs}
+       on conflict (version) do nothing;`,
+  );
+  console.log(`${versions.length} version(s) inscrite(s) à l'historique.`);
 }
 
 async function appliquer(fichiers) {
@@ -230,6 +272,12 @@ if (mode === undefined) {
   // Importe comme module (tests) : rien a faire.
 } else if (mode === "inspecter") {
   await inspecter();
+} else if (mode === "reparer") {
+  if (reste.length === 0) {
+    console.error("Aucune version à inscrire.");
+    process.exit(1);
+  }
+  await reparer(reste);
 } else if (mode === "appliquer") {
   if (reste.length === 0) {
     console.error("Aucun fichier à appliquer.");
@@ -237,6 +285,8 @@ if (mode === undefined) {
   }
   await appliquer(reste);
 } else {
-  console.error("Usage : appliquer-migrations.mjs inspecter | appliquer <fichier.sql>...");
+  console.error(
+    "Usage : appliquer-migrations.mjs inspecter | appliquer <fichier.sql>... | reparer <version>...",
+  );
   process.exit(1);
 }
