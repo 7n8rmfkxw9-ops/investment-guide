@@ -59,9 +59,9 @@ Le contenu du cours fait partie des migrations
 (`20260903000300_contenu_cours.sql`), donc `db push` le charge aussi.
 
 Sans machine sous la main, le workflow **Appliquer les migrations**
-(`workflow_dispatch`) fait la même chose depuis le dépôt. Il commence par un
-essai à blanc ; il n'écrit que si l'entrée `appliquer` vaut `true`. Il demande
-deux secrets : `SUPABASE_ACCESS_TOKEN` et `SUPABASE_DB_PASSWORD`.
+(`workflow_dispatch`) fait la même chose depuis le dépôt, via l'API de gestion
+Supabase — donc avec le seul secret `SUPABASE_ACCESS_TOKEN`, sans mot de passe
+de base. Mode `inspecter` par défaut (lecture seule) ; `appliquer` écrit.
 
 Après toute modification de `src/lib/cours.ts`, régénérer la migration de
 contenu :
