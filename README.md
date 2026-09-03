@@ -52,8 +52,22 @@ Auth, Functions) acceptent les requêtes de toute origine ; la fonction
 
 ```sh
 supabase init          # si pas déjà fait, lier au projet : supabase link
-supabase db push       # applique supabase/migrations/20260728000000_init.sql
+supabase db push       # applique tout supabase/migrations/
 ```
+
+Puis charger le contenu du cours en base :
+
+```sh
+npm run migrer:cours -- --rapport   # inventaire, sans rien écrire
+npm run migrer:cours > seed.sql     # SQL rejouable
+psql "$DATABASE_URL" -f seed.sql
+```
+
+`src/lib/cours.ts` reste la **source de rédaction** : on y écrit les chapitres,
+et le script les transpose en base, d'où l'application les lit. Le script est
+idempotent — le rejouer remet la base dans l'état du fichier, sans doublon.
+`src/lib/projection.test.ts` vérifie l'aller-retour complet : les 196 écrans
+doivent se reconstruire à l'identique, sans quoi la CI échoue.
 
 ### 2. Edge Function `sync-edgar`
 

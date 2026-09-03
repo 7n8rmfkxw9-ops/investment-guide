@@ -20,6 +20,7 @@
 
 export type Onglet =
   | "pistes"
+  | "propositions"
   | "marche"
   | "horizon"
   | "simuler"
@@ -87,6 +88,12 @@ export const ONGLETS_SECONDAIRES: DefinitionOnglet[] = [
     label: "Comprendre",
     icone: "📖",
     detail: "À quoi sert l'outil, et comment lire une fiche.",
+  },
+  {
+    id: "propositions",
+    label: "À valider",
+    icone: "📥",
+    detail: "Vérifications proposées à partir de vos données. Rien ne s'exécute.",
   },
   {
     id: "marche",

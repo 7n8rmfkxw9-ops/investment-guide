@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "migrer:cours": "vite-node scripts/migrer-cours.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
