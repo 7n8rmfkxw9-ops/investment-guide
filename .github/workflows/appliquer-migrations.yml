@@ -1,0 +1,84 @@
+name: Appliquer les migrations
+
+# Les migrations vivent dans le depot mais s'appliquent chez Supabase, ce qui
+# demandait jusqu'ici une machine avec le CLI, le jeton et le mot de passe de
+# la base sous la main. Ce workflow fait la meme chose depuis le depot.
+#
+# Deux precautions, parce qu'il ecrit dans une base de production :
+#
+#  1. il commence toujours par un ESSAI A BLANC qui liste ce qui serait
+#     applique. Rien n'est ecrit tant que `appliquer` vaut false ;
+#  2. il verifie la presence des deux secrets avant de commencer, plutot que
+#     d'echouer au milieu avec un message du CLI.
+#
+# Prealable, une seule fois, dans Settings > Secrets and variables > Actions :
+#   - SUPABASE_ACCESS_TOKEN  (https://supabase.com/dashboard/account/tokens)
+#   - SUPABASE_DB_PASSWORD   (Settings > Database > Database password du projet)
+
+on:
+  workflow_dispatch:
+    inputs:
+      appliquer:
+        description: "Écrire réellement dans la base (sinon : essai à blanc)"
+        required: true
+        default: false
+        type: boolean
+
+env:
+  PROJECT_REF: uckzkcphatmdmtibyhyk
+
+jobs:
+  migrer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Vérifier la présence des secrets
+        env:
+          JETON: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          MDP: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          manque=""
+          [ -z "$JETON" ] && manque="$manque SUPABASE_ACCESS_TOKEN"
+          [ -z "$MDP" ] && manque="$manque SUPABASE_DB_PASSWORD"
+          if [ -n "$manque" ]; then
+            echo "::error::Secret(s) absent(s) :$manque — voir l'en-tête de ce fichier."
+            exit 1
+          fi
+          echo "Secrets présents."
+
+      - name: Lier le projet
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase link --project-ref "$PROJECT_REF"
+
+      # Ce que le CLI compte appliquer. Si cette liste contient les migrations
+      # de 2026-07 et 2026-08, c'est que la base n'a pas d'historique : les
+      # rejouer echouerait sur des objets deja existants, et il faudra d'abord
+      # `supabase migration repair --status applied <version>` pour chacune.
+      - name: Essai à blanc
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push --dry-run
+
+      - name: Appliquer
+        if: ${{ inputs.appliquer }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase db push
+
+      - name: Compter ce qui est en base
+        if: ${{ inputs.appliquer }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          supabase db push --dry-run
+          echo "Migrations appliquées. Vérifier dans l'application : onglet Cours."

@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import { basculerLu, chapitresLus } from "../lib/cours";
 import {
-  basculerLu,
-  chapitresLus,
-  CHAPITRES,
-  construireDiapos,
+  chargerProgramme,
   dureeTotale,
   nombreReferences,
-  PARTIES,
-} from "../lib/cours";
+  programmeEnCache,
+  versDiapos,
+  type Programme,
+} from "../lib/contenu";
 import { CARTE, SURTITRE } from "../lib/theme";
 import Repliable from "./Repliable";
 import Diaporama from "./Diaporama";
@@ -19,24 +19,54 @@ import Diaporama from "./Diaporama";
  * navigation imbriquee — sur un telephone, chaque niveau supplementaire est un
  * endroit ou l'on se perd.
  *
- * Chaque chapitre se termine par ses references, avec pour chacune ce qu'elle
- * a mesure ET ses limites. Afficher un resultat sans ses limites reviendrait a
- * presenter une mesure comme une loi.
+ * Le contenu vient desormais de la base. Il est affiche depuis le cache local
+ * des le premier rendu quand il existe, puis rafraichi : sans cela, ouvrir le
+ * cours imposerait d'attendre le reseau a chaque fois, et l'attendre en vain
+ * hors ligne.
  */
 
 export default function CoursPage() {
+  const [programme, setProgramme] = useState<Programme | null>(() => programmeEnCache());
+  const [erreur, setErreur] = useState<string | null>(null);
+  const [chargement, setChargement] = useState(true);
   const [ouvert, setOuvert] = useState<string | null>(null);
   const [lus, setLus] = useState<string[]>([]);
 
   useEffect(() => setLus(chapitresLus()), []);
 
+  useEffect(() => {
+    let vivant = true;
+    chargerProgramme()
+      .then((p) => {
+        if (vivant) {
+          setProgramme(p);
+          setErreur(null);
+        }
+      })
+      .catch((e) => {
+        // Un echec reseau n'efface pas ce qui est deja lisible : on garde le
+        // cache et on signale seulement que le contenu peut ne pas etre a jour.
+        if (vivant) setErreur(String(e?.message ?? e));
+      })
+      .finally(() => {
+        if (vivant) setChargement(false);
+      });
+    return () => {
+      vivant = false;
+    };
+  }, []);
+
   const chapitre = useMemo(
-    () => CHAPITRES.find((c) => c.cle === ouvert) ?? null,
-    [ouvert],
+    () => programme?.chapitres.find((c) => c.cle === ouvert) ?? null,
+    [programme, ouvert],
   );
-  const suivant = chapitre
-    ? (CHAPITRES.find((c) => c.numero === chapitre.numero + 1) ?? null)
-    : null;
+  const suivant = useMemo(
+    () =>
+      chapitre
+        ? (programme?.chapitres.find((c) => c.numero === chapitre.numero + 1) ?? null)
+        : null,
+    [programme, chapitre],
+  );
 
   // Ouvrir un chapitre remplace l'ecran sans changer d'URL : on remonte, comme
   // le fait la navigation principale entre onglets.
@@ -44,10 +74,12 @@ export default function CoursPage() {
     if (ouvert) window.scrollTo({ top: 0, behavior: "auto" });
   }, [ouvert]);
 
-  if (chapitre) {
+  if (chapitre && programme) {
     return (
       <Diaporama
         chapitre={chapitre}
+        diapos={versDiapos(chapitre)}
+        etudes={programme.etudes}
         suivant={suivant}
         onRetour={() => setOuvert(null)}
         onTermine={() => {
@@ -60,7 +92,30 @@ export default function CoursPage() {
     );
   }
 
-  const progression = Math.round((lus.length / CHAPITRES.length) * 100);
+  if (!programme) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-slate-900">Comprendre</h2>
+        {chargement ? (
+          <p className="text-base text-slate-600" role="status">
+            Chargement du programme…
+          </p>
+        ) : (
+          <div className={`${CARTE} p-5 space-y-2`}>
+            <p className="text-base text-slate-700 leading-relaxed">
+              Le programme n'a pas pu être chargé et aucune version n'est
+              enregistrée sur cet appareil. Il faut une connexion pour la
+              première lecture ; ensuite, les chapitres restent consultables
+              hors ligne.
+            </p>
+            {erreur && <p className="text-sm text-slate-500">Détail : {erreur}</p>}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const progression = Math.round((lus.length / programme.chapitres.length) * 100);
 
   return (
     <div className="space-y-6">
@@ -69,18 +124,25 @@ export default function CoursPage() {
           Comprendre, à partir des travaux publiés
         </h2>
         <p className="text-base text-slate-500 leading-snug">
-          {CHAPITRES.length} chapitres en {PARTIES.length} parties,{" "}
-          {dureeTotale()} minutes, {nombreReferences()} références vérifiées une
-          par une. Chaque chapitre finit par un quiz.
+          {programme.chapitres.length} chapitres en {programme.parties.length} parties,{" "}
+          {dureeTotale(programme)} minutes, {nombreReferences(programme)} références
+          vérifiées une par une. Chaque chapitre finit par un quiz.
         </p>
       </header>
+
+      {erreur && (
+        <p className="text-sm text-slate-600">
+          Contenu affiché depuis cet appareil : la dernière mise à jour n'a pas pu
+          être récupérée.
+        </p>
+      )}
 
       {lus.length > 0 && (
         <div className={`${CARTE} p-4 space-y-2`}>
           <div className="flex items-baseline justify-between gap-3">
             <span className={`${SURTITRE} text-slate-500`}>Votre progression</span>
             <span className="text-sm text-slate-600 tabular-nums">
-              {lus.length} / {CHAPITRES.length}
+              {lus.length} / {programme.chapitres.length}
             </span>
           </div>
           <div
@@ -104,49 +166,53 @@ export default function CoursPage() {
 
       {/* Regroupement par partie : un programme se lit comme un plan de cours,
           pas comme dix-huit entrées à la file. */}
-      {PARTIES.map((partie) => (
+      {programme.parties.map((partie) => (
         <section key={partie.cle} className="space-y-3">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">{partie.titre}</h3>
-            <p className="text-sm text-slate-500 leading-snug">{partie.sousTitre}</p>
+            {partie.sousTitre && (
+              <p className="text-sm text-slate-500 leading-snug">{partie.sousTitre}</p>
+            )}
           </div>
           <ol className="space-y-3">
-            {CHAPITRES.filter((c) => c.partie === partie.cle).map((c) => {
-              const lu = lus.includes(c.cle);
-              return (
-                <li key={c.cle}>
-                  <button
-                    type="button"
-                    onClick={() => setOuvert(c.cle)}
-                    className={`${CARTE} w-full text-left p-4 flex items-start gap-3.5 motion-safe:transition-all hover:shadow-carteSurvol focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`}
-                  >
-                    <span
-                      className={`shrink-0 grid h-10 w-10 place-items-center rounded-2xl text-base font-semibold tabular-nums ${
-                        lu ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-                      }`}
-                      aria-hidden
+            {programme.chapitres
+              .filter((c) => c.partie === partie.cle)
+              .map((c) => {
+                const lu = lus.includes(c.cle);
+                return (
+                  <li key={c.cle}>
+                    <button
+                      type="button"
+                      onClick={() => setOuvert(c.cle)}
+                      className={`${CARTE} w-full text-left p-4 flex items-start gap-3.5 motion-safe:transition-all hover:shadow-carteSurvol focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500`}
                     >
-                      {lu ? "✓" : c.numero}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-lg font-semibold text-slate-900 leading-snug">
-                        {c.titre}
+                      <span
+                        className={`shrink-0 grid h-10 w-10 place-items-center rounded-2xl text-base font-semibold tabular-nums ${
+                          lu ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+                        }`}
+                        aria-hidden
+                      >
+                        {lu ? "✓" : c.numero}
                       </span>
-                      <span className="block text-sm text-slate-500 leading-normal mt-1">
-                        {c.question}
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-lg font-semibold text-slate-900 leading-snug">
+                          {c.titre}
+                        </span>
+                        <span className="block text-sm text-slate-500 leading-normal mt-1">
+                          {c.question}
+                        </span>
+                        <span className="block text-xs text-slate-500 mt-1.5 tabular-nums">
+                          {c.blocs.length} écrans · {c.minutes} min ·{" "}
+                          {c.etudes.length > 0
+                            ? `${c.etudes.length} source${c.etudes.length > 1 ? "s" : ""}`
+                            : "arithmétique"}
+                          {lu && <span className="text-emerald-700"> · lu</span>}
+                        </span>
                       </span>
-                      <span className="block text-xs text-slate-500 mt-1.5 tabular-nums">
-                        {construireDiapos(c).length} écrans · {c.minutes} min ·{" "}
-                        {c.etudes.length > 0
-                          ? `${c.etudes.length} source${c.etudes.length > 1 ? "s" : ""}`
-                          : "arithmétique"}
-                        {lu && <span className="text-emerald-700"> · lu</span>}
-                      </span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
+                    </button>
+                  </li>
+                );
+              })}
           </ol>
         </section>
       ))}
@@ -163,10 +229,10 @@ export default function CoursPage() {
         <p>
           Chaque affirmation renvoie à un travail de recherche publié, identifié
           par son DOI et consultable d'un clic. Aucune référence n'a été écrite
-          de mémoire : les {nombreReferences()} sources ont été vérifiées contre
-          la base bibliographique de Crossref — titre, auteurs, année, revue —
-          avant d'être intégrées, puis chaque DOI a été résolu pour confirmer
-          qu'il pointe bien vers le travail cité.
+          de mémoire : les {nombreReferences(programme)} sources ont été
+          vérifiées contre la base bibliographique de Crossref — titre, auteurs,
+          année, revue — avant d'être intégrées, puis chaque DOI a été résolu
+          pour confirmer qu'il pointe bien vers le travail cité.
         </p>
         <p>
           Chaque étude est présentée avec ses limites. Une étude sans ses

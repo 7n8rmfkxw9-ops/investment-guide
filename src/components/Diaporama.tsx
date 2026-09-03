@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import type { BlocCours, Chapitre, DiapoProjetee, Question } from "../lib/cours";
-import {
-  construireDiapos,
-  indexApres,
-  pleinEcranNatifDisponible,
-} from "../lib/cours";
-import { ETUDES, lienDoi } from "../lib/etudes";
+import type { BlocCours, DiapoProjetee, Question } from "../lib/cours";
+import { indexApres, pleinEcranNatifDisponible } from "../lib/cours";
+import type { Etude } from "../lib/etudes";
+import { lienDoi } from "../lib/etudes";
 import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, SURTITRE } from "../lib/theme";
 import { Figure } from "./Figures";
 
@@ -180,7 +177,7 @@ function Bloc({ b }: { b: BlocCours }) {
   }
 }
 
-function ContenuDiapo({ d }: { d: DiapoProjetee }) {
+function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, Etude> }) {
   if (d.kind === "quiz") {
     return (
       <div className="min-h-[22rem] flex flex-col justify-center">
@@ -189,7 +186,10 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
     );
   }
   if (d.kind === "etude") {
-    const e = ETUDES[d.cle];
+    const e = etudes[d.cle];
+    // Une reference absente du catalogue recu : mieux vaut sauter l'ecran que
+    // rendre une fiche vide portant le mot « Source ».
+    if (!e) return null;
     return (
       <Coquille>
         <p className={`${SURTITRE} text-slate-500`}>Source</p>
@@ -408,18 +408,37 @@ function ContenuDiapo({ d }: { d: DiapoProjetee }) {
   );
 }
 
+/**
+ * Ce dont le diaporama a besoin pour afficher un chapitre.
+ *
+ * Volontairement reduit a quatre champs : le composant n'a jamais eu besoin du
+ * chapitre entier, et le lier a la forme complete l'aurait rendu solidaire du
+ * fichier `cours.ts` au moment ou le contenu part en base.
+ */
+export interface EnTeteChapitre {
+  cle: string;
+  numero: number;
+  titre: string;
+  minutes: number;
+}
+
 export default function Diaporama({
   chapitre,
+  diapos,
+  etudes,
   onRetour,
   onTermine,
   suivant,
 }: {
-  chapitre: Chapitre;
+  chapitre: EnTeteChapitre;
+  /** Ecrans deja projetes : le diaporama affiche, il ne construit plus. */
+  diapos: DiapoProjetee[];
+  /** Catalogue des references citees par ce chapitre. */
+  etudes: Record<string, Etude>;
   onRetour: () => void;
   onTermine: () => void;
-  suivant: Chapitre | null;
+  suivant: EnTeteChapitre | null;
 }) {
-  const diapos = construireDiapos(chapitre);
   const [i, setI] = useState(0);
   const [toutLire, setToutLire] = useState(false);
   const [plein, setPlein] = useState(false);
@@ -514,7 +533,7 @@ export default function Diaporama({
         </button>
         {diapos.map((d, n) => (
           <div key={n} className={`${CARTE} p-5`}>
-            <ContenuDiapo d={d} />
+            <ContenuDiapo d={d} etudes={etudes} />
           </div>
         ))}
         <button type="button" onClick={onTermine} className={BOUTON_PRINCIPAL}>
@@ -576,7 +595,7 @@ export default function Diaporama({
             aria-live="polite"
             className="min-h-full flex flex-col justify-center motion-safe:animate-entreePage"
           >
-            <ContenuDiapo d={diapos[i]} />
+            <ContenuDiapo d={diapos[i]} etudes={etudes} />
           </div>
         </div>
 
@@ -651,7 +670,7 @@ export default function Diaporama({
             l'animation d'entree. `aria-live` annonce le changement a un
             lecteur d'ecran, qui ne verrait rien bouger autrement. */}
         <div key={i} aria-live="polite" className="motion-safe:animate-entreePage">
-          <ContenuDiapo d={diapos[i]} />
+          <ContenuDiapo d={diapos[i]} etudes={etudes} />
         </div>
       </div>
 
@@ -700,7 +719,7 @@ export default function Diaporama({
   );
 }
 
-function EnTete({ c, onRetour }: { c: Chapitre; onRetour: () => void }) {
+function EnTete({ c, onRetour }: { c: EnTeteChapitre; onRetour: () => void }) {
   return (
     <div className="space-y-2">
       <button

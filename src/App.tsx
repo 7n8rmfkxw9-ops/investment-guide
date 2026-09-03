@@ -9,6 +9,7 @@ import AccountPage from "./components/AccountPage";
 import PositionsPage from "./components/PositionsPage";
 import LearnPage from "./components/LearnPage";
 import CoursPage from "./components/CoursPage";
+import PropositionsPage from "./components/PropositionsPage";
 import InvestPage from "./components/InvestPage";
 import SimulatorPage from "./components/SimulatorPage";
 import type { AmorceSimulation } from "./components/SimulatorPage";
@@ -136,6 +137,7 @@ export default function App() {
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}
       >
         {tab === "pistes" && <Dashboard onSimuler={simulerDepuisPiste} />}
+        {tab === "propositions" && <PropositionsPage />}
         {tab === "marche" && <MarketPage />}
         {tab === "horizon" && <HorizonPage />}
         {tab === "simuler" && (

@@ -52,8 +52,30 @@ Auth, Functions) acceptent les requêtes de toute origine ; la fonction
 
 ```sh
 supabase init          # si pas déjà fait, lier au projet : supabase link
-supabase db push       # applique supabase/migrations/20260728000000_init.sql
+supabase db push       # applique tout supabase/migrations/
 ```
+
+Le contenu du cours fait partie des migrations
+(`20260903000300_contenu_cours.sql`), donc `db push` le charge aussi.
+
+Sans machine sous la main, le workflow **Appliquer les migrations**
+(`workflow_dispatch`) fait la même chose depuis le dépôt. Il commence par un
+essai à blanc ; il n'écrit que si l'entrée `appliquer` vaut `true`. Il demande
+deux secrets : `SUPABASE_ACCESS_TOKEN` et `SUPABASE_DB_PASSWORD`.
+
+Après toute modification de `src/lib/cours.ts`, régénérer la migration de
+contenu :
+
+```sh
+npm run migrer:cours -- --rapport                                    # inventaire
+npm run migrer:cours -- --migration > supabase/migrations/20260903000300_contenu_cours.sql
+```
+
+`src/lib/cours.ts` reste la **source de rédaction** : on y écrit les chapitres,
+et le script les transpose en base, d'où l'application les lit. Le script est
+idempotent — le rejouer remet la base dans l'état du fichier, sans doublon.
+`src/lib/projection.test.ts` vérifie l'aller-retour complet : les 196 écrans
+doivent se reconstruire à l'identique, sans quoi la CI échoue.
 
 ### 2. Edge Function `sync-edgar`
 
