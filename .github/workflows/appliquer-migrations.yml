@@ -1,28 +1,36 @@
 name: Appliquer les migrations
 
 # Les migrations vivent dans le depot mais s'appliquent chez Supabase, ce qui
-# demandait jusqu'ici une machine avec le CLI, le jeton et le mot de passe de
-# la base sous la main. Ce workflow fait la meme chose depuis le depot.
+# demandait jusqu'ici une machine avec le CLI et les identifiants sous la main.
+#
+# Ce workflow passe par l'API de gestion Supabase — celle qu'utilise l'editeur
+# SQL du tableau de bord — plutot que par `supabase db push`. La raison est
+# concrete : `db push` se connecte directement a Postgres et exige donc le mot
+# de passe de la base, un secret de plus a deposer, alors que le jeton de compte
+# existe deja dans ce depot.
 #
 # Deux precautions, parce qu'il ecrit dans une base de production :
 #
-#  1. il commence toujours par un ESSAI A BLANC qui liste ce qui serait
-#     applique. Rien n'est ecrit tant que `appliquer` vaut false ;
-#  2. il verifie la presence des deux secrets avant de commencer, plutot que
-#     d'echouer au milieu avec un message du CLI.
+#  1. le mode `inspecter` ne lit rien d'autre que la liste des tables et
+#     l'historique des migrations. C'est le mode par defaut ;
+#  2. `appliquer` n'ecrit que les quatre migrations de septembre. Les onze
+#     precedentes ne sont jamais rejouees : elles sont deja en place, et les
+#     repasser echouerait sur des objets existants.
 #
-# Prealable, une seule fois, dans Settings > Secrets and variables > Actions :
-#   - SUPABASE_ACCESS_TOKEN  (https://supabase.com/dashboard/account/tokens)
-#   - SUPABASE_DB_PASSWORD   (Settings > Database > Database password du projet)
+# Secret requis : SUPABASE_ACCESS_TOKEN
+# (https://supabase.com/dashboard/account/tokens)
 
 on:
   workflow_dispatch:
     inputs:
-      appliquer:
-        description: "Écrire réellement dans la base (sinon : essai à blanc)"
+      mode:
+        description: "inspecter (lecture seule) ou appliquer (écrit dans la base)"
         required: true
-        default: false
-        type: boolean
+        default: inspecter
+        type: choice
+        options:
+          - inspecter
+          - appliquer
 
 env:
   PROJECT_REF: uckzkcphatmdmtibyhyk
@@ -32,53 +40,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: supabase/setup-cli@v1
+      - uses: actions/setup-node@v4
         with:
-          version: latest
+          node-version: 24
 
-      - name: Vérifier la présence des secrets
+      - name: Vérifier la présence du jeton
         env:
           JETON: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          MDP: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
-          manque=""
-          [ -z "$JETON" ] && manque="$manque SUPABASE_ACCESS_TOKEN"
-          [ -z "$MDP" ] && manque="$manque SUPABASE_DB_PASSWORD"
-          if [ -n "$manque" ]; then
-            echo "::error::Secret(s) absent(s) :$manque — voir l'en-tête de ce fichier."
+          if [ -z "$JETON" ]; then
+            echo "::error::Secret SUPABASE_ACCESS_TOKEN absent. Voir l'en-tête de ce fichier."
             exit 1
           fi
-          echo "Secrets présents."
+          echo "Jeton présent."
 
-      - name: Lier le projet
+      # Toujours joue, y compris avant d'appliquer : on veut savoir dans quel
+      # etat est la base avant de la modifier, pas seulement apres.
+      - name: Inspecter
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-        run: supabase link --project-ref "$PROJECT_REF"
-
-      # Ce que le CLI compte appliquer. Si cette liste contient les migrations
-      # de 2026-07 et 2026-08, c'est que la base n'a pas d'historique : les
-      # rejouer echouerait sur des objets deja existants, et il faudra d'abord
-      # `supabase migration repair --status applied <version>` pour chacune.
-      - name: Essai à blanc
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-        run: supabase db push --dry-run
+        run: node scripts/appliquer-migrations.mjs inspecter
 
       - name: Appliquer
-        if: ${{ inputs.appliquer }}
+        if: ${{ inputs.mode == 'appliquer' }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-        run: supabase db push
-
-      - name: Compter ce qui est en base
-        if: ${{ inputs.appliquer }}
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
-          supabase db push --dry-run
-          echo "Migrations appliquées. Vérifier dans l'application : onglet Cours."
+          node scripts/appliquer-migrations.mjs appliquer \
+            supabase/migrations/20260903000000_socle_contenu.sql \
+            supabase/migrations/20260903000100_socle_assistant.sql \
+            supabase/migrations/20260903000200_regles_assurances.sql \
+            supabase/migrations/20260903000300_contenu_cours.sql
+
+      - name: Vérifier le résultat
+        if: ${{ inputs.mode == 'appliquer' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/appliquer-migrations.mjs inspecter
