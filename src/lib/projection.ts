@@ -11,6 +11,7 @@
  */
 
 import {
+  ATTRIBUTIONS,
   CHAPITRES,
   construireDiapos,
   texteDiapo,
@@ -63,7 +64,28 @@ export function figureDe(d: Diapo): string | null {
  * fabriquerait une chaine de justification credible et fausse.
  */
 export function lignesDuChapitre(c: Chapitre): LigneBloc[] {
-  return construireDiapos(c).map((d) => ligneDe(d));
+  return construireDiapos(c).map((d) => attribuer(c, ligneDe(d), d));
+}
+
+/** Titre porte par une diapositive de contenu, quand elle en a un. */
+function titreDe(d: DiapoProjetee): string | null {
+  if (d.kind !== "contenu") return null;
+  return "titre" in d.diapo ? d.diapo.titre : null;
+}
+
+/**
+ * Applique l'attribution declaree, s'il en existe une pour ce bloc.
+ *
+ * Un bloc attribue passe en `fait_verifie` et porte sa source. Rien d'autre ne
+ * peut faire monter un bloc d'un cran : l'attribution est ecrite a la main,
+ * relue, et testee contre les etudes du chapitre.
+ */
+function attribuer(c: Chapitre, l: LigneBloc, d: DiapoProjetee): LigneBloc {
+  const titre = titreDe(d);
+  if (titre === null) return l;
+  const a = ATTRIBUTIONS.find((x) => x.chapitre === c.cle && x.titre === titre);
+  if (!a) return l;
+  return { ...l, niveau: "fait_verifie", sources: a.etudes };
 }
 
 function ligneDe(d: DiapoProjetee): LigneBloc {

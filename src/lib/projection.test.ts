@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CHAPITRES, construireDiapos } from "./cours";
+import { ATTRIBUTIONS, CHAPITRES, construireDiapos } from "./cours";
 import { ETUDES } from "./etudes";
 import { FIGURES } from "../components/Figures";
 import { lignesDuChapitre, lignesDuProgramme } from "./projection";
@@ -61,9 +61,39 @@ describe("niveau de preuve", () => {
 
   it("ne déclare vérifié qu'un bloc qui porte réellement sa source", () => {
     for (const l of toutes) {
-      if (l.niveau === "fait_verifie") {
-        expect(l.blockType).toBe("etude");
-        expect(l.sources.length).toBeGreaterThanOrEqual(1);
+      if (l.niveau === "fait_verifie") expect(l.sources.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("n'attribue une source à de la prose que par déclaration explicite", () => {
+    // Un bloc de prose verifie ne peut exister que s'il figure dans
+    // ATTRIBUTIONS. Sans ce garde-fou, une future modification de la projection
+    // pourrait rattacher des references par heuristique — exactement la chaine
+    // de justification credible et fausse qu'on refuse de fabriquer.
+    const prose = toutes.filter((l) => l.niveau === "fait_verifie" && l.blockType !== "etude");
+    expect(prose).toHaveLength(ATTRIBUTIONS.length);
+  });
+
+  it("fait correspondre chaque attribution à exactement un bloc", () => {
+    // L'identification se fait par titre : si un titre est reecrit sans mettre
+    // a jour ATTRIBUTIONS, l'attribution disparaitrait en silence.
+    for (const a of ATTRIBUTIONS) {
+      const c = CHAPITRES.find((x) => x.cle === a.chapitre);
+      expect(c, `chapitre « ${a.chapitre} » introuvable`).toBeDefined();
+      const correspondants = construireDiapos(c!).filter(
+        (d) => d.kind === "contenu" && "titre" in d.diapo && d.diapo.titre === a.titre,
+      );
+      expect(correspondants, `« ${a.titre} » dans ${a.chapitre}`).toHaveLength(1);
+    }
+  });
+
+  it("n'attribue que des études déjà citées par le chapitre", () => {
+    // Rattacher a un paragraphe une reference que le chapitre ne cite pas
+    // reviendrait a ajouter une source, pas a en localiser une.
+    for (const a of ATTRIBUTIONS) {
+      const c = CHAPITRES.find((x) => x.cle === a.chapitre)!;
+      for (const e of a.etudes) {
+        expect(c.etudes, `${e} absente des études de ${a.chapitre}`).toContain(e);
       }
     }
   });

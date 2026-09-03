@@ -433,3 +433,38 @@ export const REGLES_ASSURANCES = {
 export function evaluerAssurances(ctx: Contexte): Brouillon[] {
   return Object.values(REGLES_ASSURANCES).flatMap((r) => r(ctx));
 }
+
+// ---------------------------------------------------------------------------
+// Ce que les regles lisent
+//
+// Une regle lit ses faits par leur cle exacte. Une cle mal orthographiee ne
+// produit pas d'erreur : elle produit un fait que personne ne lit, donc une
+// regle qui ne se declenche jamais, sans que rien ne le signale. C'est le pire
+// mode de defaillance possible pour cet outil — silencieux et rassurant.
+//
+// Ces deux listes sont donc la reference : l'ecran de saisie n'y propose que
+// ces cles, et un test verifie qu'aucune n'a ete oubliee.
+
+/** Cles de `personal_facts` lues par au moins une regle de ce domaine. */
+export const CLES_FAITS = [
+  "habitation.valeur_assuree_eur",
+  "habitation.travaux_cumules_eur",
+  "habitation.valeur_revisee_le",
+  "habitation.seuil_travaux_pct",
+  "mutualite.derniere_revue_le",
+  "mutualite.caisse_actuelle",
+  "credit.capital_restant_eur",
+  "credit.srd_couverture_eur",
+  "assurance.echeance_le",
+  "assurance.contrat",
+] as const;
+
+/** Domaines de `signals` lus par au moins une regle, et cles de leur payload. */
+export const DOMAINES_SIGNAUX = [
+  {
+    domaine: "mutualite",
+    cles: ["caisse", ...POSTES_MUTUALITE.map((p) => p.cle)],
+  },
+  { domaine: "credit", cles: ["evenement", "capital_restant_eur"] },
+  { domaine: "assurance_preavis", cles: ["preavis_jours"] },
+] as const;

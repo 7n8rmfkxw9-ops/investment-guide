@@ -21,6 +21,7 @@
 export type Onglet =
   | "pistes"
   | "propositions"
+  | "donnees"
   | "marche"
   | "horizon"
   | "simuler"
@@ -57,10 +58,10 @@ export const ONGLETS_PRINCIPAUX: DefinitionOnglet[] = [
     detail: "Les déclarations officielles repérées cette semaine.",
   },
   {
-    id: "horizon",
-    label: "Horizon",
-    icone: "⏳",
-    detail: "Ce que la durée de détention a changé, dans le passé.",
+    id: "propositions",
+    label: "À valider",
+    icone: "📥",
+    detail: "Vérifications proposées à partir de vos données. Rien ne s'exécute.",
   },
   {
     id: "simuler",
@@ -90,10 +91,16 @@ export const ONGLETS_SECONDAIRES: DefinitionOnglet[] = [
     detail: "À quoi sert l'outil, et comment lire une fiche.",
   },
   {
-    id: "propositions",
-    label: "À valider",
-    icone: "📥",
-    detail: "Vérifications proposées à partir de vos données. Rien ne s'exécute.",
+    id: "donnees",
+    label: "Mes données",
+    icone: "📇",
+    detail: "Ce que l'assistant sait de vous, et depuis quand.",
+  },
+  {
+    id: "horizon",
+    label: "Horizon",
+    icone: "⏳",
+    detail: "Ce que la durée de détention a changé, dans le passé.",
   },
   {
     id: "marche",

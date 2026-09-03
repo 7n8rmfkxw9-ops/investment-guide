@@ -236,10 +236,37 @@ async function reparer(versions) {
   console.log(`${versions.length} version(s) inscrite(s) à l'historique.`);
 }
 
-async function appliquer(fichiers) {
+/** Versions deja inscrites a l'historique. */
+async function dejaAppliquees() {
+  try {
+    const r = await executer(
+      "select version from supabase_migrations.schema_migrations order by version;",
+    );
+    return new Set(r.map((x) => x.version));
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * @param fichiers  migrations a appliquer
+ * @param rejouer   ignorer l'historique et rejouer quand meme
+ *
+ * Sans `rejouer`, une migration deja inscrite est sautee. C'est indispensable
+ * pour les migrations de schema : rejouer un `create type` echoue sur un objet
+ * existant. Le fichier de contenu, lui, est concu pour etre rejoue — il
+ * remplace ses blocs — et c'est le seul qu'on relance apres une correction du
+ * cours.
+ */
+async function appliquer(fichiers, rejouer = false) {
+  const histo = rejouer ? new Set() : await dejaAppliquees();
   for (const f of fichiers) {
-    const sql = readFileSync(f, "utf8");
     const version = basename(f).split("_")[0];
+    if (histo.has(version)) {
+      console.log(`\n${basename(f)} — déjà appliquée, ignorée`);
+      continue;
+    }
+    const sql = readFileSync(f, "utf8");
     const instructions = decouper(sql);
     console.log(`\n${basename(f)} — ${instructions.length} instructions`);
 
@@ -278,15 +305,17 @@ if (mode === undefined) {
     process.exit(1);
   }
   await reparer(reste);
-} else if (mode === "appliquer") {
-  if (reste.length === 0) {
+} else if (mode === "appliquer" || mode === "rejouer") {
+  const fichiers = reste.filter((x) => x !== "--rejouer");
+  if (fichiers.length === 0) {
     console.error("Aucun fichier à appliquer.");
     process.exit(1);
   }
-  await appliquer(reste);
+  await appliquer(fichiers, mode === "rejouer");
 } else {
   console.error(
-    "Usage : appliquer-migrations.mjs inspecter | appliquer <fichier.sql>... | reparer <version>...",
+    "Usage : appliquer-migrations.mjs inspecter | appliquer <fichier.sql>... | " +
+      "rejouer <fichier.sql>... | reparer <version>...",
   );
   process.exit(1);
 }
