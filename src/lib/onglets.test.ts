@@ -30,9 +30,8 @@ describe("répartition de la navigation", () => {
     // qu'aucun bouton n'y mene : exactement ce qui est arrive a
     // « Comprendre », noyee hors ecran dans l'ancienne barre.
     const attendus: Onglet[] = [
-      "pistes", "propositions", "donnees", "marche", "horizon", "simuler",
-      "journal", "comprendre", "cours", "investir", "positions", "historique",
-      "configuration", "compte",
+      "pistes", "propositions", "simuler", "journal",
+      "cours", "comprendre", "donnees", "marche", "configuration",
     ];
     const ids = new Set(TOUS_LES_ONGLETS.map((o) => o.id));
     for (const a of attendus) expect(ids.has(a), a).toBe(true);
@@ -78,11 +77,35 @@ describe("estPrincipal", () => {
   it("reconnait une destination de la feuille", () => {
     expect(estPrincipal("configuration")).toBe(false);
   });
+
+  /**
+   * Les destinations ont ete regroupees de quatorze a neuf : cinq paires
+   * traitaient du meme objet a deux endroits. Ce plafond n'est pas decoratif —
+   * chaque destination de trop est une question posee a l'utilisateur avant
+   * chaque usage : « laquelle des deux, deja ? »
+   */
+  it("garde le nombre de destinations sous contrôle", () => {
+    expect(TOUS_LES_ONGLETS.length).toBeLessThanOrEqual(9);
+  });
+
+  it("donne une icône distincte à chaque destination", () => {
+    // Deux destinations partageant une icone se confondent dans la feuille,
+    // ou seule l'icone est lue de loin. « Cours » et « S'entrainer » ont
+    // effectivement porte le meme mortier pendant un temps.
+    const icones = TOUS_LES_ONGLETS.map((o) => o.icone);
+    expect(new Set(icones).size).toBe(icones.length);
+  });
+
+  it("décrit chaque destination sans répéter une autre", () => {
+    const details = TOUS_LES_ONGLETS.map((o) => o.detail);
+    for (const d of details) expect(d.length).toBeGreaterThan(20);
+    expect(new Set(details).size).toBe(details.length);
+  });
 });
 
 describe("definitionDe", () => {
   it("retrouve une destination par son identifiant", () => {
-    expect(definitionDe("horizon")?.label).toBe("Horizon");
+    expect(definitionDe("marche")?.label).toBe("Marché");
   });
 
   it("renvoie undefined pour un identifiant inconnu", () => {
