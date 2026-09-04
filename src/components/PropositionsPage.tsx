@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { BOUTON_DOUX, BOUTON_PRINCIPAL, CARTE, CHAMP, SURTITRE } from "../lib/theme";
+import SousOnglets, { panneau } from "./SousOnglets";
 
 /**
  * Boite de validation.
@@ -139,26 +140,19 @@ export default function PropositionsPage() {
         </p>
       </div>
 
-      <div className="flex gap-2" role="tablist" aria-label="Filtrer les propositions">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={!historique}
-          onClick={() => setHistorique(false)}
-          className={!historique ? BOUTON_PRINCIPAL : BOUTON_DOUX}
-        >
-          En attente ({enAttente.length})
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={historique}
-          onClick={() => setHistorique(true)}
-          className={historique ? BOUTON_PRINCIPAL : BOUTON_DOUX}
-        >
-          Décidées ({decidees.length})
-        </button>
-      </div>
+      {/* Meme composant que les autres destinations a deux vues : une rangee de
+          boutons ne s'annonce pas comme un groupe d'onglets et n'accepte pas
+          les fleches, alors qu'elle joue exactement ce role. */}
+      <SousOnglets
+        base="propositions"
+        etiquette="Filtrer les propositions"
+        courante={historique ? "decidees" : "attente"}
+        onChange={(c) => setHistorique(c === "decidees")}
+        vues={[
+          { cle: "attente", label: "En attente", compte: enAttente.length },
+          { cle: "decidees", label: "Décidées", compte: decidees.length },
+        ]}
+      />
 
       <button
         type="button"
@@ -212,7 +206,10 @@ export default function PropositionsPage() {
         </div>
       )}
 
-      <ul className="space-y-4">
+      <ul
+        {...panneau("propositions", historique ? "decidees" : "attente")}
+        className="space-y-4 focus:outline-none"
+      >
         {liste.map((p) => (
           <li key={p.id}>
             <Fiche proposition={p} onDecide={charger} />

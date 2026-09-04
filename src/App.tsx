@@ -2,21 +2,16 @@ import { useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import AuthPage from "./components/AuthPage";
-import Dashboard from "./components/Dashboard";
-import History from "./components/History";
-import SettingsPage from "./components/SettingsPage";
-import AccountPage from "./components/AccountPage";
-import PositionsPage from "./components/PositionsPage";
-import LearnPage from "./components/LearnPage";
-import CoursPage from "./components/CoursPage";
+import PistesPage from "./components/PistesPage";
 import PropositionsPage from "./components/PropositionsPage";
-import DonneesPage from "./components/DonneesPage";
-import InvestPage from "./components/InvestPage";
-import SimulatorPage from "./components/SimulatorPage";
-import type { AmorceSimulation } from "./components/SimulatorPage";
-import MarketPage from "./components/MarketPage";
-import HorizonPage from "./components/HorizonPage";
+import EntrainementPage from "./components/EntrainementPage";
 import JournalPage from "./components/JournalPage";
+import CoursPage from "./components/CoursPage";
+import ComprendrePage from "./components/ComprendrePage";
+import DonneesPage from "./components/DonneesPage";
+import MarchePage from "./components/MarchePage";
+import ReglagesPage from "./components/ReglagesPage";
+import type { AmorceSimulation } from "./components/SimulatorPage";
 import NavigationBasse from "./components/NavigationBasse";
 import SyncStatusBanner from "./components/SyncStatusBanner";
 import { definitionDe } from "./lib/onglets";
@@ -137,22 +132,17 @@ export default function App() {
         // cela, la derniere carte de chaque page passe sous la navigation.
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}
       >
-        {tab === "pistes" && <Dashboard onSimuler={simulerDepuisPiste} />}
+        {tab === "pistes" && <PistesPage onSimuler={simulerDepuisPiste} />}
         {tab === "propositions" && <PropositionsPage />}
-        {tab === "donnees" && <DonneesPage />}
-        {tab === "marche" && <MarketPage />}
-        {tab === "horizon" && <HorizonPage />}
         {tab === "simuler" && (
-          <SimulatorPage amorce={amorce} onAmorceConsommee={() => setAmorce(null)} />
+          <EntrainementPage amorce={amorce} onAmorceConsommee={() => setAmorce(null)} />
         )}
         {tab === "journal" && <JournalPage />}
         {tab === "cours" && <CoursPage />}
-        {tab === "comprendre" && <LearnPage />}
-        {tab === "investir" && <InvestPage />}
-        {tab === "positions" && <PositionsPage />}
-        {tab === "historique" && <History />}
-        {tab === "configuration" && <SettingsPage />}
-        {tab === "compte" && <AccountPage />}
+        {tab === "comprendre" && <ComprendrePage />}
+        {tab === "donnees" && <DonneesPage />}
+        {tab === "marche" && <MarchePage />}
+        {tab === "configuration" && <ReglagesPage />}
       </main>
 
       <NavigationBasse
