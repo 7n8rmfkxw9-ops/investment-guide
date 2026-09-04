@@ -236,6 +236,35 @@ async function reparer(versions) {
   console.log(`${versions.length} version(s) inscrite(s) à l'historique.`);
 }
 
+/**
+ * Noms des secrets configures pour les Edge Functions.
+ *
+ * L'API renvoie aussi leurs valeurs. On ne lit QUE le nom, et rien d'autre ne
+ * sort de cette fonction : un journal d'execution GitHub est consultable par
+ * quiconque a acces au depot, et une cle d'API qui y apparait une seconde est
+ * une cle a revoquer. La question posee est « ce secret existe-t-il ? », pas
+ * « que vaut-il ? ».
+ */
+async function secrets() {
+  const { jeton, ref } = config();
+  const r = await fetch(`https://api.supabase.com/v1/projects/${ref}/secrets`, {
+    headers: { authorization: `Bearer ${jeton}` },
+  });
+  if (!r.ok) {
+    console.log(`Secrets : illisibles (${r.status})`);
+    return;
+  }
+  const noms = (await r.json()).map((x) => x.name).sort();
+  console.log(`Secrets configurés (${noms.length}) :`);
+  for (const n of noms) console.log(`  ${n}`);
+
+  const attendus = ["ANTHROPIC_API_KEY", "SEC_USER_AGENT"];
+  console.log("");
+  for (const a of attendus) {
+    console.log(`  ${noms.includes(a) ? "présent" : "ABSENT "}  ${a}`);
+  }
+}
+
 /** Versions deja inscrites a l'historique. */
 async function dejaAppliquees() {
   try {
@@ -299,6 +328,8 @@ if (mode === undefined) {
   // Importe comme module (tests) : rien a faire.
 } else if (mode === "inspecter") {
   await inspecter();
+} else if (mode === "secrets") {
+  await secrets();
 } else if (mode === "reparer") {
   if (reste.length === 0) {
     console.error("Aucune version à inscrire.");
@@ -314,7 +345,7 @@ if (mode === undefined) {
   await appliquer(fichiers, mode === "rejouer");
 } else {
   console.error(
-    "Usage : appliquer-migrations.mjs inspecter | appliquer <fichier.sql>... | " +
+    "Usage : appliquer-migrations.mjs inspecter | secrets | appliquer <fichier.sql>... | " +
       "rejouer <fichier.sql>... | reparer <version>...",
   );
   process.exit(1);

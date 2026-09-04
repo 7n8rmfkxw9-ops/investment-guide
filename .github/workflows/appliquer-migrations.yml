@@ -30,6 +30,7 @@ on:
         type: choice
         options:
           - inspecter
+          - secrets
           - appliquer
           - contenu
           - reparer
@@ -59,9 +60,18 @@ jobs:
       # Toujours joue, y compris avant d'appliquer : on veut savoir dans quel
       # etat est la base avant de la modifier, pas seulement apres.
       - name: Inspecter
+        if: ${{ inputs.mode != 'secrets' }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: node scripts/appliquer-migrations.mjs inspecter
+
+      # Seuls les NOMS des secrets sont affiches. Un journal d'execution est
+      # consultable par quiconque a acces au depot.
+      - name: Lister les secrets des Edge Functions
+        if: ${{ inputs.mode == 'secrets' }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: node scripts/appliquer-migrations.mjs secrets
 
       # Les onze migrations de juillet et aout ont ete appliquees a la main,
       # sans historique. Les inscrire evite qu'un futur `supabase db push`
@@ -97,7 +107,7 @@ jobs:
             supabase/migrations/20260903000300_contenu_cours.sql
 
       - name: Vérifier le résultat
-        if: ${{ inputs.mode != 'inspecter' }}
+        if: ${{ inputs.mode != 'inspecter' && inputs.mode != 'secrets' }}
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: node scripts/appliquer-migrations.mjs inspecter
