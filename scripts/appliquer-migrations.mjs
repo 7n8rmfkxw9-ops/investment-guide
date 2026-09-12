@@ -237,6 +237,68 @@ async function reparer(versions) {
 }
 
 /**
+ * Etat du moteur : ce qui a ete saisi, et ce que les regles en ont fait.
+ *
+ * COMPTEURS UNIQUEMENT. Aucune valeur de fait, aucun montant, aucun texte de
+ * proposition ne sort d'ici. Ce depot est public et ses journaux d'execution le
+ * sont donc aussi : la valeur assuree d'une habitation ou le capital restant du
+ * d'un credit n'y ont pas leur place. La question posee est « les regles se
+ * sont-elles declenchees comme prevu ? », et un decompte y repond entierement.
+ *
+ * Les cles de regle et les statuts apparaissent : ce sont des noms de code,
+ * definis dans ce depot, pas des donnees personnelles.
+ */
+async function diagnostic() {
+  const lignes = async (sql, titre) => {
+    try {
+      const r = await executer(sql);
+      console.log(`\n${titre}`);
+      if (r.length === 0) {
+        console.log("  (aucun)");
+        return;
+      }
+      for (const l of r) {
+        console.log(
+          "  " +
+            Object.entries(l)
+              .map(([k, v]) => `${k}=${v}`)
+              .join("  "),
+        );
+      }
+    } catch (e) {
+      console.log(`\n${titre}\n  illisible : ${String(e.message).slice(0, 160)}`);
+    }
+  };
+
+  await lignes(
+    "select domain, count(*) as faits from personal_facts group by domain order by domain;",
+    "Faits saisis, par domaine",
+  );
+  await lignes(
+    "select count(*) as faits_perimes from stale_facts;",
+    "Faits à reconfirmer",
+  );
+  await lignes(
+    "select domain, count(*) as signaux, max(observed_at)::date as dernier from signals group by domain order by domain;",
+    "Signaux enregistrés, par domaine",
+  );
+  await lignes(
+    `select r.key as regle, p.status, count(*) as n,
+            count(*) filter (where p.rationale_plain is not null) as reformulees,
+            count(*) filter (where coalesce(array_length(p.source_urls, 1), 0) > 0) as avec_source
+       from proposals p join rules r on r.id = p.rule_id
+      group by r.key, p.status order by r.key, p.status;`,
+    "Propositions, par règle et par statut",
+  );
+  await lignes(
+    "select count(*) as evenements from proposal_events;",
+    "Journal d'audit",
+  );
+
+  console.log("\nAucune valeur personnelle n'a été lue : uniquement des décomptes.");
+}
+
+/**
  * Noms des secrets configures pour les Edge Functions.
  *
  * L'API renvoie aussi leurs valeurs. On ne lit QUE le nom, et rien d'autre ne
@@ -328,6 +390,8 @@ if (mode === undefined) {
   // Importe comme module (tests) : rien a faire.
 } else if (mode === "inspecter") {
   await inspecter();
+} else if (mode === "diagnostic") {
+  await diagnostic();
 } else if (mode === "secrets") {
   await secrets();
 } else if (mode === "reparer") {
@@ -345,7 +409,7 @@ if (mode === undefined) {
   await appliquer(fichiers, mode === "rejouer");
 } else {
   console.error(
-    "Usage : appliquer-migrations.mjs inspecter | secrets | appliquer <fichier.sql>... | " +
+    "Usage : appliquer-migrations.mjs inspecter | diagnostic | secrets | appliquer <fichier.sql>... | " +
       "rejouer <fichier.sql>... | reparer <version>...",
   );
   process.exit(1);
