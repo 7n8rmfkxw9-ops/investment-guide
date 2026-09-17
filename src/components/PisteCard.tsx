@@ -78,10 +78,10 @@ export default function PisteCard({
       <div className={`h-1 ${accent.barre}`} aria-hidden />
       <div className="p-5 space-y-4">
         <header className="space-y-2">
-          <h3 className="text-xl font-semibold text-slate-900 leading-tight">
+          <h3 className="text-xl font-semibold text-stone-900 leading-tight">
             {piste.company_name}
             {piste.ticker && (
-              <span className="ml-2 text-slate-500 font-normal tabular-nums">
+              <span className="ml-2 text-stone-500 font-normal tabular-nums">
                 {piste.ticker}
               </span>
             )}
@@ -101,20 +101,20 @@ export default function PisteCard({
                 Type de signal : {SIGNAL_LABELS[piste.signal]}
               </span>
             </span>
-            <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700">
+            <span className="text-xs px-2 py-1 rounded-full bg-stone-100 text-stone-700">
               <span aria-hidden>{regulateur.drapeau}</span> {regulateur.nom}
             </span>
           </div>
           {/* Date et secteur sur une seule ligne : deux lignes de metadonnees
               grises au-dessus du texte utile repoussaient la substance vers
               le bas sans rien apporter. */}
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-stone-500">
             {piste.filed_at
               ? `Déposé le ${new Date(piste.filed_at).toLocaleDateString("fr-BE")}`
               : new Date(piste.detected_at).toLocaleDateString("fr-BE")}
             {piste.sector && (
               <>
-                <span className="mx-1.5 text-slate-300" aria-hidden>
+                <span className="mx-1.5 text-stone-300" aria-hidden>
                   ·
                 </span>
                 {piste.sector}
@@ -127,7 +127,7 @@ export default function PisteCard({
             quantite de texte aurait simplement rallonge la fiche. Le texte
             complet s'affiche avec le reste du detail, en un seul geste. */}
         <p
-          className={`text-base text-slate-600 leading-relaxed ${
+          className={`text-base text-stone-600 leading-relaxed ${
             explique ? "" : "line-clamp-3"
           }`}
         >
@@ -139,7 +139,7 @@ export default function PisteCard({
             l'explication du calcul se replie. */}
         <div
           className={`rounded-2xl px-4 py-3 flex items-baseline gap-3 ${
-            fees.tooSmall ? "bg-amber-50 text-amber-900" : "bg-slate-50 text-slate-700"
+            fees.tooSmall ? "bg-amber-50 text-amber-900" : "bg-stone-50 text-stone-700"
           }`}
         >
           <span className="text-2xl font-semibold tabular-nums leading-none shrink-0">
@@ -167,7 +167,7 @@ export default function PisteCard({
             className={`inline-flex items-center gap-1.5 text-sm font-medium min-h-[44px] -my-2 py-2 hover:underline rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${accent.texte}`}
           >
             <span
-              className={`grid h-5 w-5 place-items-center rounded-full bg-slate-100 text-xs motion-safe:transition-transform ${
+              className={`grid h-5 w-5 place-items-center rounded-full bg-stone-100 text-xs motion-safe:transition-transform ${
                 explique ? "rotate-180" : ""
               }`}
               aria-hidden
@@ -181,21 +181,21 @@ export default function PisteCard({
               id={idExplication}
               className={`mt-2.5 rounded-xl border p-4 space-y-3 text-sm ${accent.fond}`}
             >
-              <p className="font-medium text-slate-800">{exp.titre}</p>
-              <p className="text-slate-600 leading-relaxed">{exp.cequecest}</p>
+              <p className="font-medium text-stone-800">{exp.titre}</p>
+              <p className="text-stone-600 leading-relaxed">{exp.cequecest}</p>
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-600 mb-1">
+                <p className="text-xs uppercase tracking-wide text-stone-600 mb-1">
                   Ce que cela ne dit pas
                 </p>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-stone-600 leading-relaxed">
                   {exp.cequecelanedit}
                 </p>
               </div>
-              <div className="border-t border-slate-200/70 pt-3">
-                <p className="text-xs uppercase tracking-wide text-slate-600 mb-1">
+              <div className="border-t border-stone-200/70 pt-3">
+                <p className="text-xs uppercase tracking-wide text-stone-600 mb-1">
                   Détail des frais
                 </p>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-stone-600 leading-relaxed">
                   Sur {positionSizeEur.toFixed(0)} €, vos frais de{" "}
                   {brokerFixedFeeEur.toFixed(2).replace(".", ",")} €
                   {transactionTaxPct > 0 &&
@@ -239,7 +239,7 @@ export default function PisteCard({
         <AchatCourtierButton nom={piste.company_name} ticker={piste.ticker} />
 
         {/* Rappel obligatoire, non masquable. */}
-        <p className="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        <p className="text-xs text-stone-500 leading-relaxed border-t border-stone-100 pt-3">
           {LIMITES_DONNEE[piste.signal]} {DISCLAIMER}
         </p>
       </div>

@@ -169,14 +169,14 @@ export default function MarketPage() {
             📈
           </span>
           <div className="space-y-2">
-            <h2 className="font-semibold text-slate-800">Cours de bourse, en clair</h2>
-            <p className="text-base text-slate-600 leading-relaxed">
+            <h2 className="font-semibold text-stone-800">Cours de bourse, en clair</h2>
+            <p className="text-base text-stone-600 leading-relaxed">
               Ce que vous verrez ici décrit ce qui s'est <strong>déjà produit</strong> :
               un cours, une fourchette sur un an, l'ampleur des secousses passées.
               Aucun de ces chiffres n'indique où le cours ira ensuite — personne ne le
               sait, et un outil qui prétendrait le savoir mentirait.
             </p>
-            <p className="text-base text-slate-600 leading-relaxed">
+            <p className="text-base text-stone-600 leading-relaxed">
               En revanche, une question a une réponse factuelle utile :{" "}
               <strong>comment répartir un même budget dans le temps</strong> change le
               résultat, à cause des frais et du hasard du calendrier. C'est ce que
@@ -189,7 +189,7 @@ export default function MarketPage() {
 
       {/* Ambiance generale des marches */}
       <section className="space-y-3">
-        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+        <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wide">
           Grands indices, à titre de repère
         </h3>
         {erreurIndices && (
@@ -198,20 +198,20 @@ export default function MarketPage() {
           </p>
         )}
         {!indices && !erreurIndices && (
-          <p className="text-sm text-slate-500">Chargement…</p>
+          <p className="text-sm text-stone-500">Chargement…</p>
         )}
         {indices && (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {indices.map((i) => (
               <div key={i.symbole} className={`${CARTE} p-3.5`}>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-stone-500">
                   {i.pays} {i.nom}
                 </p>
                 {i.prix != null ? (
                   <>
-                    <p className="font-semibold text-slate-800 tabular-nums">
+                    <p className="font-semibold text-stone-800 tabular-nums">
                       {i.prix.toLocaleString("fr-FR", { maximumFractionDigits: 1 })}{" "}
-                      <span className="text-xs font-normal text-slate-500">{i.devise}</span>
+                      <span className="text-xs font-normal text-stone-500">{i.devise}</span>
                     </p>
                     <p className={`text-xs tabular-nums ${couleurResultat(i.varJourPct ?? 0)}`}>
                       <span aria-hidden className="mr-0.5">
@@ -222,13 +222,13 @@ export default function MarketPage() {
                     <MiniCourbe serie={i.serie} variation={i.varJourPct ?? 0} />
                   </>
                 ) : (
-                  <p className="text-xs text-slate-500">indisponible</p>
+                  <p className="text-xs text-stone-500">indisponible</p>
                 )}
               </div>
             ))}
           </div>
         )}
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Un indice mélange des centaines d'entreprises : il sert de repère
           d'ambiance générale, pas de prévision pour une société en particulier.
         </p>
@@ -236,7 +236,7 @@ export default function MarketPage() {
 
       {/* Recherche d'une societe */}
       <section className={`${CARTE} p-5 space-y-4`}>
-        <h3 className="font-semibold text-slate-800">Le cours d'une société</h3>
+        <h3 className="font-semibold text-stone-800">Le cours d'une société</h3>
         <div className="flex gap-2">
           <input
             className={`${CHAMP} flex-1`}
@@ -267,19 +267,19 @@ export default function MarketPage() {
         )}
 
         {candidats && candidats.length > 0 && (
-          <ul className="divide-y divide-slate-100 border border-slate-200/70 rounded-xl overflow-hidden">
+          <ul className="divide-y divide-stone-100 border border-stone-200/70 rounded-xl overflow-hidden">
             {candidats.map((c) => (
               <li key={c.symbole}>
                 <button
                   type="button"
                   onClick={() => charger(c, periode)}
                   className={`w-full text-left px-3.5 py-2.5 text-sm transition ${
-                    choisi?.symbole === c.symbole ? "bg-indigo-50 text-indigo-900" : "hover:bg-slate-50"
+                    choisi?.symbole === c.symbole ? "bg-indigo-50 text-indigo-900" : "hover:bg-stone-50"
                   }`}
                 >
                   <span className="font-medium">{c.nom || c.symbole}</span>
-                  <span className="text-slate-500"> · {c.symbole}</span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="text-stone-500"> · {c.symbole}</span>
+                  <span className="block text-xs text-stone-500">
                     {c.place} · {c.type}
                   </span>
                 </button>
@@ -300,7 +300,7 @@ export default function MarketPage() {
                 className={`px-3 py-1 text-xs rounded-full transition ${
                   periode === p.id
                     ? "bg-indigo-600 text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
                 {p.label}
@@ -309,18 +309,18 @@ export default function MarketPage() {
           </div>
         )}
 
-        {chargeGraph && <p className="text-sm text-slate-500">Chargement…</p>}
+        {chargeGraph && <p className="text-sm text-stone-500">Chargement…</p>}
 
         {graph && !chargeGraph && (
           <div className="space-y-3">
             <div>
-              <p className="font-semibold text-slate-800">
+              <p className="font-semibold text-stone-800">
                 {graph.nom ?? graph.symbole}{" "}
-                <span className="text-slate-500 font-normal text-sm">{graph.symbole}</span>
+                <span className="text-stone-500 font-normal text-sm">{graph.symbole}</span>
               </p>
-              <p className="text-2xl font-semibold text-slate-800 tabular-nums">
+              <p className="text-2xl font-semibold text-stone-800 tabular-nums">
                 {graph.prix.toLocaleString("fr-FR", { maximumFractionDigits: 2 })}{" "}
-                <span className="text-sm font-normal text-slate-500">{graph.devise}</span>
+                <span className="text-sm font-normal text-stone-500">{graph.devise}</span>
               </p>
             </div>
 
@@ -338,19 +338,19 @@ export default function MarketPage() {
 
             {ind && (
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <p className="text-xs text-slate-500">Sur la période</p>
-                  <p className="text-slate-700">
+                <div className="bg-stone-50 rounded-xl p-3">
+                  <p className="text-xs text-stone-500">Sur la période</p>
+                  <p className="text-stone-700">
                     Plus bas <strong>{ind.plusBas.toLocaleString("fr-FR", { maximumFractionDigits: 2 })}</strong>{" "}
                     · Plus haut <strong>{ind.plusHaut.toLocaleString("fr-FR", { maximumFractionDigits: 2 })}</strong>
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-stone-500 mt-1">
                     Cours actuel à {ind.positionPct.toFixed(0)} % de cette fourchette.
                   </p>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-3">
-                  <p className="text-xs text-slate-500">Ce que le cours a fait</p>
-                  <p className="text-slate-700">
+                <div className="bg-stone-50 rounded-xl p-3">
+                  <p className="text-xs text-stone-500">Ce que le cours a fait</p>
+                  <p className="text-stone-700">
                     {[
                       ind.var1m != null && `1 mois : ${formatPct(ind.var1m)}`,
                       ind.var6m != null && `6 mois : ${formatPct(ind.var6m)}`,
@@ -363,7 +363,7 @@ export default function MarketPage() {
                 {ind.volatilitePct != null && (
                   <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-3">
                     <p className="text-xs text-amber-800">Amplitude des secousses</p>
-                    <p className="text-slate-700">
+                    <p className="text-stone-700">
                       Variations quotidiennes équivalentes à environ{" "}
                       <strong>{ind.volatilitePct.toFixed(0)} % par an</strong>. Plus ce
                       chiffre est élevé, plus la valeur peut bouger fort dans les deux
@@ -374,7 +374,7 @@ export default function MarketPage() {
                 {ind.pireBaissePct != null && (
                   <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-3">
                     <p className="text-xs text-amber-800">Pire creux traversé</p>
-                    <p className="text-slate-700">
+                    <p className="text-stone-700">
                       Sur cette période, quelqu'un qui aurait acheté au plus mauvais
                       moment aurait vu sa position perdre jusqu'à{" "}
                       <strong>{Math.abs(ind.pireBaissePct).toFixed(0)} %</strong> avant
@@ -386,11 +386,11 @@ export default function MarketPage() {
             )}
 
             {/* Comparateur retrospectif : jamais une prediction */}
-            <div className="border-t border-slate-100 pt-4 space-y-3">
-              <h4 className="text-sm font-semibold text-slate-700">
+            <div className="border-t border-stone-100 pt-4 space-y-3">
+              <h4 className="text-sm font-semibold text-stone-700">
                 Le timing, mesuré après coup — pas prédit
               </h4>
-              <p className="text-sm text-slate-500 leading-relaxed">
+              <p className="text-sm text-stone-500 leading-relaxed">
                 Il n'existe pas de réponse fiable à « quel est le meilleur moment pour
                 investir ? ». Ce qui suit compare, sur les cours déjà connus de la
                 période affichée, ce qu'aurait donné un budget étalé en achats
@@ -400,7 +400,7 @@ export default function MarketPage() {
               </p>
               <div className="flex flex-wrap gap-3">
                 <label className="text-sm">
-                  <span className="block text-xs text-slate-500 mb-1">
+                  <span className="block text-xs text-stone-500 mb-1">
                     Budget mensuel (€)
                   </span>
                   <input
@@ -411,7 +411,7 @@ export default function MarketPage() {
                   />
                 </label>
                 <label className="text-sm">
-                  <span className="block text-xs text-slate-500 mb-1">
+                  <span className="block text-xs text-stone-500 mb-1">
                     Nombre de mois
                   </span>
                   <input
@@ -439,7 +439,7 @@ export default function MarketPage() {
                     s={comparaison.pireJour}
                   />
                   <LigneStrategie libelle="Tout misé dès le premier jour" s={comparaison.toutDeSuite} />
-                  <p className="text-sm text-slate-500 leading-relaxed pt-1">
+                  <p className="text-sm text-stone-500 leading-relaxed pt-1">
                     Les achats réguliers ne battent jamais la meilleure borne théorique
                     — c'est normal, elle suppose de deviner juste à chaque fois. Leur
                     intérêt est ailleurs : ils évitent de devoir deviner, et lissent le
@@ -447,12 +447,12 @@ export default function MarketPage() {
                   </p>
                 </div>
               ) : (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-stone-500">
                   Choisissez un budget et un nombre de mois valides.
                 </p>
               )}
 
-              <div className="bg-slate-50 rounded-xl p-3.5 text-sm text-slate-600">
+              <div className="bg-stone-50 rounded-xl p-3.5 text-sm text-stone-600">
                 <p>
                   Avec {nbMois} ordre{nbMois > 1 ? "s" : ""} de{" "}
                   {formatEur(budgetMensuel)} chacun, les frais représentent{" "}
@@ -467,7 +467,7 @@ export default function MarketPage() {
         )}
       </section>
 
-      <p className="text-sm text-slate-500 leading-relaxed">
+      <p className="text-sm text-stone-500 leading-relaxed">
         Les cours proviennent d'un service public de données de marché et peuvent
         être différés. Rien sur cette page ne prédit un cours futur ni ne recommande
         un achat ou une vente. Les performances passées ne préjugent pas des
@@ -489,10 +489,10 @@ function LigneStrategie({
   return (
     <div
       className={`flex items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 border ${
-        accent ? "bg-indigo-50 border-indigo-200/70" : "bg-slate-50 border-slate-200/70"
+        accent ? "bg-indigo-50 border-indigo-200/70" : "bg-stone-50 border-stone-200/70"
       }`}
     >
-      <span className="text-slate-600">{libelle}</span>
+      <span className="text-stone-600">{libelle}</span>
       <span className={`shrink-0 font-medium tabular-nums ${couleurResultat(s.gainEur)}`}>
         {formatEur(s.gainEur, true)} ({formatPct(s.gainPct)})
       </span>

@@ -30,8 +30,8 @@ describe("répartition de la navigation", () => {
     // qu'aucun bouton n'y mene : exactement ce qui est arrive a
     // « Comprendre », noyee hors ecran dans l'ancienne barre.
     const attendus: Onglet[] = [
-      "pistes", "propositions", "simuler", "journal",
-      "cours", "comprendre", "donnees", "marche", "configuration",
+      "accueil", "propositions", "simuler", "journal",
+      "pistes", "cours", "comprendre", "donnees", "marche", "configuration",
     ];
     const ids = new Set(TOUS_LES_ONGLETS.map((o) => o.id));
     for (const a of attendus) expect(ids.has(a), a).toBe(true);
@@ -54,8 +54,8 @@ describe("répartition de la navigation", () => {
     }
   });
 
-  it("met en avant les pistes en première position", () => {
-    expect(ONGLETS_PRINCIPAUX[0].id).toBe("pistes");
+  it("ouvre sur la réponse, pas sur une liste à interpréter", () => {
+    expect(ONGLETS_PRINCIPAUX[0].id).toBe("accueil");
   });
 
   it("garde l'apprentissage en tête de la feuille secondaire", () => {
@@ -70,7 +70,7 @@ describe("répartition de la navigation", () => {
 
 describe("estPrincipal", () => {
   it("reconnait une destination de la barre du bas", () => {
-    expect(estPrincipal("pistes")).toBe(true);
+    expect(estPrincipal("accueil")).toBe(true);
     expect(estPrincipal("journal")).toBe(true);
   });
 
@@ -85,7 +85,7 @@ describe("estPrincipal", () => {
    * chaque usage : « laquelle des deux, deja ? »
    */
   it("garde le nombre de destinations sous contrôle", () => {
-    expect(TOUS_LES_ONGLETS.length).toBeLessThanOrEqual(9);
+    expect(TOUS_LES_ONGLETS.length).toBeLessThanOrEqual(10);
   });
 
   it("donne une icône distincte à chaque destination", () => {
@@ -115,7 +115,7 @@ describe("definitionDe", () => {
 
 describe("libellePlus", () => {
   it("affiche « Plus » quand la page courante est dans la barre", () => {
-    expect(libellePlus("pistes").label).toBe("Plus");
+    expect(libellePlus("accueil").label).toBe("Plus");
   });
 
   it("affiche le nom de la page courante quand elle vit dans la feuille", () => {

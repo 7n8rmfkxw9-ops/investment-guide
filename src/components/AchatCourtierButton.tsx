@@ -36,7 +36,7 @@ export default function AchatCourtierButton({ nom, ticker }: Props) {
         onClick={() => setOuvert(!ouvert)}
         aria-expanded={ouvert}
         aria-controls={id}
-        className="min-h-[44px] -my-1 py-1 text-sm text-slate-600 hover:text-slate-900 underline decoration-slate-300 underline-offset-2 hover:decoration-slate-500 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        className="min-h-[44px] -my-1 py-1 text-sm text-stone-600 hover:text-stone-900 underline decoration-stone-300 underline-offset-2 hover:decoration-stone-500 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
       >
         {ouvert
           ? "− Masquer les courtiers"
@@ -44,7 +44,7 @@ export default function AchatCourtierButton({ nom, ticker }: Props) {
       </button>
       {ouvert && (
         <div id={id} className="mt-2.5 space-y-2">
-          <p className="text-sm text-slate-600 leading-relaxed px-1">
+          <p className="text-sm text-stone-600 leading-relaxed px-1">
             Chaque lien ouvre le site du courtier dans un nouvel onglet. Vous
             achetez avec votre propre compte, sous votre seule responsabilité :
             cet outil ne transmet aucun ordre et ne voit jamais votre compte.
@@ -59,20 +59,20 @@ export default function AchatCourtierButton({ nom, ticker }: Props) {
             </a>{" "}
             avant tout dépôt.
           </p>
-          <ul className="divide-y divide-slate-100 border border-slate-200/70 rounded-xl overflow-hidden bg-white">
+          <ul className="divide-y divide-stone-100 border border-stone-200/70 rounded-xl overflow-hidden bg-white">
             {COURTIERS.map((c) => (
               <li key={c.nom}>
                 <a
                   href={c.recherche ? c.recherche(requete) : c.lien}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-between gap-3 px-3.5 py-3 min-h-[56px] text-sm hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
+                  className="flex items-center justify-between gap-3 px-3.5 py-3 min-h-[56px] text-sm hover:bg-stone-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
                 >
                   <span>
-                    <span className="font-medium text-slate-800">{c.nom}</span>
-                    <span className="block text-xs text-slate-500">{c.note}</span>
+                    <span className="font-medium text-stone-800">{c.nom}</span>
+                    <span className="block text-xs text-stone-500">{c.note}</span>
                   </span>
-                  <span className="text-xs text-slate-500 shrink-0">
+                  <span className="text-xs text-stone-500 shrink-0">
                     {c.recherche ? `rechercher « ${nom} » →` : "ouvrir →"}
                     <span className="sr-only"> (nouvel onglet)</span>
                   </span>

@@ -100,7 +100,7 @@ export default function SyncStatusBanner() {
         className={`min-h-[44px] px-2.5 flex items-center gap-1.5 rounded-xl text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
           soucis.length > 0
             ? "text-amber-800 hover:bg-amber-50"
-            : "text-slate-500 hover:bg-slate-100"
+            : "text-stone-500 hover:bg-stone-100"
         }`}
       >
         {/* La forme porte l'etat autant que la couleur : un point plein pour
@@ -132,13 +132,13 @@ export default function SyncStatusBanner() {
             aria-label="État des synchronisations"
             className={`${CARTE} absolute right-0 top-full mt-1 z-40 w-[min(20rem,calc(100vw-2rem))] p-3.5 shadow-lg`}
           >
-            <p className="text-sm font-medium text-slate-800 mb-2">{libelle}</p>
+            <p className="text-sm font-medium text-stone-800 mb-2">{libelle}</p>
             <ul className="space-y-2 text-sm">
               {SOURCES.map((s) => {
                 const r = runs.get(s.id);
                 return (
                   <li key={s.id} className="flex items-start justify-between gap-3">
-                    <span className="text-slate-600">
+                    <span className="text-stone-600">
                       <span aria-hidden>{s.drapeau}</span> {s.nom}
                     </span>
                     {!r ? (
@@ -147,7 +147,7 @@ export default function SyncStatusBanner() {
                       </span>
                     ) : (
                       <span
-                        className={`text-right ${r.ok ? "text-slate-500" : "text-rose-700"}`}
+                        className={`text-right ${r.ok ? "text-stone-500" : "text-rose-700"}`}
                       >
                         {r.ok
                           ? `OK, ${ilYA(r.finished_at)}${r.created_count > 0 ? ` (${r.created_count} piste${r.created_count > 1 ? "s" : ""})` : ""}`
@@ -162,7 +162,7 @@ export default function SyncStatusBanner() {
                   </li>
                 );
               })}
-              <li className="text-xs text-slate-500 pt-2 border-t border-slate-100">
+              <li className="text-xs text-stone-500 pt-2 border-t border-stone-100">
                 La synchronisation tourne chaque lundi matin. Le bouton
                 « Actualiser » de l'onglet Pistes en déclenche une immédiatement.
               </li>

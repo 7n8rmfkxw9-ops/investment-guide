@@ -120,11 +120,11 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      {msg && <p className="text-sm text-slate-600">{msg}</p>}
+      {msg && <p className="text-sm text-stone-600">{msg}</p>}
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Gestionnaires suivis (13F)</h2>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Déposants institutionnels dont les 13F trimestriels seront analysés. Le CIK se
           trouve sur{" "}
           <a
@@ -141,7 +141,7 @@ export default function SettingsPage() {
           {managers.map((m) => (
             <li key={m.id} className="py-2 flex justify-between items-center">
               <span>
-                {m.name} <span className="text-slate-500">CIK {m.cik}</span>
+                {m.name} <span className="text-stone-500">CIK {m.cik}</span>
               </span>
               <button
                 className="text-xs text-red-600 hover:underline"
@@ -152,7 +152,7 @@ export default function SettingsPage() {
             </li>
           ))}
           {managers.length === 0 && (
-            <li className="py-2 text-slate-500">Aucun gestionnaire suivi.</li>
+            <li className="py-2 text-stone-500">Aucun gestionnaire suivi.</li>
           )}
         </ul>
         <form onSubmit={addManager} className="flex flex-wrap gap-2">
@@ -176,7 +176,7 @@ export default function SettingsPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Sociétés suivies (opérations de dirigeants)</h2>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Les achats et ventes déclarés par les dirigeants de ces sociétés seront
           détectés. Pour la <strong>Belgique</strong>, saisissez le nom exact tel
           qu'il figure au{" "}
@@ -207,7 +207,7 @@ export default function SettingsPage() {
               <span>
                 {i.name}
                 {i.ticker && ` (${i.ticker})`}{" "}
-                <span className="text-slate-500">
+                <span className="text-stone-500">
                   {i.market === "US"
                     ? `${MARKET_LABELS.US} · CIK ${i.cik}`
                     : MARKET_LABELS[i.market]}
@@ -222,7 +222,7 @@ export default function SettingsPage() {
             </li>
           ))}
           {issuers.length === 0 && (
-            <li className="py-2 text-slate-500">Aucune société suivie.</li>
+            <li className="py-2 text-stone-500">Aucune société suivie.</li>
           )}
         </ul>
         <form onSubmit={addIssuer} className="flex flex-wrap gap-2">
@@ -270,7 +270,7 @@ export default function SettingsPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Frais et taille de position</h2>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Utilisés pour le calcul affiché sur chaque fiche. En Belgique, la taxe
           sur les opérations de bourse (TOB) s'applique à l'achat comme à la
           vente : elle est donc comptée deux fois dans le gain minimum. Au-delà
@@ -281,9 +281,9 @@ export default function SettingsPage() {
           comme une ligne de frais — vérifiez-la chez votre courtier.
         </p>
 
-        <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-4 space-y-2.5">
+        <div className="bg-stone-50 border border-stone-200/70 rounded-xl p-4 space-y-2.5">
           <label className="text-sm block">
-            <span className="block text-xs text-slate-500 mb-1">
+            <span className="block text-xs text-stone-500 mb-1">
               Préremplir avec le tarif d'un courtier
             </span>
             <select
@@ -304,7 +304,7 @@ export default function SettingsPage() {
               const c = COURTIERS.find((x) => x.nom === courtierChoisi);
               if (!c) return null;
               return (
-                <p className="text-sm text-slate-500 leading-relaxed">
+                <p className="text-sm text-stone-500 leading-relaxed">
                   {c.fraisNote}{" "}
                   {c.fraisSource === "estimation" ? (
                     <>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
               );
             })()}
           {!courtierChoisi && brokerName && (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-stone-500">
               Tarif actuellement basé sur <strong>{brokerName}</strong>.
             </p>
           )}
@@ -337,7 +337,7 @@ export default function SettingsPage() {
 
         <form onSubmit={saveSettings} className="flex flex-wrap items-end gap-3">
           <label className="text-sm">
-            <span className="block text-xs text-slate-500">Frais fixes courtier (€)</span>
+            <span className="block text-xs text-stone-500">Frais fixes courtier (€)</span>
             <input
               className={`${CHAMP} w-32`}
               value={fee}
@@ -351,7 +351,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="text-sm">
-            <span className="block text-xs text-slate-500">
+            <span className="block text-xs text-stone-500">
               Taxe de bourse par transaction (%)
             </span>
             <input
@@ -361,7 +361,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="text-sm">
-            <span className="block text-xs text-slate-500">
+            <span className="block text-xs text-stone-500">
               Commission de change (%)
             </span>
             <input
@@ -371,7 +371,7 @@ export default function SettingsPage() {
             />
           </label>
           <label className="text-sm">
-            <span className="block text-xs text-slate-500">
+            <span className="block text-xs text-stone-500">
               Montant envisagé par position (€)
             </span>
             <input

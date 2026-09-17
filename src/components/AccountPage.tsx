@@ -133,14 +133,14 @@ export default function AccountPage() {
     <div className="space-y-6 max-w-xl">
       <section className={`${CARTE} p-5 space-y-2`}>
         <h2 className="font-semibold">Compte</h2>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-stone-600">
           Connecté en tant que <span className="font-medium">{email}</span>
         </p>
       </section>
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Vos données</h2>
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           Cet outil vit entièrement dans un projet que vous seul maintenez :
           avoir votre propre copie de vos pistes, simulations, notes et
           réglages est une précaution simple. Le fichier téléchargé exclut
@@ -155,7 +155,7 @@ export default function AccountPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Mes applications</h2>
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           Des raccourcis vers vos propres applications bancaires et
           d'investissement — celles que vous utilisez déjà. Chaque lien ouvre
           l'application ou le site dans un nouvel onglet ; cet outil ne s'y
@@ -181,7 +181,7 @@ export default function AccountPage() {
             </li>
           ))}
           {liens.length === 0 && (
-            <li className="py-2 text-slate-500">Aucun raccourci ajouté.</li>
+            <li className="py-2 text-stone-500">Aucun raccourci ajouté.</li>
           )}
         </ul>
         <form onSubmit={ajouterLien} className="flex flex-wrap gap-2">
@@ -204,7 +204,7 @@ export default function AccountPage() {
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Installer sur l'écran d'accueil</h2>
         {estIOS() ? (
-          <ol className="text-base text-slate-600 leading-relaxed list-decimal pl-5 space-y-1.5">
+          <ol className="text-base text-stone-600 leading-relaxed list-decimal pl-5 space-y-1.5">
             <li>
               Ouvrez cette page dans <strong>Safari</strong> (pas un autre
               navigateur — seul Safari le permet sur iPhone/iPad).
@@ -219,14 +219,14 @@ export default function AccountPage() {
             </li>
           </ol>
         ) : (
-          <p className="text-base text-slate-600 leading-relaxed">
+          <p className="text-base text-stone-600 leading-relaxed">
             Ouvrez cette page dans Safari sur votre iPhone ou iPad, touchez le
             bouton Partager, puis « Sur l'écran d'accueil ». Une icône
             apparaît, l'application s'ouvre alors en plein écran comme les
             autres.
           </p>
         )}
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           C'est la même page web, sans rien à installer depuis un magasin
           d'applications : aucune donnée supplémentaire n'est collectée.
         </p>
@@ -234,7 +234,7 @@ export default function AccountPage() {
 
       <section className={`${CARTE} p-5 space-y-3`}>
         <h2 className="font-semibold">Notifications</h2>
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           Un message est envoyé après chaque synchronisation hebdomadaire s'il
           y a du nouveau — un simple décompte factuel (« 3 nouvelles pistes »),
           jamais une incitation à agir dans l'urgence. Réglage par appareil :
@@ -246,7 +246,7 @@ export default function AccountPage() {
             {compat.raison}
           </p>
         )}
-        {pushMsg && <p className="text-sm text-slate-600">{pushMsg}</p>}
+        {pushMsg && <p className="text-sm text-stone-600">{pushMsg}</p>}
         {compat.supporte && etatPush !== "verification" && (
           <button
             className={etatPush === "abonne" ? BOUTON_DOUX : BOUTON_PRINCIPAL}
@@ -298,14 +298,14 @@ export default function AccountPage() {
           question en une seconde. */}
       <section className={`${CARTE} p-5 space-y-1`}>
         <h3 className={TITRE_SECTION}>Version</h3>
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-stone-600">
           Application compilée le{" "}
           <span className="tabular-nums">
             {new Date(__DATE_BUILD__).toLocaleString("fr-BE")}
           </span>
           .
         </p>
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-sm text-stone-600 leading-relaxed">
           Si cette date est plus ancienne que la dernière mise à jour annoncée,
           c'est une copie gardée par votre navigateur. Fermez complètement
           l'application et rouvrez-la : la page est désormais rechargée depuis

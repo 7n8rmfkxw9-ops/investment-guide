@@ -4,6 +4,19 @@ import {
   CLES_FAITS,
   DOMAINES_SIGNAUX,
 } from "../../supabase/functions/_shared/regles/assurances";
+import {
+  CLES_PLAN_DERIVEES,
+  CLES_PLAN_SAISIES,
+} from "../../supabase/functions/_shared/regles/plan";
+
+/**
+ * Tout ce qu'un moteur lit, tous moteurs confondus.
+ *
+ * Les cles derivees en sont exclues : elles viennent des reglages, pas d'une
+ * saisie. Les proposer au catalogue ferait ressaisir des frais de courtier deja
+ * connus, et creerait deux sources de verite pour le meme nombre.
+ */
+const LUES = [...CLES_FAITS, ...CLES_PLAN_SAISIES] as readonly string[];
 
 /**
  * Le catalogue de saisie et les regles doivent parler des memes cles.
@@ -16,8 +29,18 @@ import {
 
 describe("catalogue et règles", () => {
   it("propose à la saisie chaque fait que les règles lisent", () => {
-    for (const cle of CLES_FAITS) {
+    for (const cle of LUES) {
       expect(definitionFait(cle), `« ${cle} » lue par une règle, absente du catalogue`).toBeDefined();
+    }
+  });
+
+  it("ne propose jamais à la saisie un fait dérivé des réglages", () => {
+    // Les frais du courtier vivent dans les reglages. Les redemander ici
+    // creerait deux sources de verite, et la premiere divergence passerait
+    // inapercue — un plan calcule sur 2,50 € pendant que les fiches en
+    // affichent 7,50 €.
+    for (const cle of CLES_PLAN_DERIVEES) {
+      expect(definitionFait(cle), `« ${cle} » devrait être dérivée, pas saisie`).toBeUndefined();
     }
   });
 
@@ -26,7 +49,7 @@ describe("catalogue et règles", () => {
     // s'en serve est du travail demande pour rien.
     for (const f of FAITS) {
       expect(
-        (CLES_FAITS as readonly string[]).includes(f.cle),
+        LUES.includes(f.cle),
         `« ${f.cle} » proposée à la saisie, lue par aucune règle`,
       ).toBe(true);
     }

@@ -42,9 +42,9 @@ function classeCible(actif: boolean): string {
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
     "focus-visible:ring-offset-2 focus-visible:ring-offset-white",
     // La barre est translucide : ce qui defile dessous change la couleur de
-    // fond reelle des libelles. Un slate-500 passait sous 4,5:1 des qu'un
-    // bloc indigo glissait derriere. Le slate-600 tient dans tous les cas.
-    actif ? "text-indigo-700" : "text-slate-600 hover:text-slate-900",
+    // fond reelle des libelles. Un stone-500 passait sous 4,5:1 des qu'un
+    // bloc indigo glissait derriere. Le stone-600 tient dans tous les cas.
+    actif ? "text-indigo-700" : "text-stone-600 hover:text-stone-900",
   ].join(" ");
 }
 
@@ -123,7 +123,7 @@ export default function NavigationBasse({
     <>
       {plusOuvert && (
         <div
-          className="fixed inset-0 z-30 bg-slate-900/40 motion-safe:animate-[fadeIn_120ms_ease-out]"
+          className="fixed inset-0 z-30 bg-stone-900/40 motion-safe:animate-[fadeIn_120ms_ease-out]"
           onClick={() => onPlus(false)}
           aria-hidden
         />
@@ -135,27 +135,27 @@ export default function NavigationBasse({
           role="dialog"
           aria-modal="true"
           aria-labelledby="titre-plus"
-          className="fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-[1.75rem] shadow-flottant ring-1 ring-slate-900/[0.06] max-h-[80vh] overflow-y-auto motion-safe:animate-monteeFeuille"
+          className="fixed inset-x-0 bottom-0 z-40 bg-white rounded-t-[1.75rem] shadow-flottant ring-1 ring-stone-900/[0.06] max-h-[80vh] overflow-y-auto motion-safe:animate-monteeFeuille"
           style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 5.5rem)" }}
         >
           <div className="max-w-3xl mx-auto px-4 pt-3 pb-2">
             <div
-              className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300"
+              className="mx-auto mb-3 h-1 w-10 rounded-full bg-stone-300"
               aria-hidden
             />
             <div className="flex items-center justify-between gap-3 mb-1">
-              <h2 id="titre-plus" className="text-xl font-semibold text-slate-900">
+              <h2 id="titre-plus" className="text-xl font-semibold text-stone-900">
                 Toutes les rubriques
               </h2>
               <button
                 type="button"
                 onClick={() => onPlus(false)}
-                className="min-h-[44px] px-3 -mr-2 text-sm text-slate-500 hover:text-slate-800 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                className="min-h-[44px] px-3 -mr-2 text-sm text-stone-500 hover:text-stone-800 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 Fermer
               </button>
             </div>
-            <ul className="divide-y divide-slate-100">
+            <ul className="divide-y divide-stone-100">
               {ONGLETS_SECONDAIRES.map((o) => {
                 const actif = o.id === courant;
                 return (
@@ -168,7 +168,7 @@ export default function NavigationBasse({
                       }}
                       aria-current={actif ? "page" : undefined}
                       className={`w-full text-left flex items-start gap-3 py-3 px-2 -mx-2 rounded-xl min-h-[56px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-                        actif ? "bg-indigo-50" : "hover:bg-slate-50"
+                        actif ? "bg-indigo-50" : "hover:bg-stone-50"
                       }`}
                     >
                       <span className="text-xl leading-none mt-0.5" aria-hidden>
@@ -176,7 +176,7 @@ export default function NavigationBasse({
                       </span>
                       <span className="min-w-0">
                         <span
-                          className={`block ${actif ? "font-semibold text-indigo-800" : "font-medium text-slate-800"}`}
+                          className={`block ${actif ? "font-semibold text-indigo-800" : "font-medium text-stone-800"}`}
                         >
                           {o.label}
                           {actif && (
@@ -185,7 +185,7 @@ export default function NavigationBasse({
                             </span>
                           )}
                         </span>
-                        <span className="block text-sm text-slate-500 leading-normal">
+                        <span className="block text-sm text-stone-500 leading-normal">
                           {o.detail}
                         </span>
                       </span>
@@ -200,7 +200,7 @@ export default function NavigationBasse({
 
       <nav
         aria-label="Navigation principale"
-        className="fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur-xl border-t border-slate-900/[0.06]"
+        className="fixed inset-x-0 bottom-0 z-40 bg-creme-50/95 backdrop-blur-xl border-t border-stone-900/[0.05]"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
         <ul className="max-w-3xl mx-auto px-1.5 flex items-stretch">

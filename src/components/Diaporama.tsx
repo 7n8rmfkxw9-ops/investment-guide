@@ -47,13 +47,13 @@ function Quiz({ questions }: { questions: Question[] }) {
   const id = useId();
   return (
     <div className="space-y-6">
-      <p className={`${SURTITRE} text-slate-500`}>Vérifier qu'on a compris</p>
+      <p className={`${SURTITRE} text-stone-500`}>Vérifier qu'on a compris</p>
       {questions.map((q, qi) => {
         const donnee = reponses[qi];
         const repondu = donnee !== undefined;
         return (
           <fieldset key={q.question} className="space-y-2.5">
-            <legend className="text-lg font-semibold text-slate-900 leading-snug mb-2">
+            <legend className="text-lg font-semibold text-stone-900 leading-snug mb-2">
               {q.question}
             </legend>
             {q.options.map((o, oi) => {
@@ -63,12 +63,12 @@ function Quiz({ questions }: { questions: Question[] }) {
               // pas ete choisie : sinon on sait qu'on a eu faux sans savoir
               // ce qui etait vrai.
               const ton = !repondu
-                ? "border-slate-200 hover:bg-slate-50"
+                ? "border-stone-200 hover:bg-stone-50"
                 : juste
                   ? "border-emerald-300 bg-emerald-50 text-emerald-900"
                   : choisi
                     ? "border-rose-300 bg-rose-50 text-rose-900"
-                    : "border-slate-200 opacity-60";
+                    : "border-stone-200 opacity-60";
               return (
                 <label
                   key={o}
@@ -93,7 +93,7 @@ function Quiz({ questions }: { questions: Question[] }) {
             })}
             {repondu && (
               <p
-                className="text-sm text-slate-600 leading-relaxed rounded-2xl bg-slate-50 px-4 py-3"
+                className="text-sm text-stone-600 leading-relaxed rounded-2xl bg-stone-50 px-4 py-3"
                 role="status"
               >
                 {donnee === q.bonne ? "Exact. " : "Réponse attendue signalée ci-dessus. "}
@@ -103,7 +103,7 @@ function Quiz({ questions }: { questions: Question[] }) {
           </fieldset>
         );
       })}
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-stone-500">
         Rien n'est enregistré ni compté : c'est un moyen de repérer ce qui n'est
         pas encore acquis.
       </p>
@@ -123,16 +123,16 @@ function Bloc({ b }: { b: BlocCours }) {
   switch (b.b) {
     case "soustitre":
       return (
-        <h4 className="text-lg font-semibold text-slate-900 leading-snug mt-6 first:mt-0">
+        <h4 className="text-lg font-semibold text-stone-900 leading-snug mt-6 first:mt-0">
           {b.texte}
         </h4>
       );
     case "p":
-      return <p className="text-base text-slate-700 leading-[1.75]">{b.texte}</p>;
+      return <p className="text-base text-stone-700 leading-[1.75]">{b.texte}</p>;
     case "terme":
       return (
-        <p className="text-base text-slate-700 leading-[1.75] border-l-4 border-indigo-200 pl-4">
-          <strong className="font-semibold text-slate-900">{b.mot}</strong> —{" "}
+        <p className="text-base text-stone-700 leading-[1.75] border-l-4 border-indigo-200 pl-4">
+          <strong className="font-semibold text-stone-900">{b.mot}</strong> —{" "}
           {b.texte}
         </p>
       );
@@ -140,7 +140,7 @@ function Bloc({ b }: { b: BlocCours }) {
       return (
         <ul className="space-y-2">
           {b.points.map((p) => (
-            <li key={p} className="flex gap-3 text-base text-slate-700 leading-[1.7]">
+            <li key={p} className="flex gap-3 text-base text-stone-700 leading-[1.7]">
               <span className="text-indigo-300 shrink-0 mt-1" aria-hidden>
                 ◆
               </span>
@@ -160,13 +160,13 @@ function Bloc({ b }: { b: BlocCours }) {
       return <Figure cle={b.fig} legende={b.legende} />;
     case "calcul":
       return (
-        <ul className="rounded-2xl bg-slate-900 px-4 py-3 divide-y divide-white/10">
+        <ul className="rounded-2xl bg-stone-900 px-4 py-3 divide-y divide-white/10">
           {b.lignes.map((l) => (
             <li
               key={l.gauche}
               className="flex items-baseline justify-between gap-4 py-2 text-white"
             >
-              <span className="text-sm text-slate-300">{l.gauche}</span>
+              <span className="text-sm text-stone-300">{l.gauche}</span>
               <span className="text-base font-semibold tabular-nums shrink-0">
                 {l.droite}
               </span>
@@ -192,14 +192,14 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
     if (!e) return null;
     return (
       <Coquille>
-        <p className={`${SURTITRE} text-slate-500`}>Source</p>
-        <p className="text-xl font-semibold text-slate-900 leading-snug">
+        <p className={`${SURTITRE} text-stone-500`}>Source</p>
+        <p className="text-xl font-semibold text-stone-900 leading-snug">
           {e.titre}
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-stone-500">
           {e.auteurs} · {e.annee} · {e.publication}
         </p>
-        <p className="text-base text-slate-600 leading-relaxed">{e.resultat}</p>
+        <p className="text-base text-stone-600 leading-relaxed">{e.resultat}</p>
         <div className="rounded-2xl bg-amber-50 px-4 py-3">
           <p className={`${SURTITRE} text-amber-800 mb-1`}>
             Ce que l'étude ne dit pas
@@ -222,10 +222,10 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   if (d.kind === "appliquer") {
     return (
       <Coquille>
-        <p className={`${SURTITRE} text-slate-500`}>Appliquer</p>
+        <p className={`${SURTITRE} text-stone-500`}>Appliquer</p>
         <ul className="space-y-3.5">
           {d.points.map((p) => (
-            <li key={p} className="flex gap-3 text-lg text-slate-800 leading-snug">
+            <li key={p} className="flex gap-3 text-lg text-stone-800 leading-snug">
               <span className="text-indigo-400 shrink-0" aria-hidden>
                 →
               </span>
@@ -233,7 +233,7 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
             </li>
           ))}
         </ul>
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           Des questions à se poser, jamais un ordre à passer.
         </p>
       </Coquille>
@@ -243,8 +243,8 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   if (d.kind === "retenir") {
     return (
       <Coquille>
-        <p className={`${SURTITRE} text-slate-500`}>À retenir</p>
-        <p className="text-2xl font-semibold text-slate-900 leading-tight">
+        <p className={`${SURTITRE} text-stone-500`}>À retenir</p>
+        <p className="text-2xl font-semibold text-stone-900 leading-tight">
           {d.texte}
         </p>
       </Coquille>
@@ -256,7 +256,7 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   if (diapo.type === "cours") {
     return (
       <div className="space-y-4">
-        <h3 className="text-2xl font-semibold text-slate-900 leading-tight">
+        <h3 className="text-2xl font-semibold text-stone-900 leading-tight">
           {diapo.titre}
         </h3>
         <div className="space-y-4">
@@ -271,15 +271,15 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   if (diapo.type === "definition") {
     return (
       <Coquille>
-        <p className={`${SURTITRE} text-slate-500`}>Définition</p>
-        <p className="text-2xl font-semibold text-slate-900 leading-tight">
+        <p className={`${SURTITRE} text-stone-500`}>Définition</p>
+        <p className="text-2xl font-semibold text-stone-900 leading-tight">
           {diapo.terme}
         </p>
-        <p className="text-base text-slate-700 leading-relaxed border-l-4 border-indigo-300 pl-4">
+        <p className="text-base text-stone-700 leading-relaxed border-l-4 border-indigo-300 pl-4">
           {diapo.definition}
         </p>
         {diapo.precision && (
-          <p className="text-sm text-slate-500 leading-relaxed">{diapo.precision}</p>
+          <p className="text-sm text-stone-500 leading-relaxed">{diapo.precision}</p>
         )}
       </Coquille>
     );
@@ -288,25 +288,25 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   if (diapo.type === "formule") {
     return (
       <Coquille>
-        <p className="text-xl font-semibold text-slate-900 leading-snug">
+        <p className="text-xl font-semibold text-stone-900 leading-snug">
           {diapo.titre}
         </p>
         {/* La formule en grand et centree : c'est l'objet de la diapositive,
             pas une note au milieu d'un paragraphe. */}
-        <p className="rounded-2xl bg-slate-900 px-4 py-5 text-center text-xl text-white tabular-nums overflow-x-auto">
+        <p className="rounded-2xl bg-stone-900 px-4 py-5 text-center text-xl text-white tabular-nums overflow-x-auto">
           {diapo.formule}
         </p>
         <dl className="space-y-1.5">
           {diapo.termes.map((t) => (
             <div key={t.sym} className="flex gap-3 text-sm">
-              <dt className="font-semibold text-slate-900 tabular-nums shrink-0 min-w-[3.5rem]">
+              <dt className="font-semibold text-stone-900 tabular-nums shrink-0 min-w-[3.5rem]">
                 {t.sym}
               </dt>
-              <dd className="text-slate-600">{t.sens}</dd>
+              <dd className="text-stone-600">{t.sens}</dd>
             </div>
           ))}
         </dl>
-        <p className="text-sm text-slate-500 leading-relaxed">{diapo.lecture}</p>
+        <p className="text-sm text-stone-500 leading-relaxed">{diapo.lecture}</p>
       </Coquille>
     );
   }
@@ -314,21 +314,21 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   if (diapo.type === "exemple") {
     return (
       <Coquille>
-        <p className={`${SURTITRE} text-slate-500`}>Exemple chiffré</p>
-        <p className="text-xl font-semibold text-slate-900 leading-snug">
+        <p className={`${SURTITRE} text-stone-500`}>Exemple chiffré</p>
+        <p className="text-xl font-semibold text-stone-900 leading-snug">
           {diapo.titre}
         </p>
-        <ul className="divide-y divide-slate-100 rounded-2xl bg-slate-50 px-4">
+        <ul className="divide-y divide-stone-100 rounded-2xl bg-stone-50 px-4">
           {diapo.etapes.map((e) => (
             <li key={e.calcul} className="flex items-baseline justify-between gap-4 py-2.5">
-              <span className="text-sm text-slate-600">{e.calcul}</span>
-              <span className="text-base font-semibold text-slate-900 tabular-nums shrink-0">
+              <span className="text-sm text-stone-600">{e.calcul}</span>
+              <span className="text-base font-semibold text-stone-900 tabular-nums shrink-0">
                 {e.resultat}
               </span>
             </li>
           ))}
         </ul>
-        <p className="text-base text-slate-700 leading-relaxed">{diapo.conclusion}</p>
+        <p className="text-base text-stone-700 leading-relaxed">{diapo.conclusion}</p>
       </Coquille>
     );
   }
@@ -337,7 +337,7 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
     return (
       <Coquille>
         <p className={`${SURTITRE} text-amber-700`}>Idée reçue</p>
-        <p className="text-xl font-semibold text-slate-900 leading-snug">
+        <p className="text-xl font-semibold text-stone-900 leading-snug">
           {diapo.titre}
         </p>
         <p className="rounded-2xl bg-rose-50 px-4 py-3 text-base text-rose-900 leading-relaxed">
@@ -364,8 +364,8 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
         <p className="text-5xl font-semibold text-indigo-600 tabular-nums leading-none">
           {diapo.valeur}
         </p>
-        <p className="text-lg text-slate-700 leading-snug">{diapo.legende}</p>
-        <p className="text-base text-slate-600 leading-relaxed">{diapo.texte}</p>
+        <p className="text-lg text-stone-700 leading-snug">{diapo.legende}</p>
+        <p className="text-base text-stone-600 leading-relaxed">{diapo.texte}</p>
       </Coquille>
     );
   }
@@ -373,22 +373,22 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
     return (
       <Coquille>
         <blockquote className="border-l-4 border-indigo-300 pl-5">
-          <p className="text-xl text-slate-800 leading-snug">{diapo.texte}</p>
+          <p className="text-xl text-stone-800 leading-snug">{diapo.texte}</p>
         </blockquote>
-        <p className="text-sm text-slate-500">{diapo.source}</p>
+        <p className="text-sm text-stone-500">{diapo.source}</p>
       </Coquille>
     );
   }
   if (diapo.type === "liste") {
     return (
       <Coquille>
-        <p className="text-xl font-semibold text-slate-900 leading-snug">
+        <p className="text-xl font-semibold text-stone-900 leading-snug">
           {diapo.titre}
         </p>
         <ul className="space-y-2.5">
           {diapo.points.map((p) => (
-            <li key={p} className="flex gap-3 text-base text-slate-600 leading-relaxed">
-              <span className="text-slate-400 shrink-0" aria-hidden>
+            <li key={p} className="flex gap-3 text-base text-stone-600 leading-relaxed">
+              <span className="text-stone-400 shrink-0" aria-hidden>
                 •
               </span>
               <span>{p}</span>
@@ -400,10 +400,10 @@ function ContenuDiapo({ d, etudes }: { d: DiapoProjetee; etudes: Record<string, 
   }
   return (
     <Coquille>
-      <p className="text-xl font-semibold text-slate-900 leading-snug">
+      <p className="text-xl font-semibold text-stone-900 leading-snug">
         {diapo.titre}
       </p>
-      <p className="text-base text-slate-600 leading-relaxed">{diapo.texte}</p>
+      <p className="text-base text-stone-600 leading-relaxed">{diapo.texte}</p>
     </Coquille>
   );
 }
@@ -562,7 +562,7 @@ export default function Diaporama({
       >
         <div className="flex items-center gap-3 px-4 pt-3">
           <div
-            className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden"
+            className="flex-1 h-1.5 rounded-full bg-stone-200 overflow-hidden"
             role="progressbar"
             aria-valuenow={i + 1}
             aria-valuemin={1}
@@ -574,14 +574,14 @@ export default function Diaporama({
               style={{ width: `${((i + 1) / diapos.length) * 100}%` }}
             />
           </div>
-          <span className="text-sm text-slate-500 tabular-nums shrink-0">
+          <span className="text-sm text-stone-500 tabular-nums shrink-0">
             {i + 1} / {diapos.length}
           </span>
           <button
             type="button"
             onClick={sortirPlein}
             aria-label="Quitter le plein écran"
-            className="shrink-0 grid h-11 w-11 place-items-center rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+            className="shrink-0 grid h-11 w-11 place-items-center rounded-full bg-stone-100 text-stone-600 hover:bg-stone-200 text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <span aria-hidden>✕</span>
           </button>
@@ -641,7 +641,7 @@ export default function Diaporama({
           s'engager, sinon on abandonne au milieu sans savoir où l'on en est. */}
       <div className="flex items-center gap-3">
         <div
-          className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden"
+          className="flex-1 h-1.5 rounded-full bg-stone-200 overflow-hidden"
           role="progressbar"
           aria-valuenow={i + 1}
           aria-valuemin={1}
@@ -653,7 +653,7 @@ export default function Diaporama({
             style={{ width: `${((i + 1) / diapos.length) * 100}%` }}
           />
         </div>
-        <span className="text-sm text-slate-500 tabular-nums shrink-0">
+        <span className="text-sm text-stone-500 tabular-nums shrink-0">
           {i + 1} / {diapos.length}
         </span>
       </div>
@@ -703,14 +703,14 @@ export default function Diaporama({
           ref={declencheur}
           type="button"
           onClick={entrerPlein}
-          className="flex-1 min-h-[44px] text-sm text-slate-600 hover:text-slate-900 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="flex-1 min-h-[44px] text-sm text-stone-600 hover:text-stone-900 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           <span aria-hidden>⛶</span> Plein écran
         </button>
         <button
           type="button"
           onClick={() => setToutLire(true)}
-          className="flex-1 min-h-[44px] text-sm text-slate-600 hover:text-slate-900 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="flex-1 min-h-[44px] text-sm text-stone-600 hover:text-stone-900 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           Tout lire d'un seul tenant
         </button>
@@ -725,12 +725,12 @@ function EnTete({ c, onRetour }: { c: EnTeteChapitre; onRetour: () => void }) {
       <button
         type="button"
         onClick={onRetour}
-        className="min-h-[44px] -my-2 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+        className="min-h-[44px] -my-2 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
       >
         ← Tous les chapitres
       </button>
-      <p className={`${SURTITRE} text-slate-500`}>Chapitre {c.numero} · {c.minutes} min</p>
-      <h2 className="text-2xl font-semibold text-slate-900 leading-tight">
+      <p className={`${SURTITRE} text-stone-500`}>Chapitre {c.numero} · {c.minutes} min</p>
+      <h2 className="text-2xl font-semibold text-stone-900 leading-tight">
         {c.titre}
       </h2>
     </div>

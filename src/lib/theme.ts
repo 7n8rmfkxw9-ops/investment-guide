@@ -64,10 +64,10 @@ export const ACCENTS: Record<SignalType, AccentSignal> = {
     icone: "▼",
   },
   "13f_exit": {
-    pastille: "bg-slate-200 text-slate-700",
-    barre: "bg-slate-400",
-    texte: "text-slate-600",
-    fond: "bg-slate-50 border-slate-200",
+    pastille: "bg-stone-200 text-stone-700",
+    barre: "bg-stone-400",
+    texte: "text-stone-600",
+    fond: "bg-stone-50 border-stone-200",
     icone: "✕",
   },
   form4_buy: ACHAT,
@@ -85,10 +85,10 @@ export const ACCENTS: Record<SignalType, AccentSignal> = {
     icone: "◆",
   },
   sc13g_new: {
-    pastille: "bg-slate-200 text-slate-700",
-    barre: "bg-slate-400",
-    texte: "text-slate-600",
-    fond: "bg-slate-50 border-slate-200",
+    pastille: "bg-stone-200 text-stone-700",
+    barre: "bg-stone-400",
+    texte: "text-stone-600",
+    fond: "bg-stone-50 border-stone-200",
     icone: "◇",
   },
 };
@@ -114,14 +114,14 @@ export const MARCHES: Record<Market, { drapeau: string; nom: string; regulateur:
 export function couleurResultat(v: number): string {
   if (v > 0.005) return "text-emerald-700";
   if (v < -0.005) return "text-rose-700";
-  return "text-slate-600";
+  return "text-stone-600";
 }
 
 /** Fond assorti, pour les encarts de resultat. */
 export function fondResultat(v: number): string {
   if (v > 0.005) return "bg-emerald-50 border-emerald-200/70";
   if (v < -0.005) return "bg-rose-50 border-rose-200/70";
-  return "bg-slate-50 border-slate-200/70";
+  return "bg-stone-50 border-stone-200/70";
 }
 
 /**
@@ -158,15 +158,15 @@ export function traceResultat(v: number): { couleur: string; tirets?: string } {
  * et une interface d'aujourd'hui, pour un cout nul en lisibilite.
  */
 export const CARTE =
-  "bg-white rounded-2xl ring-1 ring-slate-900/[0.06] shadow-carte";
+  "bg-white rounded-2xl ring-1 ring-stone-900/[0.06] shadow-carte";
 
 /** Surface cliquable : l'elevation repond au survol, jamais la couleur seule. */
 export const CARTE_CLIQUABLE =
   CARTE +
-  " transition-shadow motion-safe:transition-all hover:shadow-carteSurvol hover:ring-slate-900/10";
+  " transition-shadow motion-safe:transition-all hover:shadow-carteSurvol hover:ring-stone-900/10";
 
 /** Titre de section, a l'interieur d'une carte. */
-export const TITRE_SECTION = "text-lg font-semibold text-slate-900";
+export const TITRE_SECTION = "text-lg font-semibold text-stone-900";
 /**
  * Intertitre discret au-dessus d'un groupe.
  *
@@ -193,6 +193,6 @@ export const BOUTON_DOUX =
 // L'anneau de focus des champs passe en indigo-500 : indigo-200 sur fond
 // blanc n'atteignait pas le contraste 3:1 exige d'un indicateur de focus.
 export const CHAMP =
-  "border border-slate-300 rounded-xl px-3.5 py-2.5 min-h-[44px] text-base bg-white text-slate-900 " +
-  "placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 " +
+  "border border-stone-300 rounded-xl px-3.5 py-2.5 min-h-[44px] text-base bg-white text-stone-900 " +
+  "placeholder:text-stone-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 " +
   "focus:border-indigo-500 transition-colors";

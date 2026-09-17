@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
 import AuthPage from "./components/AuthPage";
+import AccueilPage from "./components/AccueilPage";
 import PistesPage from "./components/PistesPage";
 import PropositionsPage from "./components/PropositionsPage";
 import EntrainementPage from "./components/EntrainementPage";
@@ -20,7 +21,7 @@ import type { Onglet } from "./lib/onglets";
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Onglet>("pistes");
+  const [tab, setTab] = useState<Onglet>("accueil");
   const [plusOuvert, setPlusOuvert] = useState(false);
   // Une piste peut lancer une simulation : on transporte le nom de la societe
   // jusqu'a l'onglet d'entrainement, sans rien valider a la place de l'utilisateur.
@@ -62,8 +63,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen grid place-items-center bg-slate-50">
-        <p className="text-sm text-slate-500" role="status">
+      <div className="min-h-screen grid place-items-center bg-creme-50">
+        <p className="text-sm text-stone-500" role="status">
           Chargement…
         </p>
       </div>
@@ -77,12 +78,12 @@ export default function App() {
   const courant = definitionDe(tab);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-creme-50">
       {/* Halo tres doux en haut de page : donne une profondeur a l'ecran sans
           teinter le contenu ni gener la lecture. */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-x-0 top-0 h-64 bg-gradient-to-b from-indigo-100/50 to-transparent"
+        className="pointer-events-none fixed inset-x-0 top-0 h-64 bg-gradient-to-b from-creme-100 to-transparent"
       />
       {/* Premier arret de la tabulation : sauter la navigation pour aller au
           contenu, faute de quoi chaque changement de page impose de traverser
@@ -94,13 +95,13 @@ export default function App() {
         Aller au contenu
       </a>
 
-      <header className="bg-white/95 backdrop-blur-xl border-b border-slate-900/[0.06] sticky top-0 z-20">
+      <header className="bg-creme-50/95 backdrop-blur-xl border-b border-stone-900/[0.05] sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600/80 leading-none">
               Veille investissement
             </p>
-            <h1 className="text-xl font-semibold text-slate-900 leading-tight truncate mt-0.5">
+            <h1 className="text-xl font-semibold text-stone-900 leading-tight truncate mt-0.5">
               {courant?.label}
             </h1>
           </div>
@@ -109,7 +110,7 @@ export default function App() {
                 repliee ici plutot que posee au-dessus du contenu. */}
             <SyncStatusBanner />
             <button
-              className="min-h-[44px] px-2.5 text-xs text-slate-500 hover:text-slate-800 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+              className="min-h-[44px] px-2.5 text-xs text-stone-500 hover:text-stone-800 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
               onClick={() => supabase.auth.signOut()}
             >
               Déconnexion
@@ -132,6 +133,7 @@ export default function App() {
         // cela, la derniere carte de chaque page passe sous la navigation.
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}
       >
+        {tab === "accueil" && <AccueilPage onAller={setTab} />}
         {tab === "pistes" && <PistesPage onSimuler={simulerDepuisPiste} />}
         {tab === "propositions" && <PropositionsPage />}
         {tab === "simuler" && (

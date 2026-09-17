@@ -118,7 +118,7 @@ export default function Dashboard({ onSimuler }: Props) {
           className={
             filtresActifs > 0
               ? BOUTON_DOUX
-              : "rounded-xl px-3.5 py-2 text-sm text-slate-500 hover:bg-slate-100 transition"
+              : "rounded-xl px-3.5 py-2 text-sm text-stone-500 hover:bg-stone-100 transition"
           }
         >
           Filtres{filtresActifs > 0 ? ` (${filtresActifs})` : ""}
@@ -126,7 +126,7 @@ export default function Dashboard({ onSimuler }: Props) {
         <button
           onClick={runSync}
           disabled={syncing}
-          className="ml-auto rounded-xl px-3.5 py-2 text-sm text-slate-500 hover:bg-slate-100 disabled:opacity-40 transition"
+          className="ml-auto rounded-xl px-3.5 py-2 text-sm text-stone-500 hover:bg-stone-100 disabled:opacity-40 transition"
         >
           {syncing ? "Synchronisation…" : "↻ Actualiser"}
         </button>
@@ -193,13 +193,13 @@ export default function Dashboard({ onSimuler }: Props) {
           {error}
         </p>
       )}
-      {loading && <p className="text-sm text-slate-500">Chargement…</p>}
+      {loading && <p className="text-sm text-stone-500">Chargement…</p>}
 
       {!loading && shown.length === 0 && (
-        <div className={`${CARTE} p-6 text-sm text-slate-500 leading-relaxed`}>
+        <div className={`${CARTE} p-6 text-sm text-stone-500 leading-relaxed`}>
           {pistes.length === 0 ? (
             <>
-              <p className="text-slate-700 font-medium mb-1.5">
+              <p className="text-stone-700 font-medium mb-1.5">
                 Aucune piste pour le moment — c'est normal.
               </p>
               <p>

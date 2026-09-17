@@ -83,8 +83,8 @@ export default function DonneesPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-slate-900">Vos données</h2>
-        <p className="text-base text-slate-500 leading-snug">
+        <h2 className="text-2xl font-semibold text-stone-900">Vos données</h2>
+        <p className="text-base text-stone-500 leading-snug">
           Ce que l'assistant sait de vous. Rien n'est deviné : un champ vide
           reste vide, et une vérification qui en dépend le dit au lieu
           d'estimer.
@@ -92,7 +92,7 @@ export default function DonneesPage() {
       </header>
 
       <div className={`${CARTE} p-4`}>
-        <p className="text-sm text-slate-700 leading-relaxed">
+        <p className="text-sm text-stone-700 leading-relaxed">
           {renseignes} champ{renseignes > 1 ? "s" : ""} renseigné
           {renseignes > 1 ? "s" : ""} sur {requis} utile
           {requis > 1 ? "s" : ""}. Ces données restent dans votre compte et ne
@@ -102,7 +102,7 @@ export default function DonneesPage() {
 
       {erreur && (
         <div className={`${CARTE} p-4 border-l-4 border-l-rose-500`}>
-          <p className="text-sm text-slate-700">Chargement impossible : {erreur}</p>
+          <p className="text-sm text-stone-700">Chargement impossible : {erreur}</p>
           <button type="button" onClick={charger} className={`${BOUTON_DOUX} mt-3`}>
             Réessayer
           </button>
@@ -110,7 +110,7 @@ export default function DonneesPage() {
       )}
 
       {chargement && (
-        <p className="text-sm text-slate-600" role="status">
+        <p className="text-sm text-stone-600" role="status">
           Chargement…
         </p>
       )}
@@ -118,8 +118,8 @@ export default function DonneesPage() {
       {Object.entries(DOMAINES).map(([cle, d]) => (
         <section key={cle} className="space-y-3">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">{d.titre}</h3>
-            <p className="text-sm text-slate-500 leading-snug">{d.detail}</p>
+            <h3 className="text-lg font-semibold text-stone-900">{d.titre}</h3>
+            <p className="text-sm text-stone-500 leading-snug">{d.detail}</p>
           </div>
           <div className="space-y-3">
             {faitsDuDomaine(cle).map((def) => (
@@ -136,8 +136,8 @@ export default function DonneesPage() {
 
       <section className="space-y-3">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Changements extérieurs</h3>
-          <p className="text-sm text-slate-500 leading-snug">
+          <h3 className="text-lg font-semibold text-stone-900">Changements extérieurs</h3>
+          <p className="text-sm text-stone-500 leading-snug">
             Un barème relevé, un crédit qui se termine, un délai de préavis. Chacun
             demande l'adresse où vous l'avez lu — sans elle, ce n'est pas une
             information vérifiable.
@@ -270,10 +270,10 @@ function ChampFait({
   return (
     <div className={`${CARTE} p-4 space-y-2`}>
       <label className="block">
-        <span className="text-base font-medium text-slate-900">
+        <span className="text-base font-medium text-stone-900">
           {def.libelle}
           {def.facultatif && (
-            <span className="text-sm font-normal text-slate-500"> · facultatif</span>
+            <span className="text-sm font-normal text-stone-500"> · facultatif</span>
           )}
         </span>
         <div className="flex gap-2 mt-1.5">
@@ -297,14 +297,14 @@ function ChampFait({
         </div>
       </label>
 
-      <p id={idAide} className="text-sm text-slate-600 leading-relaxed">
+      <p id={idAide} className="text-sm text-stone-600 leading-relaxed">
         {def.aQuoi}
-        {def.ou && <span className="block text-slate-500 mt-0.5">Où : {def.ou}</span>}
+        {def.ou && <span className="block text-stone-500 mt-0.5">Où : {def.ou}</span>}
       </p>
 
       {fait && (
         <div className="flex flex-wrap items-center gap-2 pt-0.5">
-          <span className={`text-xs ${perime ? "text-amber-800 font-medium" : "text-slate-500"}`}>
+          <span className={`text-xs ${perime ? "text-amber-800 font-medium" : "text-stone-500"}`}>
             {perime ? "⚠ " : ""}
             Confirmé il y a {age} mois
             {def.cadenceMois !== null && ` · à revoir tous les ${def.cadenceMois} mois`}
@@ -398,14 +398,14 @@ function FormulaireSignal({
   return (
     <div className={`${CARTE} p-4 space-y-3`}>
       <div>
-        <p className="text-base font-medium text-slate-900">{def.titre}</p>
-        <p className="text-sm text-slate-600 leading-relaxed mt-0.5">{def.aQuoi}</p>
+        <p className="text-base font-medium text-stone-900">{def.titre}</p>
+        <p className="text-sm text-stone-600 leading-relaxed mt-0.5">{def.aQuoi}</p>
       </div>
 
       {existants.length > 0 && (
         <ul className="space-y-1.5">
           {existants.slice(0, 3).map((s) => (
-            <li key={s.id} className="text-sm text-slate-600">
+            <li key={s.id} className="text-sm text-stone-600">
               {new Date(s.observed_at).toLocaleDateString("fr-BE")} —{" "}
               {Object.entries(s.payload)
                 .map(([k, v]) => `${k} : ${String(v)}`)
@@ -427,7 +427,7 @@ function FormulaireSignal({
         <div className="space-y-2.5">
           {def.champs.map((c) => (
             <label key={c.cle} className="block">
-              <span className="text-sm text-slate-700">{c.libelle}</span>
+              <span className="text-sm text-stone-700">{c.libelle}</span>
               {c.type === "choix" ? (
                 <select
                   value={champs[c.cle] ?? ""}
@@ -453,7 +453,7 @@ function FormulaireSignal({
             </label>
           ))}
           <label className="block">
-            <span className="text-sm text-slate-700">Adresse de la source</span>
+            <span className="text-sm text-stone-700">Adresse de la source</span>
             <input
               type="url"
               value={url}

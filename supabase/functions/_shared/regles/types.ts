@@ -28,6 +28,8 @@ export interface Fait {
   /** Date de derniere confirmation par l'utilisateur, au format ISO. */
   verifiedAt: string;
   reviewCadenceMonths?: number | null;
+  /** Provenance. `calcul` = derive d'autres donnees, jamais saisi a la main. */
+  source?: "saisie_manuelle" | "document" | "calcul";
 }
 
 /** Un changement du monde exterieur, tel que stocke dans `signals`. */
@@ -142,7 +144,38 @@ export function nombreSignal(s: Signal, cle: string): number | null {
 // et la suivante « 1 234,50 € » pour la meme somme.
 
 export function euros(n: number): string {
-  return `${n.toLocaleString("fr-BE", { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €`;
+  // Les centimes comptent la ou ils changent le sens du chiffre : des frais de
+  // courtier de 2,50 € affiches « 3 € » faussent tout ce qui en decoule, dans
+  // un outil dont le sujet est precisement le cout d'un ordre. Au-dela de cent
+  // euros, en revanche, les centimes ne sont que du bruit — un capital restant
+  // du n'a pas besoin d'etre annonce a la piece.
+  const centimes = Math.abs(n) < 100 && !Number.isInteger(n);
+  return `${n.toLocaleString("fr-BE", {
+    minimumFractionDigits: centimes ? 2 : 0,
+    maximumFractionDigits: centimes ? 2 : 0,
+  })} €`;
+}
+
+/**
+ * Pourcentage, avec la virgule decimale francaise.
+ *
+ * `toFixed()` produit un point. Dans un texte francais, « 0.99 % » se lit comme
+ * une faute ou comme un chiffre anglais, et sur un montant d'argent les deux
+ * entament la confiance.
+ */
+export function pourcent(n: number, decimales = 2): string {
+  return `${n.toLocaleString("fr-BE", {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  })} %`;
+}
+
+/** Nombre simple, virgule francaise. */
+export function nombreFr(n: number, decimales = 1): string {
+  return n.toLocaleString("fr-BE", {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales,
+  });
 }
 
 export function moisEcoules(depuis: Date, jusqu: Date): number {
