@@ -76,15 +76,15 @@ function CarteLecture({ l }: { l: Lecture }) {
         </span>
         {s.horsBelgique && (
           <span
-            className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"
+            className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600"
             title="Les règles fiscales citées sont françaises et ne s'appliquent pas en Belgique."
           >
             cadre fiscal ≠ belge
           </span>
         )}
       </div>
-      <p className="font-medium text-slate-800 mt-2 leading-snug">{l.titre}</p>
-      <p className="text-sm text-slate-500 mt-1 leading-relaxed">{l.pourquoi}</p>
+      <p className="font-medium text-stone-800 mt-2 leading-snug">{l.titre}</p>
+      <p className="text-sm text-stone-500 mt-1 leading-relaxed">{l.pourquoi}</p>
     </a>
   );
 }
@@ -127,11 +127,11 @@ export default function JournalPage() {
           (qui publie, et pourquoi c'est fiable) vit deja au pied de la
           bibliotheque. */}
       <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-slate-900">
+        <h2 className="text-2xl font-semibold text-stone-900">
           S'informer, à la source
         </h2>
-        <p className="text-base text-slate-500">
-          <strong className="text-slate-700 font-semibold">
+        <p className="text-base text-stone-500">
+          <strong className="text-stone-700 font-semibold">
             {LECTURES.length} lectures
           </strong>{" "}
           pour apprendre, et l'actualité des régulateurs. Rien n'est réécrit.
@@ -142,8 +142,8 @@ export default function JournalPage() {
       {/* Apprendre — la partie qui ne périme pas                          */}
 
       <section className="space-y-3">
-        <h3 className={`${SURTITRE} text-slate-500`}>Par où commencer</h3>
-        <p className="text-base text-slate-500 leading-snug">
+        <h3 className={`${SURTITRE} text-stone-500`}>Par où commencer</h3>
+        <p className="text-base text-stone-500 leading-snug">
           Dans cet ordre. La fraude vient tôt : une arnaque coûte plus cher que
           n'importe quelle erreur de sélection.
         </p>
@@ -159,10 +159,10 @@ export default function JournalPage() {
                 rel="noreferrer"
                 className="group min-w-0"
               >
-                <p className="font-medium text-slate-800 leading-snug group-hover:text-indigo-700 transition">
+                <p className="font-medium text-stone-800 leading-snug group-hover:text-indigo-700 transition">
                   {l.titre}
                 </p>
-                <p className="text-sm text-slate-500 leading-relaxed">{l.pourquoi}</p>
+                <p className="text-sm text-stone-500 leading-relaxed">{l.pourquoi}</p>
               </a>
             </li>
           ))}
@@ -170,7 +170,7 @@ export default function JournalPage() {
       </section>
 
       <section className="space-y-3">
-        <h3 className={`${SURTITRE} text-slate-500`}>Toute la bibliothèque</h3>
+        <h3 className={`${SURTITRE} text-stone-500`}>Toute la bibliothèque</h3>
         <div className="space-y-2.5">
           {THEMES.map((t) => {
             const lectures = lecturesDuTheme(t.cle);
@@ -179,7 +179,7 @@ export default function JournalPage() {
               <div key={t.cle} className={`${CARTE} overflow-hidden`}>
                 <button
                   onClick={() => setThemeOuvert(ouvert ? null : t.cle)}
-                  className="w-full text-left p-4 flex items-start gap-3 hover:bg-slate-50 transition"
+                  className="w-full text-left p-4 flex items-start gap-3 hover:bg-stone-50 transition"
                   aria-expanded={ouvert}
                 >
                   <span className="text-xl leading-none mt-0.5" aria-hidden>
@@ -187,12 +187,12 @@ export default function JournalPage() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="font-semibold text-slate-800">{t.libelle}</span>
-                      <span className="text-xs text-slate-500 shrink-0 tabular-nums">
+                      <span className="font-semibold text-stone-800">{t.libelle}</span>
+                      <span className="text-xs text-stone-500 shrink-0 tabular-nums">
                         {lectures.length} {ouvert ? "▲" : "▼"}
                       </span>
                     </span>
-                    <span className="block text-sm text-slate-500 leading-relaxed mt-0.5">
+                    <span className="block text-sm text-stone-500 leading-relaxed mt-0.5">
                       {t.promesse}
                     </span>
                   </span>
@@ -222,7 +222,7 @@ export default function JournalPage() {
             </a>
           ))}
         </div>
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           {Object.values(SOURCES)
             .map((s) => `${s.nom} — ${s.detail}`)
             .join(" ")}
@@ -234,8 +234,8 @@ export default function JournalPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <h3 className={`${SURTITRE} text-slate-500`}>Actualités et mises en garde — FSMA</h3>
-          <button onClick={charger} className="text-xs text-slate-500 hover:text-slate-700">
+          <h3 className={`${SURTITRE} text-stone-500`}>Actualités et mises en garde — FSMA</h3>
+          <button onClick={charger} className="text-xs text-stone-500 hover:text-stone-700">
             ↻ Actualiser
           </button>
         </div>
@@ -268,7 +268,7 @@ export default function JournalPage() {
               className={`px-3 py-1 text-xs rounded-full transition ${
                 filtre === f.id
                   ? "bg-indigo-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  : "bg-stone-100 text-stone-600 hover:bg-stone-200"
               }`}
             >
               {f.label}
@@ -277,13 +277,13 @@ export default function JournalPage() {
         </div>
 
         {chargement && (
-          <p className="text-sm text-slate-500" role="status">
+          <p className="text-sm text-stone-500" role="status">
             Chargement…
           </p>
         )}
 
         {!chargement && items.length === 0 && donnees && !donnees.erreurFsma && (
-          <p className="text-sm text-slate-500">Rien à afficher pour ce filtre.</p>
+          <p className="text-sm text-stone-500">Rien à afficher pour ce filtre.</p>
         )}
 
         <div className="space-y-2.5">
@@ -309,12 +309,12 @@ export default function JournalPage() {
                   </span>
                 )}
                 {dateCourte(a.date) && (
-                  <span className="text-xs text-slate-500 mt-0.5">{dateCourte(a.date)}</span>
+                  <span className="text-xs text-stone-500 mt-0.5">{dateCourte(a.date)}</span>
                 )}
               </div>
-              <p className="font-medium text-slate-800 mt-1.5 leading-snug">{a.titre}</p>
+              <p className="font-medium text-stone-800 mt-1.5 leading-snug">{a.titre}</p>
               {a.extrait && (
-                <p className="text-sm text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                <p className="text-sm text-stone-500 mt-1 leading-relaxed line-clamp-2">
                   {a.extrait}
                 </p>
               )}
@@ -339,10 +339,10 @@ export default function JournalPage() {
 
       {autres.map((f) => (
         <section key={f.cle} className="space-y-3">
-          <h3 className={`${SURTITRE} text-slate-500`}>
+          <h3 className={`${SURTITRE} text-stone-500`}>
             <span aria-hidden>{f.pays}</span> {f.nom}
           </h3>
-          <p className="text-sm text-slate-500 leading-relaxed">{f.detail}</p>
+          <p className="text-sm text-stone-500 leading-relaxed">{f.detail}</p>
           {f.erreur ? (
             <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200/70 rounded-xl px-4 py-3">
               Flux momentanément indisponible : {f.erreur}
@@ -358,11 +358,11 @@ export default function JournalPage() {
                   className={`${CARTE_CLIQUABLE} block p-4`}
                 >
                   {dateCourte(a.date) && (
-                    <span className="text-xs text-slate-500">{dateCourte(a.date)}</span>
+                    <span className="text-xs text-stone-500">{dateCourte(a.date)}</span>
                   )}
-                  <p className="font-medium text-slate-800 mt-1 leading-snug">{a.titre}</p>
+                  <p className="font-medium text-stone-800 mt-1 leading-snug">{a.titre}</p>
                   {a.extrait && (
-                    <p className="text-sm text-slate-500 mt-1 leading-relaxed line-clamp-2">
+                    <p className="text-sm text-stone-500 mt-1 leading-relaxed line-clamp-2">
                       {a.extrait}
                     </p>
                   )}
@@ -389,14 +389,14 @@ export default function JournalPage() {
       ))}
 
       {!chargement && donnees && autres.length === 0 && (
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           Une source d'actualité supplémentaire est prête mais n'apparaîtra
           qu'une fois la fonction <code>journal</code> redéployée côté serveur.
           La bibliothèque ci-dessus, elle, ne dépend d'aucun déploiement.
         </p>
       )}
 
-      <p className="text-sm text-slate-500 leading-relaxed">
+      <p className="text-sm text-stone-500 leading-relaxed">
         Ce journal relaie des publications officielles et des contenus
         pédagogiques publics ; il ne les commente pas, n'en tire aucune
         recommandation d'achat ou de vente, et leur présence ici ne constitue

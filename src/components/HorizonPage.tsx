@@ -123,7 +123,7 @@ function BarreAmplitude({
   return (
     <div className="relative h-7">
       {/* Fond + zone des pertes, hachuree */}
-      <div className="absolute inset-y-2 inset-x-0 rounded-full bg-slate-100 overflow-hidden">
+      <div className="absolute inset-y-2 inset-x-0 rounded-full bg-stone-100 overflow-hidden">
         {min < 0 && (
           <div
             className="absolute inset-y-0 left-0 bg-rose-100"
@@ -145,7 +145,7 @@ function BarreAmplitude({
       {/* Repere du zero */}
       {min < 0 && max > 0 && (
         <div
-          className="absolute inset-y-0 w-px bg-slate-400"
+          className="absolute inset-y-0 w-px bg-stone-400"
           style={{ left: `${zero}%` }}
           aria-hidden
         />
@@ -153,7 +153,7 @@ function BarreAmplitude({
 
       {/* Mediane */}
       <div
-        className="absolute inset-y-1 w-0.5 rounded-full bg-slate-900 ring-1 ring-white"
+        className="absolute inset-y-1 w-0.5 rounded-full bg-stone-900 ring-1 ring-white"
         style={{ left: `calc(${pos(median)}% - 1px)` }}
         title={`Médiane : ${pct(median)}`}
       />
@@ -180,12 +180,12 @@ function CarteHorizon({
 
   if (!stats) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3.5">
+      <div className="rounded-2xl border border-dashed border-stone-300 bg-stone-50/60 px-4 py-3.5">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="font-semibold text-slate-700">{duree(ans)}</span>
-          <span className="text-xs text-slate-500">Historique insuffisant</span>
+          <span className="font-semibold text-stone-700">{duree(ans)}</span>
+          <span className="text-xs text-stone-500">Historique insuffisant</span>
         </div>
-        <p className="text-sm text-slate-500 leading-relaxed mt-1.5">
+        <p className="text-sm text-stone-500 leading-relaxed mt-1.5">
           Cet historique ne contient pas assez de périodes de {duree(ans)} pour que
           le résultat décrive autre chose qu'un hasard de date d'entrée. Rien
           n'est affiché plutôt qu'un chiffre extrapolé.
@@ -201,8 +201,8 @@ function CarteHorizon({
   return (
     <div className={`${CARTE} p-4 space-y-3`}>
       <div className="flex items-baseline justify-between gap-3">
-        <span className="font-semibold text-slate-800">{duree(ans)}</span>
-        <span className="text-xs text-slate-500 tabular-nums">
+        <span className="font-semibold text-stone-800">{duree(ans)}</span>
+        <span className="text-xs text-stone-500 tabular-nums">
           {stats.fenetres} périodes observées
         </span>
       </div>
@@ -221,21 +221,21 @@ function CarteHorizon({
           { l: "Médiane", v: m, e: stats.medianFinal100, d: null },
           { l: "Meilleur", v: b, e: stats.meilleurFinal100, d: stats.meilleurDepart },
         ].map((c) => (
-          <div key={c.l} className="rounded-xl bg-slate-50 px-2 py-2">
-            <p className="text-xs uppercase tracking-wide text-slate-500">
+          <div key={c.l} className="rounded-xl bg-stone-50 px-2 py-2">
+            <p className="text-xs uppercase tracking-wide text-stone-500">
               {c.l}
             </p>
             <p className={`text-sm font-semibold tabular-nums ${couleurResultat(c.v)}`}>
               {pct(c.v)}
-              <span className="font-normal text-slate-500 text-xs"> /an</span>
+              <span className="font-normal text-stone-500 text-xs"> /an</span>
             </p>
             {/* Arrondi a l'euro : sur un capital final, les centimes sont du
                 bruit, et ils faisaient passer le montant a la ligne. */}
-            <p className="text-xs text-slate-500 tabular-nums">
+            <p className="text-xs text-stone-500 tabular-nums">
               {euroRond(reel ? capitalApres(c.v, ans) : c.e)}
             </p>
             {c.d && (
-              <p className="text-xs text-slate-500 tabular-nums">
+              <p className="text-xs text-stone-500 tabular-nums">
                 dès {c.d.slice(0, 7).replace("-", "/")}
               </p>
             )}
@@ -243,7 +243,7 @@ function CarteHorizon({
         ))}
       </div>
 
-      <p className="text-sm text-slate-600 leading-relaxed">
+      <p className="text-sm text-stone-600 leading-relaxed">
         <span className="font-semibold tabular-nums">
           {stats.partPositivePct.toFixed(0)} %
         </span>{" "}
@@ -321,17 +321,17 @@ export default function HorizonPage() {
   return (
     <div className="space-y-5">
       <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-slate-900">
+        <h2 className="text-2xl font-semibold text-stone-900">
           Attendre 5, 10 ou 30&nbsp;ans&nbsp;?
         </h2>
-        <p className="text-base text-slate-500 leading-snug">
+        <p className="text-base text-stone-500 leading-snug">
           Toutes les périodes qui se sont réellement produites, et combien se
           sont terminées en perte. Un constat sur le passé, pas une projection.
         </p>
       </header>
 
       {chargement && (
-        <div className={`${CARTE} p-5 text-sm text-slate-500`}>
+        <div className={`${CARTE} p-5 text-sm text-stone-500`}>
           Lecture des historiques de cours…
         </div>
       )}
@@ -360,7 +360,7 @@ export default function HorizonPage() {
           {serie && (
             <>
               <div className={`${CARTE} p-4 space-y-2`}>
-                <p className="text-base text-slate-600 leading-relaxed">
+                <p className="text-base text-stone-600 leading-relaxed">
                   {serie.detail}
                 </p>
                 {serie.erreur ? (
@@ -368,7 +368,7 @@ export default function HorizonPage() {
                     Série indisponible : {serie.erreur}
                   </p>
                 ) : (
-                  <p className="text-xs text-slate-500 tabular-nums">
+                  <p className="text-xs text-stone-500 tabular-nums">
                     {serie.symbole} · {serie.points} relevés mensuels de{" "}
                     {annee(serie.debut)} à {annee(serie.fin)} · mesuré en{" "}
                     {serie.devise}
@@ -407,7 +407,7 @@ export default function HorizonPage() {
                   {reel ? "✓ " : ""}Retirer l'inflation
                 </button>
                 {reel && (
-                  <label className="flex items-center gap-2 text-sm text-slate-600">
+                  <label className="flex items-center gap-2 text-sm text-stone-600">
                     Hypothèse
                     <input
                       type="number"
@@ -422,7 +422,7 @@ export default function HorizonPage() {
               </div>
 
               {reel && (
-                <p className="text-sm text-slate-500 leading-relaxed">
+                <p className="text-sm text-stone-500 leading-relaxed">
                   Les montants ci-dessous sont exprimés en pouvoir d'achat
                   d'aujourd'hui, sous l'hypothèse que vous venez de saisir. Ce
                   taux est une hypothèse de votre part : l'outil ne prévoit pas
@@ -450,7 +450,7 @@ export default function HorizonPage() {
                 icone="🧭"
                 resume="Quatre réserves qui changent l'interprétation."
               >
-                <ul className="text-base text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
+                <ul className="text-base text-stone-600 leading-relaxed space-y-2 list-disc pl-4">
                   <li>
                     <strong>Les périodes se chevauchent.</strong> Les périodes
                     de 30 ans tirées de 38 ans d'historique partagent presque
@@ -493,10 +493,10 @@ export default function HorizonPage() {
         icone="🌍"
         resume="Ce que contient ce produit, et ce qui n'a pas pu être vérifié."
       >
-        <p className="text-xs text-slate-500 tabular-nums">
+        <p className="text-xs text-stone-500 tabular-nums">
           {ETF_MONDE.symbole} · {ETF_MONDE.place} · coté en {ETF_MONDE.devise}
         </p>
-        <ul className="text-base text-slate-600 leading-relaxed space-y-2 list-disc pl-4">
+        <ul className="text-base text-stone-600 leading-relaxed space-y-2 list-disc pl-4">
           {ETF_MONDE.faits.map((f) => (
             <li key={f}>{f}</li>
           ))}
@@ -504,12 +504,12 @@ export default function HorizonPage() {
         <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200/70 rounded-xl px-3.5 py-2.5 leading-relaxed">
           {AVERTISSEMENT_DEVISE}
         </p>
-        <div className="border-t border-slate-100 pt-3 space-y-2">
-          <p className="text-xs uppercase tracking-wide text-slate-500">
+        <div className="border-t border-stone-100 pt-3 space-y-2">
+          <p className="text-xs uppercase tracking-wide text-stone-500">
             Ce que l'outil n'a pas pu vérifier
           </p>
           {ETF_MONDE.aVerifier.map((a) => (
-            <p key={a} className="text-sm text-slate-500 leading-relaxed">
+            <p key={a} className="text-sm text-stone-500 leading-relaxed">
               {a}
             </p>
           ))}
@@ -526,8 +526,8 @@ export default function HorizonPage() {
       >
 
         <div className="flex flex-wrap gap-3">
-          <label className="text-sm text-slate-600 space-y-1">
-            <span className="block text-xs uppercase tracking-wide text-slate-500">
+          <label className="text-sm text-stone-600 space-y-1">
+            <span className="block text-xs uppercase tracking-wide text-stone-500">
               Courtier
             </span>
             <select
@@ -542,8 +542,8 @@ export default function HorizonPage() {
               ))}
             </select>
           </label>
-          <label className="text-sm text-slate-600 space-y-1">
-            <span className="block text-xs uppercase tracking-wide text-slate-500">
+          <label className="text-sm text-stone-600 space-y-1">
+            <span className="block text-xs uppercase tracking-wide text-stone-500">
               Montant placé
             </span>
             <input
@@ -557,7 +557,7 @@ export default function HorizonPage() {
           </label>
         </div>
 
-        <p className="text-base text-slate-600 leading-relaxed">
+        <p className="text-base text-stone-600 leading-relaxed">
           {courtier.fraisEtfNote ? (
             <>
               <strong>{courtier.nom}</strong> — {courtier.fraisEtfNote}
@@ -570,7 +570,7 @@ export default function HorizonPage() {
               ordre.
             </>
           )}{" "}
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-stone-500">
             ({courtier.fraisSource === "officiel" ? "grille officielle" : "estimation non confirmée"},{" "}
             {courtier.fraisConstateLe}.{" "}
             <a
@@ -586,7 +586,7 @@ export default function HorizonPage() {
         </p>
 
         {courtier.fxSpreadPct !== undefined && (
-          <p className="text-sm text-slate-500 leading-relaxed">
+          <p className="text-sm text-stone-500 leading-relaxed">
             Ce courtier applique une marge de {courtier.fxSpreadPct} % sur le
             taux de change. Elle ne s'applique pas ici : l'ETF est coté en
             euros, donc aucune conversion n'a lieu. Elle s'appliquerait, deux
@@ -599,18 +599,18 @@ export default function HorizonPage() {
             const c = coutAllerRetour(montant, fraisEtf, r);
             const ans = anneesPourAbsorber(c.seuilRentabilitePct, 6);
             return (
-              <div key={r.cle} className="rounded-2xl bg-slate-50 px-4 py-3 space-y-1.5">
-                <p className="text-sm font-medium text-slate-700">{r.libelle}</p>
-                <p className="text-2xl font-semibold text-slate-900 tabular-nums">
+              <div key={r.cle} className="rounded-2xl bg-stone-50 px-4 py-3 space-y-1.5">
+                <p className="text-sm font-medium text-stone-700">{r.libelle}</p>
+                <p className="text-2xl font-semibold text-stone-900 tabular-nums">
                   {formatEur(c.totalEur)}
                 </p>
-                <p className="text-xs text-slate-600 tabular-nums">
+                <p className="text-xs text-stone-600 tabular-nums">
                   soit {c.seuilRentabilitePct.toFixed(2).replace(".", ",")} % à
                   regagner · courtage {formatEur(c.courtageEur)} + taxe{" "}
                   {formatEur(c.taxeEur)}
                 </p>
                 {ans !== null && (
-                  <p className="text-sm text-slate-500 leading-relaxed">
+                  <p className="text-sm text-stone-500 leading-relaxed">
                     À 6 % par an — hypothèse d'illustration, pas une prévision —
                     il faudrait environ{" "}
                     {ans < 1
@@ -619,7 +619,7 @@ export default function HorizonPage() {
                     pour absorber ce coût.
                   </p>
                 )}
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-stone-500 leading-relaxed">
                   {r.note}
                 </p>
               </div>
@@ -627,7 +627,7 @@ export default function HorizonPage() {
           })}
         </div>
 
-        <p className="text-sm text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+        <p className="text-sm text-stone-500 leading-relaxed border-t border-stone-100 pt-3">
           Lequel de ces deux régimes s'applique dépend de l'inscription de cet
           ETF précis auprès de la FSMA, que l'outil n'a pas pu vérifier —
           l'écart est d'un facteur cinq, il serait donc malhonnête d'en choisir
@@ -637,7 +637,7 @@ export default function HorizonPage() {
         </p>
       </Repliable>
 
-      <p className="text-sm text-slate-500 leading-relaxed">
+      <p className="text-sm text-stone-500 leading-relaxed">
         Ceci n'est pas un conseil en investissement. Cette page décrit des
         périodes passées et des tarifs publiés ; elle ne prévoit aucun cours, ne
         recommande aucun achat et ne tient pas compte de votre situation

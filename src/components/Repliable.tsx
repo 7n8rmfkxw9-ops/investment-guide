@@ -43,7 +43,7 @@ export default function Repliable({
       <summary
         className={[
           "list-none cursor-pointer select-none px-5 py-4 min-h-[60px]",
-          "flex items-start gap-3.5 hover:bg-slate-50/80 transition-colors",
+          "flex items-start gap-3.5 hover:bg-stone-50/80 transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset",
           "focus-visible:ring-indigo-500",
           // Safari affiche un triangle par defaut : on le retire pour poser le
@@ -57,11 +57,11 @@ export default function Repliable({
           </span>
         )}
         <span className="min-w-0 flex-1">
-          <span className="block text-lg font-semibold text-slate-900 leading-snug">
+          <span className="block text-lg font-semibold text-stone-900 leading-snug">
             {titre}
           </span>
           {resume && (
-            <span className="block text-sm text-slate-500 leading-normal mt-1">
+            <span className="block text-sm text-stone-500 leading-normal mt-1">
               {resume}
             </span>
           )}
@@ -69,13 +69,13 @@ export default function Repliable({
         {/* Chevron : l'etat reste lisible sans couleur, et l'animation est
             desactivee si le systeme demande de reduire les animations. */}
         <span
-          className="shrink-0 mt-1.5 grid h-7 w-7 place-items-center rounded-full bg-slate-100 text-slate-600 text-xs motion-safe:transition-transform group-open:rotate-180"
+          className="shrink-0 mt-1.5 grid h-7 w-7 place-items-center rounded-full bg-stone-100 text-stone-600 text-xs motion-safe:transition-transform group-open:rotate-180"
           aria-hidden
         >
           ▾
         </span>
       </summary>
-      <div className="px-5 pb-5 pt-1 text-base text-slate-600 leading-relaxed space-y-3">
+      <div className="px-5 pb-5 pt-1 text-base text-stone-600 leading-relaxed space-y-3">
         {children}
       </div>
     </details>

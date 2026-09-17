@@ -323,9 +323,9 @@ export function Figure({ cle, legende }: { cle: string; legende: string }) {
   const F = FIGURES[cle];
   if (!F) return null;
   return (
-    <figure className="my-4 rounded-2xl bg-slate-50 p-4">
+    <figure className="my-4 rounded-2xl bg-stone-50 p-4">
       <F />
-      <figcaption className="mt-2 text-sm text-slate-500 leading-relaxed">
+      <figcaption className="mt-2 text-sm text-stone-500 leading-relaxed">
         {legende}
       </figcaption>
     </figure>

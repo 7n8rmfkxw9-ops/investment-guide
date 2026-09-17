@@ -99,14 +99,14 @@ export default function LearnPage() {
         </p>
         <ul className="space-y-2">
           <li>
-            <strong className="text-slate-800">États-Unis</strong> — les
+            <strong className="text-stone-800">États-Unis</strong> — les
             dirigeants déclarent leurs opérations (Form 4), et en plus les gros
             gestionnaires publient chaque trimestre l'intégralité de leur
             portefeuille (13F). C'est une transparence exceptionnelle : elle
             n'existe nulle part ailleurs.
           </li>
           <li>
-            <strong className="text-slate-800">Europe</strong> — les dirigeants
+            <strong className="text-stone-800">Europe</strong> — les dirigeants
             déclarent également leurs opérations, au titre du règlement européen
             sur les abus de marché, mais{" "}
             <strong>il n'existe pas de registre européen unique</strong> :
@@ -135,18 +135,18 @@ export default function LearnPage() {
         </p>
         <ul className="space-y-2">
           <li>
-            <strong className="text-slate-800">Belgique — couverte.</strong> La
+            <strong className="text-stone-800">Belgique — couverte.</strong> La
             FSMA publie un registre consultable, opération par opération, avec
             le nom du dirigeant, la quantité, le prix et le montant.
           </li>
           <li>
-            <strong className="text-slate-800">Suède — couverte.</strong>{" "}
+            <strong className="text-stone-800">Suède — couverte.</strong>{" "}
             Finansinspektionen publie l'un des meilleurs registres d'Europe : un
             fichier complet, téléchargeable, qui indique en plus si l'opération
             relève d'un programme de stock-options.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               Pays-Bas, France, Allemagne — pas encore.
             </strong>{" "}
             Leurs registres existent et sont publics, mais soit ils ne
@@ -176,18 +176,18 @@ export default function LearnPage() {
         <p>Trois choses s'y apprennent mieux que dans n'importe quel texte.</p>
         <ul className="space-y-2">
           <li>
-            <strong className="text-slate-800">Les frais</strong> — vous partez
+            <strong className="text-stone-800">Les frais</strong> — vous partez
             perdant. Sur 50 € avec 1 € de frais, il faut déjà gagner environ 4 %
             pour revenir à zéro. La simulation le montre dès l'enregistrement,
             avant même que le cours ait bougé.
           </li>
           <li>
-            <strong className="text-slate-800">Le temps</strong> — trois jours ne
+            <strong className="text-stone-800">Le temps</strong> — trois jours ne
             prouvent rien. Une hausse peut n'être que du bruit. C'est en laissant
             passer des mois qu'on distingue une intuition d'un coup de chance.
           </li>
           <li>
-            <strong className="text-slate-800">La comparaison</strong> — chaque
+            <strong className="text-stone-800">La comparaison</strong> — chaque
             simulation est confrontée à la même somme placée le même jour sur un
             ETF actions mondiales. C'est la seule question qui compte vraiment :
             votre choix valait-il mieux que <em>ne pas choisir</em> ? Le plus
@@ -248,7 +248,7 @@ export default function LearnPage() {
 
       <Card id="s-pro" titre="Trois choses qu'un professionnel regarderait, et que l'outil montre maintenant">
         <p>
-          <strong className="text-slate-800">Votre exposition.</strong> Cinq
+          <strong className="text-stone-800">Votre exposition.</strong> Cinq
           positions dont quatre sur les mêmes marchés ne sont pas cinq paris :
           c'est un seul pari répété quatre fois. Aucune fiche prise
           isolément ne peut le montrer, d'où le récapitulatif en haut de
@@ -257,7 +257,7 @@ export default function LearnPage() {
           répartition serait meilleure qu'une autre.
         </p>
         <p>
-          <strong className="text-slate-800">Votre règle de sortie.</strong>{" "}
+          <strong className="text-stone-800">Votre règle de sortie.</strong>{" "}
           Écrire à quelle condition vous vendriez, <em>avant</em> d'acheter,
           est ce qui distingue une décision d'une réaction. Une fois le cours
           en baisse, tout le monde trouve de bonnes raisons d'attendre encore.
@@ -265,7 +265,7 @@ export default function LearnPage() {
           réapparaît sur la fiche ensuite.
         </p>
         <p>
-          <strong className="text-slate-800">La commission de change.</strong>{" "}
+          <strong className="text-stone-800">La commission de change.</strong>{" "}
           Sur un titre coté hors zone euro, votre courtier prélève une
           commission à chaque conversion — à l'aller comme au retour. Elle est
           souvent noyée dans la grille tarifaire plutôt qu'affichée comme une
@@ -285,12 +285,12 @@ export default function LearnPage() {
         </p>
         <ul className="space-y-2">
           <li>
-            <strong className="text-slate-800">13D</strong> — l'investisseur se
+            <strong className="text-stone-800">13D</strong> — l'investisseur se
             réserve la possibilité de <em>peser</em> sur l'entreprise : siège
             au conseil, changement de stratégie, cession d'activité.
           </li>
           <li>
-            <strong className="text-slate-800">13G</strong> — détention{" "}
+            <strong className="text-stone-800">13G</strong> — détention{" "}
             <em>passive</em>, sans intention déclarée d'agir. C'est le plus
             souvent une mécanique de gestion indicielle, pas une opinion sur
             l'entreprise. Le signal le moins informatif de l'outil ; il est
@@ -309,31 +309,31 @@ export default function LearnPage() {
       <Card id="s-fiche" titre="Comment lire une fiche, ligne par ligne">
         <ul className="space-y-2">
           <li>
-            <strong className="text-slate-800">Le titre</strong> — l'entreprise
+            <strong className="text-stone-800">Le titre</strong> — l'entreprise
             concernée, et son code boursier entre parenthèses (le « ticker »).
           </li>
           <li>
-            <strong className="text-slate-800">L'étiquette de couleur</strong> —
+            <strong className="text-stone-800">L'étiquette de couleur</strong> —
             le type de signal. Orange pour une opération de dirigeant (donnée
             fraîche, publiée sous 2 jours), bleu pour une déclaration
             trimestrielle de fonds (donnée pouvant dater de plusieurs mois).
           </li>
           <li>
-            <strong className="text-slate-800">Source</strong> — qui a déclaré
+            <strong className="text-stone-800">Source</strong> — qui a déclaré
             l'opération, avec le lien vers le document officiel. Vous pouvez
             toujours aller vérifier vous-même : rien n'est inventé.
           </li>
           <li>
-            <strong className="text-slate-800">Contexte</strong> — le résumé de
+            <strong className="text-stone-800">Contexte</strong> — le résumé de
             ce qui s'est passé, en français.
           </li>
           <li>
-            <strong className="text-slate-800">Coût de transaction</strong> —
+            <strong className="text-stone-800">Coût de transaction</strong> —
             combien vos frais représentent sur la somme que vous envisagez, et
             ce que votre placement doit gagner rien que pour les couvrir.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               Le rappel gris en bas
             </strong>{" "}
             — les limites de la donnée. Il est volontairement impossible de le
@@ -351,7 +351,7 @@ export default function LearnPage() {
               className={`text-xs px-2.5 py-1.5 rounded-full border transition ${
                 signal === s
                   ? "bg-indigo-600 text-white border-indigo-600"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                  : "bg-white text-stone-600 border-stone-200 hover:border-stone-300"
               }`}
             >
               {SIGNAL_LABELS[s]}
@@ -359,15 +359,15 @@ export default function LearnPage() {
           ))}
         </div>
         <div className="pt-1 space-y-3">
-          <p className="font-medium text-slate-800">{exp.titre}</p>
+          <p className="font-medium text-stone-800">{exp.titre}</p>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
+            <p className="text-xs uppercase tracking-wide text-stone-500 mb-1">
               Ce que c'est
             </p>
             <p>{exp.cequecest}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500 mb-1">
+            <p className="text-xs uppercase tracking-wide text-stone-500 mb-1">
               Ce que cela ne dit pas
             </p>
             <p>{exp.cequecelanedit}</p>
@@ -399,10 +399,10 @@ export default function LearnPage() {
       </Card>
 
       <Card id="s-lexique" titre="Lexique — tous les mots employés dans l'application">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Touchez un mot pour voir sa définition complète.
         </p>
-        <div className="divide-y divide-slate-100 -mx-1">
+        <div className="divide-y divide-stone-100 -mx-1">
           {LEXIQUE.map((t) => {
             const open = ouvert === t.mot;
             return (
@@ -411,11 +411,11 @@ export default function LearnPage() {
                   className="w-full text-left"
                   onClick={() => setOuvert(open ? null : t.mot)}
                 >
-                  <span className="font-medium text-slate-800">{t.mot}</span>
-                  <span className="text-slate-500"> — {t.court}</span>
+                  <span className="font-medium text-stone-800">{t.mot}</span>
+                  <span className="text-stone-500"> — {t.court}</span>
                 </button>
                 {open && t.long && (
-                  <p className="mt-2 text-slate-600 bg-slate-50 rounded-lg p-3">
+                  <p className="mt-2 text-stone-600 bg-stone-50 rounded-lg p-3">
                     {t.long}
                   </p>
                 )}

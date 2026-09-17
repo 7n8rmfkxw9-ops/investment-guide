@@ -70,11 +70,11 @@ export default function PositionsPage() {
       .then(({ data }) => setSnapshots((data as Snapshot[]) ?? []));
   }, [selected]);
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>;
+  if (loading) return <p className="text-sm text-stone-500">Chargement…</p>;
 
   if (managers.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-stone-500">
         Aucun gestionnaire suivi. Ajoutez-en dans l'onglet Réglages.
       </p>
     );
@@ -106,16 +106,16 @@ export default function PositionsPage() {
   return (
     <div className="space-y-4">
       <div className={`${CARTE} p-5 space-y-2`}>
-        <h2 className="font-semibold text-slate-800">
+        <h2 className="font-semibold text-stone-800">
           Le portefeuille des gérants que vous suivez
         </h2>
-        <p className="text-base text-slate-600 leading-relaxed">
+        <p className="text-base text-stone-600 leading-relaxed">
           Ce tableau montre, entreprise par entreprise, combien d'actions le
           gestionnaire déclarait détenir à la fin de chaque trimestre. Lire une
           ligne de gauche à droite permet de voir s'il a renforcé, allégé ou
           conservé sa position au fil du temps.
         </p>
-        <p className="text-sm text-slate-500 leading-relaxed">
+        <p className="text-sm text-stone-500 leading-relaxed">
           Rappel : ces déclarations paraissent jusqu'à 45 jours après la fin du
           trimestre et ne montrent que les paris à la hausse sur des actions
           américaines. La situation actuelle du fonds peut être différente.
@@ -137,7 +137,7 @@ export default function PositionsPage() {
       </div>
 
       {snapshots.length === 0 ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-stone-500">
           Aucune déclaration enregistrée pour ce gestionnaire — lancez
           « Actualiser » depuis l'onglet Pistes.
         </p>
@@ -145,7 +145,7 @@ export default function PositionsPage() {
         <div className={`${CARTE} overflow-x-auto`}>
           <table className="text-sm w-full">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-wide text-slate-500 border-b">
+              <tr className="text-left text-xs uppercase tracking-wide text-stone-500 border-b">
                 <th className="px-3 py-2">Titre</th>
                 {periods.map((p) => (
                   <th key={p} className="px-3 py-2 whitespace-nowrap">

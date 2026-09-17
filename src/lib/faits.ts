@@ -30,6 +30,10 @@ export interface DefinitionFait {
 }
 
 export const DOMAINES: Record<string, { titre: string; detail: string }> = {
+  profil: {
+    titre: "Votre situation",
+    detail: "Quatre chiffres suffisent pour que l'outil calcule vos montants.",
+  },
   habitation: {
     titre: "Habitation",
     detail: "Pour vérifier que la valeur assurée suit la valeur réelle du bien.",
@@ -49,6 +53,67 @@ export const DOMAINES: Record<string, { titre: string; detail: string }> = {
 };
 
 export const FAITS: DefinitionFait[] = [
+  {
+    cle: "profil.revenus_mensuels_eur",
+    domaine: "profil",
+    libelle: "Revenus mensuels nets",
+    aQuoi:
+      "Ce qui arrive réellement sur votre compte chaque mois. Tout le plan en découle : sans ce chiffre, aucun montant ne peut être proposé.",
+    ou: "Votre fiche de paie, ligne « net à payer ». Comptez une moyenne si vos revenus varient.",
+    type: "euros",
+    cadenceMois: 12,
+  },
+  {
+    cle: "profil.charges_mensuelles_eur",
+    domaine: "profil",
+    libelle: "Charges mensuelles",
+    aQuoi:
+      "Loyer ou prêt, énergie, courses, assurances, abonnements — tout ce qui part chaque mois. Sert deux fois : à calculer votre marge, et à dimensionner votre épargne de précaution.",
+    ou: "Vos relevés des trois derniers mois, divisés par trois. Mieux vaut surestimer.",
+    type: "euros",
+    cadenceMois: 12,
+  },
+  {
+    cle: "profil.epargne_precaution_eur",
+    domaine: "profil",
+    libelle: "Épargne disponible immédiatement",
+    aQuoi:
+      "Ce que vous pourriez retirer demain sans pénalité. C'est elle qui évite d'avoir à vendre au pire moment — la condition avant tout placement.",
+    ou: "Compte d'épargne, compte à vue. Pas ce qui est bloqué ni déjà investi.",
+    type: "euros",
+    cadenceMois: 6,
+  },
+  {
+    cle: "credit.taux_annuel_pct",
+    domaine: "profil",
+    libelle: "Taux de votre crédit",
+    aQuoi:
+      "Rembourser un crédit rapporte son taux, avec certitude. C'est le seul arbitrage patrimonial qui se tranche sans opinion — mais il faut connaître le taux.",
+    ou: "Sur votre contrat de crédit, « taux débiteur annuel ». Laissez vide si vous n'avez pas de crédit.",
+    type: "pourcentage",
+    cadenceMois: null,
+    facultatif: true,
+  },
+  {
+    cle: "profil.mois_precaution",
+    domaine: "profil",
+    libelle: "Mois de charges à couvrir",
+    aQuoi:
+      "Taille de votre épargne de précaution, en mois de charges. Laissé vide : quatre. C'est une convention courante, pas un résultat d'étude.",
+    type: "nombre",
+    cadenceMois: null,
+    facultatif: true,
+  },
+  {
+    cle: "profil.frais_cible_pct",
+    domaine: "profil",
+    libelle: "Frais maximum par ordre",
+    aQuoi:
+      "Part du montant investi que vous acceptez de laisser en frais. Laissé vide : 1 %. En dessous de ce seuil, l'outil vous dira d'attendre plutôt que d'acheter.",
+    type: "pourcentage",
+    cadenceMois: null,
+    facultatif: true,
+  },
   {
     cle: "habitation.valeur_assuree_eur",
     domaine: "habitation",

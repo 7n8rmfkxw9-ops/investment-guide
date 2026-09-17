@@ -56,7 +56,7 @@ export default function SousOnglets({
       role="tablist"
       aria-label={etiquette}
       onKeyDown={auClavier}
-      className="flex gap-1 p-1 rounded-2xl bg-slate-100"
+      className="flex gap-1 p-1 rounded-2xl bg-stone-100"
     >
       {vues.map((v, i) => {
         const actif = v.cle === courante;
@@ -80,15 +80,15 @@ export default function SousOnglets({
               "flex-1 min-h-[44px] px-3 rounded-xl text-sm font-medium",
               "transition-colors motion-safe:transition-all",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
-              actif ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900",
+              actif ? "bg-white text-stone-900 shadow-sm" : "text-stone-600 hover:text-stone-900",
             ].join(" ")}
           >
             {v.label}
             {v.compte !== undefined && (
-              // slate-600 et non slate-500 : sur le fond gris de l'onglet
-              // inactif, le slate-500 ne donne que 4,4:1, sous le seuil de
+              // stone-600 et non stone-500 : sur le fond gris de l'onglet
+              // inactif, le stone-500 ne donne que 4,4:1, sous le seuil de
               // 4,5:1. Mesure faite avec axe-core.
-              <span className="tabular-nums text-slate-600"> ({v.compte})</span>
+              <span className="tabular-nums text-stone-600"> ({v.compte})</span>
             )}
           </button>
         );

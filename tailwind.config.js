@@ -3,6 +3,22 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      colors: {
+        /**
+         * Fond de page : un creme tres pale plutot qu'un gris bleute.
+         *
+         * Le gris froid par defaut donne a une application d'argent un air de
+         * tableur. Le meme ecran sur un fond legerement chaud se lit comme du
+         * papier — meme contenu, meme contraste, impression opposee. La valeur
+         * est assez claire pour que le texte stone-800 y reste tres au-dessus
+         * du seuil, et les cartes blanches s'en detachent sans bordure.
+         */
+        creme: {
+          50: "#FBF8F4",
+          100: "#F4EFE8",
+          200: "#E9E1D6",
+        },
+      },
       /**
        * Echelle typographique.
        *
@@ -51,11 +67,11 @@ export default {
         /** Elevation douce : une ombre portee large et tres diffuse, plus un
          *  liseré d'un pixel. Plus proche d'une carte posee que d'un cadre. */
         carte:
-          "0 1px 2px rgba(15,23,42,0.04), 0 12px 32px -16px rgba(15,23,42,0.16)",
+          "0 1px 2px rgba(28,25,23,0.04), 0 12px 32px -16px rgba(28,25,23,0.14)",
         carteSurvol:
-          "0 1px 2px rgba(15,23,42,0.05), 0 16px 40px -18px rgba(15,23,42,0.22)",
+          "0 1px 2px rgba(28,25,23,0.05), 0 16px 40px -18px rgba(28,25,23,0.20)",
         flottant:
-          "0 -1px 2px rgba(15,23,42,0.03), 0 -12px 32px -20px rgba(15,23,42,0.18)",
+          "0 -1px 2px rgba(28,25,23,0.03), 0 -12px 32px -20px rgba(28,25,23,0.16)",
       },
       keyframes: {
         fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },

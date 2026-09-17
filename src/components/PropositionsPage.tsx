@@ -46,7 +46,7 @@ const NIVEAUX: Record<Niveau, { libelle: string; detail: string; classe: string 
     libelle: "Calcul standard",
     detail:
       "Dérivation faite sur vos propres données et sur les sources citées. Vérifiable au crayon ; ce n'est pas une mesure publiée.",
-    classe: "bg-slate-200 text-slate-700",
+    classe: "bg-stone-200 text-stone-700",
   },
   sortie_modele: {
     libelle: "Sortie de modèle",
@@ -57,7 +57,7 @@ const NIVEAUX: Record<Niveau, { libelle: string; detail: string; classe: string 
 };
 
 const SEVERITES: Record<string, string> = {
-  info: "bg-slate-200 text-slate-700",
+  info: "bg-stone-200 text-stone-700",
   attention: "bg-amber-100 text-amber-800",
   urgent: "bg-rose-100 text-rose-800",
 };
@@ -122,8 +122,8 @@ export default function PropositionsPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-slate-900">À valider</h2>
-        <p className="text-base text-slate-500 leading-snug">
+        <h2 className="text-2xl font-semibold text-stone-900">À valider</h2>
+        <p className="text-base text-stone-500 leading-snug">
           Des vérifications à faire vous-même, calculées à partir de vos données
           et de sources citées. Rien ne s'exécute ici.
         </p>
@@ -133,7 +133,7 @@ export default function PropositionsPage() {
           decide — pas releguee dans une page « a propos ». */}
       <div className={`${CARTE} p-4 border-l-4 border-l-indigo-500`}>
         <p className={`${SURTITRE} text-indigo-800`}>Ce que fait « approuver »</p>
-        <p className="text-sm text-slate-700 leading-relaxed mt-1.5">
+        <p className="text-sm text-stone-700 leading-relaxed mt-1.5">
           Approuver enregistre votre décision et sort la proposition de cette
           liste. Aucun courrier n'est envoyé, aucun contrat n'est modifié, aucun
           ordre n'est passé. Les démarches, s'il y en a, restent les vôtres.
@@ -164,14 +164,14 @@ export default function PropositionsPage() {
       </button>
 
       {(chargement || evaluation) && (
-        <p className="text-sm text-slate-600" role="status">
+        <p className="text-sm text-stone-600" role="status">
           {evaluation ? "Vérification en cours…" : "Chargement…"}
         </p>
       )}
 
       {echecMoteur && (
         <div className={`${CARTE} p-4 border-l-4 border-l-amber-500`}>
-          <p className="text-sm text-slate-700 leading-relaxed">
+          <p className="text-sm text-stone-700 leading-relaxed">
             Les vérifications n'ont pas pu être relancées ({echecMoteur}). Ce qui
             s'affiche ci-dessous a été calculé plus tôt et peut être daté.
           </p>
@@ -180,7 +180,7 @@ export default function PropositionsPage() {
 
       {erreur && (
         <div className={`${CARTE} p-4 border-l-4 border-l-rose-500`}>
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-stone-700">
             Les propositions n'ont pas pu être chargées : {erreur}
           </p>
           <button type="button" onClick={charger} className={`${BOUTON_DOUX} mt-3`}>
@@ -191,13 +191,13 @@ export default function PropositionsPage() {
 
       {!chargement && !erreur && liste.length === 0 && (
         <div className={`${CARTE} p-5`}>
-          <p className="text-base text-slate-700 leading-relaxed">
+          <p className="text-base text-stone-700 leading-relaxed">
             {historique
               ? "Aucune décision enregistrée pour l'instant."
               : "Rien à valider. Les règles ne se déclenchent que lorsqu'un seuil est franchi, qu'une échéance approche ou qu'un changement sourcé a été enregistré."}
           </p>
           {!historique && (
-            <p className="text-base text-slate-700 leading-relaxed mt-3">
+            <p className="text-base text-stone-700 leading-relaxed mt-3">
               Si vous n'avez encore rien saisi, c'est attendu : les vérifications
               se calculent sur vos données, et l'outil n'en invente aucune.
               Renseignez-les dans <strong>Mes données</strong>.
@@ -263,13 +263,13 @@ function Fiche({ proposition: p, onDecide }: { proposition: Proposition; onDecid
             {niveau.libelle}
           </span>
           {p.status !== "pending" && (
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-stone-200 text-stone-700">
               {p.status === "approved" ? "approuvée" : p.status === "rejected" ? "rejetée" : "périmée"}
             </span>
           )}
         </div>
-        <h3 className="text-lg font-semibold text-slate-900 leading-snug">{p.title}</h3>
-        <p className="text-xs text-slate-600">
+        <h3 className="text-lg font-semibold text-stone-900 leading-snug">{p.title}</h3>
+        <p className="text-xs text-stone-600">
           {p.rules ? `${p.rules.title} · ` : ""}
           {new Date(p.created_at).toLocaleDateString("fr-BE")}
           {p.expires_at ? ` · valable jusqu'au ${new Date(p.expires_at).toLocaleDateString("fr-BE")}` : ""}
@@ -281,24 +281,24 @@ function Fiche({ proposition: p, onDecide }: { proposition: Proposition; onDecid
       {manque.length > 0 && (
         <div className="rounded-xl bg-amber-50 border border-amber-200 p-3.5">
           <p className={`${SURTITRE} text-amber-800`}>Données manquantes</p>
-          <ul className="mt-1.5 space-y-1 text-sm text-slate-700">
+          <ul className="mt-1.5 space-y-1 text-sm text-stone-700">
             {manque.map((m) => (
               <li key={m}>— {m}</li>
             ))}
           </ul>
-          <p className="text-xs text-slate-600 mt-2">
+          <p className="text-xs text-stone-600 mt-2">
             Aucune estimation n'a été substituée à ces valeurs.
           </p>
         </div>
       )}
 
       {p.rationale_plain && (
-        <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5">
-          <p className={`${SURTITRE} text-slate-600`}>
+        <div className="rounded-xl bg-stone-50 border border-stone-200 p-3.5">
+          <p className={`${SURTITRE} text-stone-600`}>
             En clair · {NIVEAUX[p.rationale_plain_evidence ?? "sortie_modele"].libelle}
           </p>
-          <p className="text-base text-slate-800 leading-relaxed mt-1.5">{p.rationale_plain}</p>
-          <p className="text-xs text-slate-600 mt-2">
+          <p className="text-base text-stone-800 leading-relaxed mt-1.5">{p.rationale_plain}</p>
+          <p className="text-xs text-stone-600 mt-2">
             {NIVEAUX.sortie_modele.detail}
           </p>
         </div>
@@ -306,11 +306,11 @@ function Fiche({ proposition: p, onDecide }: { proposition: Proposition; onDecid
 
       <Raisonnement texte={p.rationale_md} />
 
-      <p className="text-xs text-slate-600">{niveau.detail}</p>
+      <p className="text-xs text-stone-600">{niveau.detail}</p>
 
       {p.source_urls.length > 0 && (
         <div>
-          <p className={`${SURTITRE} text-slate-600`}>Sources</p>
+          <p className={`${SURTITRE} text-stone-600`}>Sources</p>
           <ul className="mt-1.5 space-y-1">
             {p.source_urls.map((u) => (
               <li key={u}>
@@ -331,7 +331,7 @@ function Fiche({ proposition: p, onDecide }: { proposition: Proposition; onDecid
       {p.status === "pending" ? (
         <div className="space-y-3 pt-1">
           <label className="block">
-            <span className="text-sm text-slate-700">Note (facultative)</span>
+            <span className="text-sm text-stone-700">Note (facultative)</span>
             <input
               type="text"
               value={note}
@@ -362,7 +362,7 @@ function Fiche({ proposition: p, onDecide }: { proposition: Proposition; onDecid
         </div>
       ) : (
         p.decision_note && (
-          <p className="text-sm text-slate-600 border-l-4 border-slate-200 pl-3">
+          <p className="text-sm text-stone-600 border-l-4 border-stone-200 pl-3">
             Votre note : {p.decision_note}
           </p>
         )
@@ -411,10 +411,10 @@ function Raisonnement({ texte }: { texte: string }) {
         i += 1;
       }
       sortie.push(
-        <ul key={`u${i}`} className="space-y-1 text-base text-slate-700 leading-relaxed">
+        <ul key={`u${i}`} className="space-y-1 text-base text-stone-700 leading-relaxed">
           {points.map((p, k) => (
             <li key={k} className="flex gap-2">
-              <span aria-hidden className="text-slate-400">
+              <span aria-hidden className="text-stone-400">
                 —
               </span>
               <span>{gras(p)}</span>
@@ -426,7 +426,7 @@ function Raisonnement({ texte }: { texte: string }) {
     }
 
     sortie.push(
-      <p key={`p${i}`} className="text-base text-slate-700 leading-relaxed">
+      <p key={`p${i}`} className="text-base text-stone-700 leading-relaxed">
         {gras(l)}
       </p>,
     );
@@ -448,7 +448,7 @@ function Tableau({ lignes }: { lignes: string[] }) {
         <thead>
           <tr>
             {entete?.map((c, k) => (
-              <th key={k} scope="col" className="text-left font-semibold text-slate-700 py-1.5 pr-4">
+              <th key={k} scope="col" className="text-left font-semibold text-stone-700 py-1.5 pr-4">
                 {c}
               </th>
             ))}
@@ -456,9 +456,9 @@ function Tableau({ lignes }: { lignes: string[] }) {
         </thead>
         <tbody>
           {corps.map((r, k) => (
-            <tr key={k} className="border-t border-slate-200">
+            <tr key={k} className="border-t border-stone-200">
               {r.map((c, j) => (
-                <td key={j} className="py-1.5 pr-4 text-slate-700 tabular-nums">
+                <td key={j} className="py-1.5 pr-4 text-stone-700 tabular-nums">
                   {c}
                 </td>
               ))}
@@ -477,7 +477,7 @@ function gras(s: string): JSX.Element {
     <>
       {parts.map((p, k) =>
         k % 2 === 1 ? (
-          <strong key={k} className="font-semibold text-slate-900">
+          <strong key={k} className="font-semibold text-stone-900">
             {p}
           </strong>
         ) : (

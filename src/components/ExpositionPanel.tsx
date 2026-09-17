@@ -16,22 +16,22 @@ import { CARTE } from "../lib/theme";
 
 function Barre({ lignes }: { lignes: LigneExposition[] }) {
   if (lignes.length === 0) {
-    return <p className="text-xs text-slate-500">Donnée indisponible.</p>;
+    return <p className="text-xs text-stone-500">Donnée indisponible.</p>;
   }
   return (
     <ul className="space-y-1.5">
       {lignes.map((l) => (
         <li key={l.cle} className="text-sm">
-          <div className="flex justify-between gap-3 text-slate-600">
+          <div className="flex justify-between gap-3 text-stone-600">
             <span className="truncate">{l.libelle}</span>
-            <span className="tabular-nums shrink-0 text-slate-500">
+            <span className="tabular-nums shrink-0 text-stone-500">
               {l.partPct.toFixed(0)} %{" "}
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-stone-500">
                 ({formatEur(l.montantEur)})
               </span>
             </span>
           </div>
-          <div className="mt-0.5 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+          <div className="mt-0.5 h-1.5 rounded-full bg-stone-100 overflow-hidden">
             <div
               className="h-full rounded-full bg-indigo-400"
               style={{ width: `${Math.min(100, l.partPct)}%` }}
@@ -63,8 +63,8 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
   return (
     <div className={`${CARTE} p-5 space-y-4`}>
       <div>
-        <h3 className="font-semibold text-slate-800">Votre exposition</h3>
-        <p className="text-sm text-slate-500 leading-relaxed mt-1">
+        <h3 className="font-semibold text-stone-800">Votre exposition</h3>
+        <p className="text-sm text-stone-500 leading-relaxed mt-1">
           Ce que vos {e.positions} positions ouvertes représentent une fois
           additionnées — {formatEur(e.totalEur)} engagés. Plusieurs lignes ne
           font pas une répartition : c'est ici que ça se voit.
@@ -86,18 +86,18 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <p className="text-xs uppercase tracking-wide text-slate-500">
+          <p className="text-xs uppercase tracking-wide text-stone-500">
             Par place de cotation
           </p>
           <Barre lignes={e.parPays} />
         </div>
         <div className="space-y-1.5">
-          <p className="text-xs uppercase tracking-wide text-slate-500">
+          <p className="text-xs uppercase tracking-wide text-stone-500">
             Par devise
           </p>
           <Barre lignes={e.parDevise} />
           {e.horsEuroPct > 0 && (
-            <p className="text-sm text-slate-500 leading-relaxed">
+            <p className="text-sm text-stone-500 leading-relaxed">
               {e.horsEuroPct.toFixed(0)} % hors zone euro : sur cette part, le
               taux de change compte autant que le cours, et la conversion se
               paie à l'aller comme au retour.
@@ -107,12 +107,12 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
       </div>
 
       <div className="space-y-1.5">
-        <p className="text-xs uppercase tracking-wide text-slate-500">
+        <p className="text-xs uppercase tracking-wide text-stone-500">
           Par secteur
         </p>
         <Barre lignes={e.parSecteur} />
         {e.secteurInconnuPct > 0 && (
-          <p className="text-sm text-slate-500 leading-relaxed">
+          <p className="text-sm text-stone-500 leading-relaxed">
             Secteur inconnu pour {e.secteurInconnuPct.toFixed(0)} % du total :
             il n'est repris que sur les simulations parties d'une piste. Les
             données de cotation publiques ne l'exposent pas librement, et une
@@ -122,7 +122,7 @@ export default function ExpositionPanel({ sims }: { sims: Simulation[] }) {
         )}
       </div>
 
-      <p className="text-sm text-slate-500 leading-relaxed border-t border-slate-100 pt-3">
+      <p className="text-sm text-stone-500 leading-relaxed border-t border-stone-100 pt-3">
         Ces chiffres décrivent ce que vous avez déjà engagé. Ils ne disent pas
         qu'une répartition serait meilleure qu'une autre, et ne constituent pas
         un conseil.

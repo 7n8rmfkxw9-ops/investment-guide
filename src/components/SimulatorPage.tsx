@@ -313,15 +313,15 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
             🎓
           </span>
           <div className="space-y-2">
-            <h2 className="font-semibold text-slate-800">
+            <h2 className="font-semibold text-stone-800">
               S'entraîner sans risquer un euro
             </h2>
-            <p className="text-base text-slate-600 leading-relaxed">
+            <p className="text-base text-stone-600 leading-relaxed">
               Enregistrez un achat <strong>fictif</strong> : l'outil retient le cours
               réel du jour choisi, puis suit ce que votre décision aurait donné. Rien
               n'est acheté, aucun compte n'est débité, aucun courtier n'est connecté.
             </p>
-            <p className="text-base text-slate-600 leading-relaxed">
+            <p className="text-base text-stone-600 leading-relaxed">
               Trois choses à observer : les <strong>frais</strong>, qui vous font
               partir perdant ; le <strong>temps</strong>, car quelques jours ne
               prouvent rien ; et la <strong>comparaison</strong> avec un ETF mondial,
@@ -350,8 +350,8 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
       {bilan.nombre > 0 && (
         <div className={`${CARTE} p-5 space-y-3`}>
           <div className="flex items-baseline justify-between gap-3">
-            <h3 className="font-semibold text-slate-800">Votre bilan d'entraînement</h3>
-            <span className="text-xs text-slate-500">
+            <h3 className="font-semibold text-stone-800">Votre bilan d'entraînement</h3>
+            <span className="text-xs text-stone-500">
               {bilan.nombre} simulation{bilan.nombre > 1 ? "s" : ""}
             </span>
           </div>
@@ -374,7 +374,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
             />
           </div>
           {bilan.gainRef != null && (
-            <p className="text-base text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+            <p className="text-base text-stone-600 leading-relaxed border-t border-stone-100 pt-3">
               Les mêmes sommes placées les mêmes jours sur un ETF mondial auraient
               donné{" "}
               <strong className={couleurResultat(bilan.gainRef)}>
@@ -413,7 +413,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
       {ouvert && (
         <form onSubmit={enregistrer} className={`${CARTE} p-5 space-y-4`}>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-stone-700">
               Quelle société ou quel ETF ?
             </label>
             <div className="flex gap-2">
@@ -442,11 +442,11 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
 
           {candidats && candidats.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-stone-500">
                 Une même société est cotée sur plusieurs places. Choisissez celle de
                 votre marché : c'est le cours et la devise qui changent.
               </p>
-              <ul className="divide-y divide-slate-100 border border-slate-200/70 rounded-xl overflow-hidden">
+              <ul className="divide-y divide-stone-100 border border-stone-200/70 rounded-xl overflow-hidden">
                 {candidats.map((c) => (
                   <li key={c.symbole}>
                     <button
@@ -455,12 +455,12 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
                       className={`w-full text-left px-3.5 py-2.5 text-sm transition ${
                         choisi?.symbole === c.symbole
                           ? "bg-indigo-50 text-indigo-900"
-                          : "hover:bg-slate-50"
+                          : "hover:bg-stone-50"
                       }`}
                     >
                       <span className="font-medium">{c.nom || c.symbole}</span>
-                      <span className="text-slate-500"> · {c.symbole}</span>
-                      <span className="block text-xs text-slate-500">
+                      <span className="text-stone-500"> · {c.symbole}</span>
+                      <span className="block text-xs text-stone-500">
                         {c.place} · {c.type}
                       </span>
                     </button>
@@ -472,7 +472,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
 
           <div className="flex flex-wrap gap-3">
             <label className="text-sm">
-              <span className="block text-xs text-slate-500 mb-1">Montant (€)</span>
+              <span className="block text-xs text-stone-500 mb-1">Montant (€)</span>
               <input
                 className={`${CHAMP} w-32`}
                 value={montant}
@@ -481,7 +481,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               />
             </label>
             <label className="text-sm">
-              <span className="block text-xs text-slate-500 mb-1">
+              <span className="block text-xs text-stone-500 mb-1">
                 Date de l'achat fictif
               </span>
               <input
@@ -493,7 +493,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               />
             </label>
           </div>
-          <p className="text-sm text-slate-500 leading-relaxed">
+          <p className="text-sm text-stone-500 leading-relaxed">
             Vous pouvez choisir une date passée pour voir ce qu'un achat d'il y a
             trois mois aurait donné. Choisir la date après coup en sachant ce qui
             s'est produit ne prouve rien — l'exercice n'a de valeur que si vous
@@ -501,7 +501,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
           </p>
 
           <label className="block text-sm">
-            <span className="block text-xs text-slate-500 mb-1">
+            <span className="block text-xs text-stone-500 mb-1">
               Pourquoi ce choix ? (à relire plus tard)
             </span>
             <textarea
@@ -513,7 +513,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
           </label>
 
           <label className="block text-sm">
-            <span className="block text-xs text-slate-500 mb-1">
+            <span className="block text-xs text-stone-500 mb-1">
               À quelle condition vendriez-vous ?
             </span>
             <textarea
@@ -522,7 +522,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
               value={regleSortie}
               onChange={(e) => setRegleSortie(e.target.value)}
             />
-            <span className="block text-sm text-slate-500 mt-1 leading-relaxed">
+            <span className="block text-sm text-stone-500 mt-1 leading-relaxed">
               Écrire la sortie <strong>avant</strong> l'entrée est ce qui
               distingue une décision d'une réaction. Une fois le cours en
               baisse, tout le monde trouve de bonnes raisons d'attendre encore.
@@ -530,8 +530,8 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
           </label>
 
           {coursTrouve && apercu && (
-            <div className="bg-slate-50 border border-slate-200/70 rounded-xl p-4 space-y-2 text-sm">
-              <p className="text-slate-700">
+            <div className="bg-stone-50 border border-stone-200/70 rounded-xl p-4 space-y-2 text-sm">
+              <p className="text-stone-700">
                 Cours retenu :{" "}
                 <strong>
                   {coursTrouve.prix.toLocaleString("fr-FR", {
@@ -540,7 +540,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
                   {coursTrouve.devise}
                 </strong>
                 {coursTrouve.dateReelle && coursTrouve.dateReelle !== date && (
-                  <span className="text-slate-500">
+                  <span className="text-stone-500">
                     {" "}
                     — dernière clôture connue, celle du{" "}
                     {new Date(coursTrouve.dateReelle).toLocaleDateString("fr-FR")} (la
@@ -549,14 +549,14 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
                   </span>
                 )}
                 {coursTrouve.devise !== "EUR" && (
-                  <span className="text-slate-500">
+                  <span className="text-stone-500">
                     {" "}
                     · 1 € = {coursTrouve.tauxEur.toFixed(2).replace(".", ",")}{" "}
                     {coursTrouve.devise}
                   </span>
                 )}
               </p>
-              <ul className="text-slate-600 space-y-1">
+              <ul className="text-stone-600 space-y-1">
                 <li>
                   Frais et taxe prélevés à l'achat :{" "}
                   <strong className="text-amber-700">
@@ -598,11 +598,11 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
         </form>
       )}
 
-      {chargement && <p className="text-sm text-slate-500">Chargement…</p>}
+      {chargement && <p className="text-sm text-stone-500">Chargement…</p>}
 
       {!chargement && sims.length === 0 && !ouvert && (
-        <div className={`${CARTE} p-6 text-sm text-slate-500 leading-relaxed`}>
-          <p className="text-slate-700 font-medium mb-1.5">
+        <div className={`${CARTE} p-6 text-sm text-stone-500 leading-relaxed`}>
+          <p className="text-stone-700 font-medium mb-1.5">
             Aucune simulation pour l'instant.
           </p>
           <p>
@@ -615,7 +615,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
 
       {ouvertes.length > 0 && (
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wide">
             En cours
           </h3>
           {ouvertes.map((s) => (
@@ -634,7 +634,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
 
       {fermees.length > 0 && (
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+          <h3 className="text-sm font-semibold text-stone-500 uppercase tracking-wide">
             Clôturées
           </h3>
           {fermees.map((s) => (
@@ -650,7 +650,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
         </section>
       )}
 
-      <p className="text-sm text-slate-500 leading-relaxed">
+      <p className="text-sm text-stone-500 leading-relaxed">
         Les cours proviennent d'un service public de données de marché et peuvent
         être différés. Ils servent uniquement à valoriser un exercice : cet outil ne
         passe aucun ordre et ne se connecte à aucun courtier. {DISCLAIMER}
@@ -662,7 +662,7 @@ export default function SimulatorPage({ amorce, onAmorceConsommee }: Props) {
 function Chiffre({
   libelle,
   valeur,
-  couleur = "text-slate-800",
+  couleur = "text-stone-800",
 }: {
   libelle: string;
   valeur: string;
@@ -670,7 +670,7 @@ function Chiffre({
 }) {
   return (
     <div>
-      <p className="text-xs text-slate-500">{libelle}</p>
+      <p className="text-xs text-stone-500">{libelle}</p>
       <p className={`text-lg font-semibold tabular-nums ${couleur}`}>{valeur}</p>
     </div>
   );
@@ -697,14 +697,14 @@ function CarteSimulation({
 
   return (
     <article className={`${CARTE} overflow-hidden`}>
-      <div className={`h-1 ${r.enAttente ? "bg-slate-300" : r.gainEur >= 0 ? "bg-emerald-500" : "bg-rose-500"}`} />
+      <div className={`h-1 ${r.enAttente ? "bg-stone-300" : r.gainEur >= 0 ? "bg-emerald-500" : "bg-rose-500"}`} />
       <div className="p-5 space-y-3.5">
         <header className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h4 className="font-semibold text-slate-800 leading-snug">
+            <h4 className="font-semibold text-stone-800 leading-snug">
               {sim.company_name}
             </h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-stone-500">
               {sim.symbole} · achat fictif du{" "}
               {new Date(sim.date_entree).toLocaleDateString("fr-FR")} ·{" "}
               {r.jours} jour{r.jours > 1 ? "s" : ""}
@@ -727,12 +727,12 @@ function CarteSimulation({
         </header>
 
         {r.enAttente ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-stone-500">
             Valorisation pas encore récupérée. Utilisez « Actualiser les cours ».
           </p>
         ) : (
           <div className={`rounded-xl border px-4 py-3 text-sm ${fondResultat(r.gainEur)}`}>
-            <p className="text-slate-700">
+            <p className="text-stone-700">
               Vous avez engagé <strong>{formatEur(r.engageEur)}</strong>. Si vous
               revendiez {cloturee ? "au moment de la clôture" : "aujourd'hui"}, il
               vous resterait <strong>{formatEur(r.netEur)}</strong>, frais de vente
@@ -742,7 +742,7 @@ function CarteSimulation({
         )}
 
         {sim.note && (
-          <p className="text-sm text-slate-600 italic leading-relaxed border-l-2 border-slate-200 pl-3">
+          <p className="text-sm text-stone-600 italic leading-relaxed border-l-2 border-stone-200 pl-3">
             « {sim.note} »
           </p>
         )}
@@ -752,7 +752,7 @@ function CarteSimulation({
             <p className="text-xs uppercase tracking-wide text-amber-700">
               Votre règle de sortie
             </p>
-            <p className="text-slate-600 leading-relaxed">« {sim.regle_sortie} »</p>
+            <p className="text-stone-600 leading-relaxed">« {sim.regle_sortie} »</p>
           </div>
         )}
 
@@ -766,7 +766,7 @@ function CarteSimulation({
             </button>
 
             {detail && (
-              <div className="bg-slate-50 rounded-xl p-4 space-y-2.5 text-sm">
+              <div className="bg-stone-50 rounded-xl p-4 space-y-2.5 text-sm">
                 <Ligne
                   libelle="Somme engagée"
                   valeur={formatEur(r.engageEur)}
@@ -792,7 +792,7 @@ function CarteSimulation({
                   gras
                 />
 
-                <p className="text-slate-600 leading-relaxed pt-1.5 border-t border-slate-200">
+                <p className="text-stone-600 leading-relaxed pt-1.5 border-t border-stone-200">
                   Le cours a varié de{" "}
                   <strong className={couleurResultat(r.variationCoursPct)}>
                     {formatPct(r.variationCoursPct)}
@@ -818,7 +818,7 @@ function CarteSimulation({
                 </p>
 
                 {r.referenceGainEur != null && (
-                  <p className="text-slate-600 leading-relaxed pt-1.5 border-t border-slate-200">
+                  <p className="text-stone-600 leading-relaxed pt-1.5 border-t border-stone-200">
                     La même somme, le même jour, sur un ETF actions mondiales aurait
                     donné{" "}
                     <strong className={couleurResultat(r.referenceGainEur)}>
@@ -837,7 +837,7 @@ function CarteSimulation({
                 )}
 
                 {sim.prix_maj_at && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-stone-500">
                     Cours du{" "}
                     {new Date(sim.prix_maj_at).toLocaleString("fr-FR", {
                       dateStyle: "short",
@@ -855,14 +855,14 @@ function CarteSimulation({
           {onCloturer && !r.enAttente && (
             <button
               onClick={onCloturer}
-              className="text-xs font-medium text-slate-600 hover:text-slate-900"
+              className="text-xs font-medium text-stone-600 hover:text-stone-900"
             >
               Clôturer (revente fictive)
             </button>
           )}
           <button
             onClick={onSupprimer}
-            className="text-xs text-slate-500 hover:text-rose-700 ml-auto"
+            className="text-xs text-stone-500 hover:text-rose-700 ml-auto"
           >
             Supprimer
           </button>
@@ -875,7 +875,7 @@ function CarteSimulation({
 function Ligne({
   libelle,
   valeur,
-  couleur = "text-slate-800",
+  couleur = "text-stone-800",
   gras = false,
 }: {
   libelle: string;
@@ -885,7 +885,7 @@ function Ligne({
 }) {
   return (
     <div className="flex justify-between gap-3">
-      <span className="text-slate-500">{libelle}</span>
+      <span className="text-stone-500">{libelle}</span>
       <span className={`tabular-nums ${couleur} ${gras ? "font-semibold" : ""}`}>
         {valeur}
       </span>

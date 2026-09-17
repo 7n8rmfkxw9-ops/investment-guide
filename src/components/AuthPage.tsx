@@ -35,7 +35,7 @@ export default function AuthPage() {
         className="bg-white rounded-lg shadow p-6 w-full max-w-sm space-y-4"
       >
         <h1 className="text-lg font-semibold">Veille investissement</h1>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Outil personnel — usage strictement individuel.
         </p>
         <input
@@ -66,7 +66,7 @@ export default function AuthPage() {
         </button>
         <button
           type="button"
-          className="w-full text-xs text-slate-500 hover:text-slate-800"
+          className="w-full text-xs text-stone-500 hover:text-stone-800"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
         >
           {mode === "signin"

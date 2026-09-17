@@ -23,8 +23,8 @@ function Section({
 }) {
   return (
     <section className={`${CARTE} p-5 space-y-3`}>
-      <h2 className="font-semibold text-slate-800">{titre}</h2>
-      <div className="text-base text-slate-600 leading-relaxed space-y-3">
+      <h2 className="font-semibold text-stone-800">{titre}</h2>
+      <div className="text-base text-stone-600 leading-relaxed space-y-3">
         {children}
       </div>
     </section>
@@ -77,20 +77,20 @@ export default function InvestPage() {
 
       <Section titre="Une action ou un ETF ? La question la plus importante quand on débute">
         <p>
-          <strong className="text-slate-800">Acheter une action</strong>, c'est
+          <strong className="text-stone-800">Acheter une action</strong>, c'est
           miser sur une seule entreprise. Si elle chute de 40 %, votre argent
           chute de 40 %. Avec 50 €, vous ne pouvez raisonnablement en acheter
           qu'une ou deux : tout repose alors sur très peu de sociétés.
         </p>
         <p>
-          <strong className="text-slate-800">Acheter un ETF</strong>, c'est
+          <strong className="text-stone-800">Acheter un ETF</strong>, c'est
           acheter d'un coup un panier de centaines d'entreprises. Une faillite
           isolée devient indolore. C'est la façon la plus courante de commencer
           avec de petites sommes régulières, et c'est ce que recommandent la
           plupart des sources publiques d'éducation financière — dont Wikifin, le
           site de la FSMA, l'autorité belge des marchés financiers.
         </p>
-        <p className="bg-indigo-50 border border-indigo-200/70 rounded-xl p-4 text-slate-700">
+        <p className="bg-indigo-50 border border-indigo-200/70 rounded-xl p-4 text-stone-700">
           Une façon saine d'utiliser cet outil : garder l'essentiel de votre
           épargne sur un placement diversifié et n'utiliser qu'une petite part,
           que vous acceptez de perdre entièrement, pour les pistes qui vous
@@ -105,7 +105,7 @@ export default function InvestPage() {
         </p>
         <div className="flex flex-wrap gap-3">
           <label className="text-sm">
-            <span className="block text-xs text-slate-500 mb-1">
+            <span className="block text-xs text-stone-500 mb-1">
               Somme investie (€)
             </span>
             <input
@@ -116,7 +116,7 @@ export default function InvestPage() {
             />
           </label>
           <label className="text-sm">
-            <span className="block text-xs text-slate-500 mb-1">
+            <span className="block text-xs text-stone-500 mb-1">
               Frais par ordre (€)
             </span>
             <input
@@ -127,7 +127,7 @@ export default function InvestPage() {
             />
           </label>
           <label className="text-sm">
-            <span className="block text-xs text-slate-500 mb-1">
+            <span className="block text-xs text-stone-500 mb-1">
               Taxe de bourse (%)
             </span>
             <input
@@ -145,7 +145,7 @@ export default function InvestPage() {
               : "bg-emerald-50 border-emerald-200"
           }`}
         >
-          <p className="text-slate-700">
+          <p className="text-stone-700">
             Les frais représentent <strong>{pct(impact.feePct)}</strong> de votre
             mise à l'achat. En comptant la revente, votre placement doit gagner
             environ <strong>{pct(impact.roundTripPct)}</strong> avant de vous
@@ -172,7 +172,7 @@ export default function InvestPage() {
         </p>
         <ul className="list-disc pl-5 space-y-2">
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               La taxe sur les opérations de bourse (TOB)
             </strong>{" "}
             est prélevée <strong>à chaque achat et à chaque vente</strong>. Son
@@ -181,14 +181,14 @@ export default function InvestPage() {
             cela que le calcul ci-dessus permet de la saisir.
           </li>
           <li>
-            <strong className="text-slate-800">Le précompte mobilier</strong> de
+            <strong className="text-stone-800">Le précompte mobilier</strong> de
             30 % est retenu sur les dividendes que vous recevez. Une première
             tranche de dividendes d'actions est exonérée chaque année, mais
             elle se récupère via votre déclaration fiscale — beaucoup de gens
             l'oublient.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               L'impôt sur les plus-values
             </strong>{" "}
             existe en Belgique depuis 2026 : les gains réalisés à la revente
@@ -197,14 +197,14 @@ export default function InvestPage() {
             vous en serez très probablement loin.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               La taxe annuelle sur les comptes-titres
             </strong>{" "}
             ne vise que les portefeuilles de plus d'un million d'euros : elle ne
             vous concerne pas au départ.
           </li>
         </ul>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Ces règles ont changé récemment et les montants sont indexés. Vérifiez
           sur{" "}
           <a
@@ -228,14 +228,14 @@ export default function InvestPage() {
         </p>
         <ul className="list-disc pl-5 space-y-2">
           <li>
-            <strong className="text-slate-800">La devise.</strong> Acheter une
+            <strong className="text-stone-800">La devise.</strong> Acheter une
             action américaine implique de convertir des euros en dollars. Votre
             courtier prélève souvent une commission de change, parfois discrète
             dans sa grille tarifaire, et la valeur de votre placement bougera
             aussi avec le taux de change — dans les deux sens.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               La retenue à la source sur les dividendes.
             </strong>{" "}
             Les dividendes américains subissent une retenue aux États-Unis avant
@@ -253,7 +253,7 @@ export default function InvestPage() {
       <Section titre="Choisir un courtier : les 4 points à vérifier">
         <ol className="list-decimal pl-5 space-y-2">
           <li>
-            <strong className="text-slate-800">Qu'il soit bien agréé.</strong>{" "}
+            <strong className="text-stone-800">Qu'il soit bien agréé.</strong>{" "}
             C'est le point vital, celui qui vous protège des arnaques. Vérifiez
             son nom dans les registres officiels de la{" "}
             <a
@@ -277,24 +277,24 @@ export default function InvestPage() {
             convaincre, fuyez.
           </li>
           <li>
-            <strong className="text-slate-800">Le coût par ordre.</strong>{" "}
+            <strong className="text-stone-800">Le coût par ordre.</strong>{" "}
             Reprenez le calcul ci-dessus avec leur tarif réel.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               Les fractions d'actions.
             </strong>{" "}
             Indispensable si vous voulez investir 50 € sur une action qui en
             vaut 250. Tous les courtiers ne le proposent pas.
           </li>
           <li>
-            <strong className="text-slate-800">
+            <strong className="text-stone-800">
               L'accès à Euronext Bruxelles et à la bourse américaine
             </strong>
             , ainsi que les frais de change euro/dollar, souvent oubliés.
           </li>
         </ol>
-        <p className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <p className="bg-stone-50 border border-stone-200 rounded-xl p-3">
           Les tarifs changent trop souvent pour qu'une comparaison chiffrée reste
           fiable ici : vérifiez-les toujours sur le site du courtier au moment de
           choisir. La liste ci-dessous n'est ni exhaustive ni un classement — ce
@@ -317,14 +317,14 @@ export default function InvestPage() {
               href={p.lien}
               target="_blank"
               rel="noreferrer"
-              className="block rounded-xl border border-slate-200/70 bg-white p-4 hover:border-indigo-300 transition"
+              className="block rounded-xl border border-stone-200/70 bg-white p-4 hover:border-indigo-300 transition"
             >
-              <p className="font-medium text-slate-800">{p.nom} ↗</p>
-              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{p.note}</p>
+              <p className="font-medium text-stone-800">{p.nom} ↗</p>
+              <p className="text-sm text-stone-500 mt-1 leading-relaxed">{p.note}</p>
             </a>
           ))}
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Avant tout dépôt, vérifiez le nom exact de l'entité dans le{" "}
           <a
             className="text-indigo-700 underline decoration-indigo-300 hover:decoration-indigo-600"
@@ -347,7 +347,7 @@ export default function InvestPage() {
           volontaire, et cela garantit que la décision reste entièrement la
           vôtre.
         </p>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-stone-500">
           Ceci n'est pas un conseil en investissement. Les informations de cette
           page sont générales et ne tiennent pas compte de votre situation
           personnelle. En cas de doute, consultez un conseiller agréé.

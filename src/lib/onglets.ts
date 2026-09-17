@@ -5,9 +5,15 @@
  * le reste dans une feuille « Plus » qui les montre toutes d'un coup au lieu de
  * les faire defiler.
  *
- * Le choix des quatre : ce que l'on consulte souvent (les pistes), ce qui
- * demande une decision (a valider), ce qui fait progresser (s'entrainer) et ce
- * qui se lit regulierement (le journal).
+ * Le choix des quatre : la reponse a « qu'est-ce que je fais ce mois-ci »
+ * (aujourd'hui), ce qui demande une decision (a valider), ce qui fait
+ * progresser (s'entrainer) et ce qui se lit regulierement (le journal).
+ *
+ * « Aujourd'hui » est l'ecran d'ouverture. L'application ouvrait sur la liste
+ * des declarations boursieres reperees : c'est une information, pas une
+ * reponse. Quelqu'un qui ouvre son outil de patrimoine se demande d'abord
+ * combien il peut mettre de cote, pas quel fonds americain a declare quoi.
+ * Les pistes restent a un geste, dans la feuille.
  *
  * ---------------------------------------------------------------------------
  * Pourquoi neuf destinations et non quatorze
@@ -32,6 +38,7 @@
  */
 
 export type Onglet =
+  | "accueil"
   | "pistes"
   | "propositions"
   | "simuler"
@@ -60,10 +67,10 @@ export const MAX_ONGLETS_PRINCIPAUX = 5;
 
 export const ONGLETS_PRINCIPAUX: DefinitionOnglet[] = [
   {
-    id: "pistes",
-    label: "Pistes",
-    icone: "📡",
-    detail: "Les déclarations repérées, et ce que les précédentes sont devenues.",
+    id: "accueil",
+    label: "Aujourd'hui",
+    icone: "🏡",
+    detail: "Combien vous pouvez investir ce mois-ci, et pourquoi ce montant.",
   },
   {
     id: "propositions",
@@ -97,6 +104,12 @@ export const ONGLETS_SECONDAIRES: DefinitionOnglet[] = [
     label: "Comprendre",
     icone: "📖",
     detail: "À quoi sert l'outil, et comment investir depuis la Belgique.",
+  },
+  {
+    id: "pistes",
+    label: "Pistes",
+    icone: "📡",
+    detail: "Les déclarations repérées, et ce que les précédentes sont devenues.",
   },
   {
     id: "donnees",

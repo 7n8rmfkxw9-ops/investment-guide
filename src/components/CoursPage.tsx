@@ -95,20 +95,20 @@ export default function CoursPage() {
   if (!programme) {
     return (
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-slate-900">Comprendre</h2>
+        <h2 className="text-2xl font-semibold text-stone-900">Comprendre</h2>
         {chargement ? (
-          <p className="text-base text-slate-600" role="status">
+          <p className="text-base text-stone-600" role="status">
             Chargement du programme…
           </p>
         ) : (
           <div className={`${CARTE} p-5 space-y-2`}>
-            <p className="text-base text-slate-700 leading-relaxed">
+            <p className="text-base text-stone-700 leading-relaxed">
               Le programme n'a pas pu être chargé et aucune version n'est
               enregistrée sur cet appareil. Il faut une connexion pour la
               première lecture ; ensuite, les chapitres restent consultables
               hors ligne.
             </p>
-            {erreur && <p className="text-sm text-slate-500">Détail : {erreur}</p>}
+            {erreur && <p className="text-sm text-stone-500">Détail : {erreur}</p>}
           </div>
         )}
       </div>
@@ -120,10 +120,10 @@ export default function CoursPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h2 className="text-2xl font-semibold text-slate-900">
+        <h2 className="text-2xl font-semibold text-stone-900">
           Comprendre, à partir des travaux publiés
         </h2>
-        <p className="text-base text-slate-500 leading-snug">
+        <p className="text-base text-stone-500 leading-snug">
           {programme.chapitres.length} chapitres en {programme.parties.length} parties,{" "}
           {dureeTotale(programme)} minutes, {nombreReferences(programme)} références
           vérifiées une par une. Chaque chapitre finit par un quiz.
@@ -131,7 +131,7 @@ export default function CoursPage() {
       </header>
 
       {erreur && (
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-stone-600">
           Contenu affiché depuis cet appareil : la dernière mise à jour n'a pas pu
           être récupérée.
         </p>
@@ -140,13 +140,13 @@ export default function CoursPage() {
       {lus.length > 0 && (
         <div className={`${CARTE} p-4 space-y-2`}>
           <div className="flex items-baseline justify-between gap-3">
-            <span className={`${SURTITRE} text-slate-500`}>Votre progression</span>
-            <span className="text-sm text-slate-600 tabular-nums">
+            <span className={`${SURTITRE} text-stone-500`}>Votre progression</span>
+            <span className="text-sm text-stone-600 tabular-nums">
               {lus.length} / {programme.chapitres.length}
             </span>
           </div>
           <div
-            className="h-2 rounded-full bg-slate-100 overflow-hidden"
+            className="h-2 rounded-full bg-stone-100 overflow-hidden"
             role="progressbar"
             aria-valuenow={progression}
             aria-valuemin={0}
@@ -158,7 +158,7 @@ export default function CoursPage() {
               style={{ width: `${progression}%` }}
             />
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-stone-500">
             Enregistrée dans ce navigateur uniquement, jamais envoyée.
           </p>
         </div>
@@ -169,9 +169,9 @@ export default function CoursPage() {
       {programme.parties.map((partie) => (
         <section key={partie.cle} className="space-y-3">
           <div>
-            <h3 className="text-lg font-semibold text-slate-900">{partie.titre}</h3>
+            <h3 className="text-lg font-semibold text-stone-900">{partie.titre}</h3>
             {partie.sousTitre && (
-              <p className="text-sm text-slate-500 leading-snug">{partie.sousTitre}</p>
+              <p className="text-sm text-stone-500 leading-snug">{partie.sousTitre}</p>
             )}
           </div>
           <ol className="space-y-3">
@@ -188,20 +188,20 @@ export default function CoursPage() {
                     >
                       <span
                         className={`shrink-0 grid h-10 w-10 place-items-center rounded-2xl text-base font-semibold tabular-nums ${
-                          lu ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
+                          lu ? "bg-emerald-100 text-emerald-800" : "bg-stone-100 text-stone-600"
                         }`}
                         aria-hidden
                       >
                         {lu ? "✓" : c.numero}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-lg font-semibold text-slate-900 leading-snug">
+                        <span className="block text-lg font-semibold text-stone-900 leading-snug">
                           {c.titre}
                         </span>
-                        <span className="block text-sm text-slate-500 leading-normal mt-1">
+                        <span className="block text-sm text-stone-500 leading-normal mt-1">
                           {c.question}
                         </span>
-                        <span className="block text-xs text-slate-500 mt-1.5 tabular-nums">
+                        <span className="block text-xs text-stone-500 mt-1.5 tabular-nums">
                           {c.blocs.length} écrans · {c.minutes} min ·{" "}
                           {c.etudes.length > 0
                             ? `${c.etudes.length} source${c.etudes.length > 1 ? "s" : ""}`
@@ -250,7 +250,7 @@ export default function CoursPage() {
         </p>
       </Repliable>
 
-      <p className="text-sm text-slate-500 leading-relaxed">
+      <p className="text-sm text-stone-500 leading-relaxed">
         Ces cours sont un contenu pédagogique et ne constituent pas un conseil
         en investissement. Ils décrivent des résultats de recherche et leurs
         limites ; ils ne tiennent pas compte de votre situation personnelle. Les
